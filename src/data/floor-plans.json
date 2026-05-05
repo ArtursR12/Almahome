@@ -1,0 +1,53 @@
+{
+  "_comment": "Polygons are placeholders. Generate real coordinates with polygon-helper.html and replace each TODO_REPLACE_WITH_REAL_COORDS string. image_width/image_height must match the actual /public/images/floor-plans/floor-N.jpg dimensions.",
+  "floors": [
+    {
+      "floor": 1,
+      "image": "/images/floor-plans/floor-1.jpg",
+      "image_width": 1920,
+      "image_height": 1080,
+      "apartments": [
+        { "number": 1, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 2, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 3, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 4, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 5, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 6, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 7, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 8, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" }
+      ]
+    },
+    {
+      "floor": 2,
+      "image": "/images/floor-plans/floor-2.jpg",
+      "image_width": 1920,
+      "image_height": 1080,
+      "apartments": [
+        { "number": 9,  "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 10, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 11, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 12, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 13, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 14, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 15, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 16, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" }
+      ]
+    },
+    {
+      "floor": 3,
+      "image": "/images/floor-plans/floor-3.jpg",
+      "image_width": 1920,
+      "image_height": 1080,
+      "apartments": [
+        { "number": 17, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 18, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 19, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 20, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 21, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 22, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 23, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" },
+        { "number": 24, "polygon": "TODO_REPLACE_WITH_REAL_COORDS" }
+      ]
+    }
+  ]
+}

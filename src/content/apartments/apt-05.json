@@ -1,0 +1,19 @@
+{
+  "number": 5,
+  "floor": 1,
+  "rooms": 2,
+  "area_total": 85.0,
+  "price": 141000,
+  "has_terrace": true,
+  "has_balcony": false,
+  "status": "available",
+  "rooms_breakdown": [
+    { "name_lv": "Virtuve un istaba", "name_ru": "Кухня-гостиная", "name_en": "Kitchen-living room", "area": 32.0 },
+    { "name_lv": "Istaba", "name_ru": "Комната", "name_en": "Room", "area": 16.0 },
+    { "name_lv": "Vannas istaba", "name_ru": "Ванная", "name_en": "Bathroom", "area": 4.5 },
+    { "name_lv": "Terase", "name_ru": "Терраса", "name_en": "Terrace", "area": 22.0 }
+  ],
+  "floor_plan_image": "/images/floor-plans/apt-05.jpg",
+  "render_images": [],
+  "_comment": "TODO: проверить rooms_breakdown с реальным сайтом"
+}

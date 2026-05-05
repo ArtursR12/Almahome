@@ -1,0 +1,42 @@
+---
+// Temporary debug page — Stage 3 verification only. Remove before production.
+import { getCollection } from 'astro:content';
+import floorPlans from '@/data/floor-plans.json';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const apartments = (await getCollection('apartments')).sort(
+  (a, b) => a.data.number - b.data.number,
+);
+
+const counts = {
+  total: apartments.length,
+  byFloor: apartments.reduce<Record<number, number>>((acc, a) => {
+    acc[a.data.floor] = (acc[a.data.floor] ?? 0) + 1;
+    return acc;
+  }, {}),
+  byStatus: apartments.reduce<Record<string, number>>((acc, a) => {
+    acc[a.data.status] = (acc[a.data.status] ?? 0) + 1;
+    return acc;
+  }, {}),
+};
+---
+<BaseLayout title="Debug: apartments collection" noindex>
+  <main class="mx-auto max-w-[var(--container-max)] px-6 py-12 space-y-8">
+    <h1 class="font-serif text-3xl text-burgundy">Apartments collection — {counts.total}</h1>
+
+    <section>
+      <h2 class="font-serif text-xl text-burgundy mb-2">Counts</h2>
+      <pre class="bg-beige rounded p-4 text-sm overflow-auto">{JSON.stringify(counts, null, 2)}</pre>
+    </section>
+
+    <section>
+      <h2 class="font-serif text-xl text-burgundy mb-2">Floor plans</h2>
+      <pre class="bg-beige rounded p-4 text-sm overflow-auto">{JSON.stringify(floorPlans, null, 2)}</pre>
+    </section>
+
+    <section>
+      <h2 class="font-serif text-xl text-burgundy mb-2">All apartments</h2>
+      <pre class="bg-beige rounded p-4 text-xs overflow-auto">{JSON.stringify(apartments.map((a) => a.data), null, 2)}</pre>
+    </section>
+  </main>
+</BaseLayout>

@@ -1,0 +1,19 @@
+{
+  "number": 4,
+  "floor": 1,
+  "rooms": 2,
+  "area_total": 57.3,
+  "price": null,
+  "has_terrace": true,
+  "has_balcony": false,
+  "status": "available",
+  "rooms_breakdown": [
+    { "name_lv": "Virtuve un istaba", "name_ru": "Кухня-гостиная", "name_en": "Kitchen-living room", "area": 24.0 },
+    { "name_lv": "Istaba", "name_ru": "Комната", "name_en": "Room", "area": 12.0 },
+    { "name_lv": "Vannas istaba", "name_ru": "Ванная", "name_en": "Bathroom", "area": 4.0 },
+    { "name_lv": "Terase", "name_ru": "Терраса", "name_en": "Terrace", "area": 11.5 }
+  ],
+  "floor_plan_image": "/images/floor-plans/apt-04.jpg",
+  "render_images": [],
+  "_comment": "TODO: проверить rooms_breakdown с реальным сайтом"
+}
