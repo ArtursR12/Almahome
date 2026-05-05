@@ -1,10 +1,108 @@
 ---
-// TODO Stage 4: contacts, address, partner logos, copyright row.
 import Container from '@/components/ui/Container.astro';
+
+interface Props {
+  lang?: 'lv' | 'ru' | 'en';
+}
+const { lang = 'lv' } = Astro.props;
+
+const dict: Record<'lv' | 'ru' | 'en', {
+  tagline: string;
+  contactsTitle: string;
+  navTitle: string;
+  legalTitle: string;
+  privacy: string;
+  rights: string;
+  navItems: { label: string; href: string }[];
+}> = {
+  lv: {
+    tagline: 'A+ klases jauns dzīvojamais nams Mežaparka tuvumā.',
+    contactsTitle: 'Kontakti',
+    navTitle: 'Saites',
+    legalTitle: 'Juridiski',
+    privacy: 'Privātuma politika',
+    rights: 'Visas tiesības aizsargātas.',
+    navItems: [
+      { label: 'Par namu', href: '/par-namu' },
+      { label: 'Par projektu', href: '/par-projektu' },
+      { label: 'Dzīvokļi', href: '/dzivokli' },
+      { label: 'Kontakti', href: '/kontakti' },
+    ],
+  },
+  ru: {
+    tagline: 'Новый дом класса A+ рядом с Межапарком.',
+    contactsTitle: 'Контакты',
+    navTitle: 'Ссылки',
+    legalTitle: 'Правовое',
+    privacy: 'Политика конфиденциальности',
+    rights: 'Все права защищены.',
+    navItems: [
+      { label: 'О доме', href: '/ru/par-namu' },
+      { label: 'О проекте', href: '/ru/par-projektu' },
+      { label: 'Квартиры', href: '/ru/dzivokli' },
+      { label: 'Контакты', href: '/ru/kontakti' },
+    ],
+  },
+  en: {
+    tagline: 'A new A+ class residential building near Mežaparks.',
+    contactsTitle: 'Contact',
+    navTitle: 'Links',
+    legalTitle: 'Legal',
+    privacy: 'Privacy policy',
+    rights: 'All rights reserved.',
+    navItems: [
+      { label: 'About', href: '/en/par-namu' },
+      { label: 'Project', href: '/en/par-projektu' },
+      { label: 'Apartments', href: '/en/dzivokli' },
+      { label: 'Contact', href: '/en/kontakti' },
+    ],
+  },
+};
+
+const t = dict[lang];
+const homeHref = lang === 'lv' ? '/' : `/${lang}/`;
+const privacyHref = lang === 'lv' ? '/privatums' : `/${lang}/privatums`;
+const year = new Date().getFullYear();
 ---
-<footer class="border-t border-ink-muted/15 bg-beige py-10">
-  <Container class="flex flex-col gap-2 text-sm text-ink-muted md:flex-row md:items-center md:justify-between">
-    <span class="font-serif text-lg tracking-widest uppercase text-burgundy">Alma Home</span>
-    <span>© 2026 Alma Home · Mores iela 15, Rīga</span>
+<footer class="border-t border-ink-muted/15 bg-beige">
+  <Container class="py-14">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+      <div class="space-y-4 md:col-span-1">
+        <a href={homeHref} class="font-serif text-xl tracking-[0.25em] uppercase text-burgundy">
+          Alma Home
+        </a>
+        <p class="text-sm text-ink-muted leading-relaxed">{t.tagline}</p>
+      </div>
+
+      <div class="space-y-3">
+        <h3 class="font-serif text-lg text-burgundy">{t.contactsTitle}</h3>
+        <address class="not-italic text-sm text-ink-muted leading-relaxed space-y-1">
+          <div>Mores iela 15<br />Rīga, LV-1034</div>
+          <div><a href="tel:+37126148011" class="hover:text-burgundy transition-colors">+371 26 148 011</a></div>
+          <div><a href="mailto:info@almahome.lv" class="hover:text-burgundy transition-colors">info@almahome.lv</a></div>
+        </address>
+      </div>
+
+      <div class="space-y-3">
+        <h3 class="font-serif text-lg text-burgundy">{t.navTitle}</h3>
+        <ul class="text-sm text-ink-muted space-y-2">
+          {t.navItems.map((item) => (
+            <li><a href={item.href} class="hover:text-burgundy transition-colors">{item.label}</a></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="space-y-3">
+        <h3 class="font-serif text-lg text-burgundy">{t.legalTitle}</h3>
+        <ul class="text-sm text-ink-muted space-y-2">
+          <li><a href={privacyHref} class="hover:text-burgundy transition-colors">{t.privacy}</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 pt-6 border-t border-ink-muted/15 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-ink-muted">
+      <span>© {year} Alma Home. {t.rights}</span>
+      <span>Mores iela 15, Rīga</span>
+    </div>
   </Container>
 </footer>

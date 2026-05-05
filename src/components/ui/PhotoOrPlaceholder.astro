@@ -1,0 +1,39 @@
+---
+import Placeholder from './Placeholder.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+interface Props {
+  src: string;            // public-relative, e.g. /images/exterior/hero.jpg
+  width: number;
+  height: number;
+  alt: string;
+  label?: string;         // shown on the placeholder if file missing
+  class?: string;
+  rounded?: boolean;
+  loading?: 'lazy' | 'eager';
+}
+const { src, width, height, alt, label, class: className = '', rounded = false, loading = 'lazy' } = Astro.props;
+
+// Check whether the file exists in /public so we can fall back to a placeholder
+// without breaking the page when assets haven't been added yet.
+const publicPath = path.join(process.cwd(), 'public', src.replace(/^\//, ''));
+let exists = false;
+try {
+  exists = fs.statSync(publicPath).isFile();
+} catch {
+  exists = false;
+}
+---
+{exists ? (
+  <img
+    src={src}
+    alt={alt}
+    width={width}
+    height={height}
+    class={`block ${rounded ? 'rounded-xl' : ''} ${className}`}
+    loading={loading}
+  />
+) : (
+  <Placeholder width={width} height={height} label={label ?? alt} class={className} rounded={rounded} />
+)}

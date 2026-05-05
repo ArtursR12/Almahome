@@ -1,13 +1,144 @@
 ---
-// TODO Stage 4: nav (Sākums, Par namu, Par projektu, Attēli, Dzīvokļi, Kontakti),
-// LV/RU/EN switcher, mobile burger menu.
 import Container from '@/components/ui/Container.astro';
+
+interface NavItem {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  lang?: 'lv' | 'ru' | 'en';
+}
+
+const { lang = 'lv' } = Astro.props;
+
+const navByLang: Record<'lv' | 'ru' | 'en', NavItem[]> = {
+  lv: [
+    { label: 'Sākums', href: '/' },
+    { label: 'Par namu', href: '/par-namu' },
+    { label: 'Par projektu', href: '/par-projektu' },
+    { label: 'Attēli', href: '/atteli' },
+    { label: 'Dzīvokļi', href: '/dzivokli' },
+    { label: 'Kontakti', href: '/kontakti' },
+  ],
+  ru: [
+    { label: 'Главная', href: '/ru/' },
+    { label: 'О доме', href: '/ru/par-namu' },
+    { label: 'О проекте', href: '/ru/par-projektu' },
+    { label: 'Галерея', href: '/ru/atteli' },
+    { label: 'Квартиры', href: '/ru/dzivokli' },
+    { label: 'Контакты', href: '/ru/kontakti' },
+  ],
+  en: [
+    { label: 'Home', href: '/en/' },
+    { label: 'About', href: '/en/par-namu' },
+    { label: 'Project', href: '/en/par-projektu' },
+    { label: 'Gallery', href: '/en/atteli' },
+    { label: 'Apartments', href: '/en/dzivokli' },
+    { label: 'Contact', href: '/en/kontakti' },
+  ],
+};
+
+const nav = navByLang[lang];
+const homeHref = lang === 'lv' ? '/' : `/${lang}/`;
+const currentPath = Astro.url.pathname;
+const isActive = (href: string) => currentPath === href || (href !== '/' && currentPath.startsWith(href));
+
+// Build a path that swaps locale prefix for the lang switcher.
+function pathForLang(target: 'lv' | 'ru' | 'en'): string {
+  const stripped = currentPath.replace(/^\/(ru|en)(?=\/|$)/, '') || '/';
+  if (target === 'lv') return stripped;
+  return stripped === '/' ? `/${target}/` : `/${target}${stripped}`;
+}
 ---
-<header class="border-b border-ink-muted/15 bg-cream/80 backdrop-blur">
-  <Container class="flex h-16 items-center justify-between">
-    <a href="/" class="font-serif text-2xl tracking-widest uppercase text-burgundy">
+<header class="sticky top-0 z-40 border-b border-ink-muted/15 bg-cream/85 backdrop-blur">
+  <Container class="flex h-16 items-center justify-between gap-4">
+    <a
+      href={homeHref}
+      class="font-serif text-xl tracking-[0.25em] uppercase text-burgundy whitespace-nowrap"
+    >
       Alma Home
     </a>
-    <span class="text-xs text-ink-muted">TODO: nav + lang switcher</span>
+
+    <nav class="hidden lg:flex items-center gap-7 text-sm">
+      {nav.map((item) => (
+        <a
+          href={item.href}
+          class:list={[
+            'text-ink hover:text-burgundy transition-colors',
+            isActive(item.href) && 'text-burgundy',
+          ]}
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <div class="hidden md:flex items-center gap-1 text-xs uppercase tracking-widest">
+        {(['lv', 'ru', 'en'] as const).map((code) => (
+          <a
+            href={pathForLang(code)}
+            class:list={[
+              'px-2 py-1 transition-colors',
+              code === lang ? 'text-burgundy font-medium' : 'text-ink-muted hover:text-burgundy',
+            ]}
+          >
+            {code}
+          </a>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        id="mobile-menu-toggle"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        class="lg:hidden inline-flex items-center justify-center h-10 w-10 rounded-lg text-burgundy hover:bg-beige transition-colors"
+      >
+        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
   </Container>
+
+  <div id="mobile-menu" class="lg:hidden hidden border-t border-ink-muted/15 bg-cream">
+    <Container class="py-4 flex flex-col gap-3">
+      {nav.map((item) => (
+        <a
+          href={item.href}
+          class:list={[
+            'py-2 text-base hover:text-burgundy transition-colors',
+            isActive(item.href) ? 'text-burgundy font-medium' : 'text-ink',
+          ]}
+        >
+          {item.label}
+        </a>
+      ))}
+      <div class="flex items-center gap-2 pt-3 border-t border-ink-muted/15 text-xs uppercase tracking-widest">
+        {(['lv', 'ru', 'en'] as const).map((code) => (
+          <a
+            href={pathForLang(code)}
+            class:list={[
+              'px-2 py-1 transition-colors',
+              code === lang ? 'text-burgundy font-medium' : 'text-ink-muted hover:text-burgundy',
+            ]}
+          >
+            {code}
+          </a>
+        ))}
+      </div>
+    </Container>
+  </div>
 </header>
+
+<script>
+  const toggle = document.getElementById('mobile-menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+  toggle?.addEventListener('click', () => {
+    const open = menu?.classList.toggle('hidden') === false;
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+</script>

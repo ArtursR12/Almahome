@@ -47,10 +47,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://almahome.lv
     <meta name="generator" content={Astro.generator} />
   </head>
   <body class="min-h-screen flex flex-col">
-    <Header />
+    <Header lang={lang} />
     <main class="flex-1">
       <slot />
     </main>
-    <Footer />
+    <Footer lang={lang} />
   </body>
 </html>

@@ -1,20 +1,261 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Container from '@/components/ui/Container.astro';
 import Section from '@/components/ui/Section.astro';
 import Button from '@/components/ui/Button.astro';
+import Placeholder from '@/components/ui/Placeholder.astro';
+import PhotoOrPlaceholder from '@/components/ui/PhotoOrPlaceholder.astro';
+
+const allApartments = await getCollection('apartments');
+const previewApartments = allApartments
+  .filter((a) => a.data.status === 'available')
+  .sort((a, b) => a.data.number - b.data.number)
+  .slice(0, 6);
+
+const features = [
+  '3 stāvi, 24 dzīvokļi (1–4 istabas)',
+  'A+ energoefektivitātes klase',
+  'Terases pirmajā stāvā, balkoni augšējos',
+  'Slēgta autostāvvieta un velosipēdu novietne',
+  'Videonovērošana un kontrolēta piekļuve',
+  'Lifts, dabīgi materiāli kāpņu telpā',
+];
+
+const partnerBanks: { name: string; logo: string }[] = [
+  { name: 'Bigbank',  logo: '/images/logos/bigbank.jpg' },
+  { name: 'Citadele', logo: '/images/logos/citadele.jpg' },
+  { name: 'Luminor',  logo: '/images/logos/luminor.jpg' },
+  { name: 'Swedbank', logo: '/images/logos/swedbank.jpg' },
+  { name: 'SEB',      logo: '/images/logos/seb.jpg' },
+];
+
+function priceLabel(price: number | null): string {
+  if (price === null) return 'Pēc pieprasījuma';
+  return `${price.toLocaleString('lv-LV')} €`;
+}
 ---
-<BaseLayout title="AlmaHome — drīzumā">
-  <Section background="cream">
-    <Container class="text-center">
-      <p class="text-sm uppercase tracking-[0.3em] text-ink-muted">Mores iela 15, Rīga</p>
-      <h1 class="mt-6 font-serif text-5xl md:text-7xl text-burgundy">AlmaHome</h1>
-      <p class="mx-auto mt-6 max-w-xl text-lg text-ink-muted">
-        Jauns A+ energoefektivitātes klases dzīvojamais nams Mežaparka tuvumā. Mājaslapa drīzumā.
+<BaseLayout
+  title="AlmaHome — A+ klases jauns dzīvojamais nams Rīgā"
+  description="Jauns A+ energoefektivitātes klases dzīvojamais nams Mores ielā 15, Rīgā. 24 dzīvokļi (1–4 istabas), terases, balkoni, slēgta autostāvvieta. Mežaparka tuvumā."
+>
+  <!-- Hero -->
+  <section class="relative h-[90vh] min-h-[560px] overflow-hidden">
+    <PhotoOrPlaceholder
+      src="/images/exterior/hero.jpg"
+      width={1920}
+      height={1080}
+      alt="AlmaHome fasāde"
+      label="Mājas fasāde"
+      loading="eager"
+      class="absolute inset-0 h-full w-full object-cover"
+    />
+    <div class="absolute inset-0 bg-gradient-to-b from-burgundy-dark/55 via-burgundy-dark/35 to-burgundy-dark/65"></div>
+    <Container class="relative h-full flex flex-col items-center justify-center text-center text-cream">
+      <p class="text-xs md:text-sm uppercase tracking-[0.4em] text-cream/80">Mores iela 15 · Rīga</p>
+      <h1 class="mt-6 font-serif text-6xl md:text-8xl tracking-wide">
+        ALMA <span class="font-light">HOME</span>
+      </h1>
+      <p class="mt-6 max-w-2xl text-lg md:text-xl text-cream/85">
+        Mājīga dzīve Mežaparka tuvumā — A+ klases jauns dzīvojamais nams ar terasēm, balkoniem un slēgtu autostāvvietu.
       </p>
-      <div class="mt-10 flex justify-center gap-3">
-        <Button variant="primary" href="mailto:info@almahome.lv">Sazināties</Button>
-        <Button variant="secondary" href="tel:+37126148011">+371 26 148 011</Button>
+      <div class="mt-10 flex flex-col sm:flex-row gap-3">
+        <Button variant="primary" size="lg" href="/dzivokli">Apskatīt dzīvokļus</Button>
+        <Button variant="secondary" size="lg" href="/kontakti" class="!border-cream !text-cream hover:!bg-cream hover:!text-burgundy">
+          Sazināties
+        </Button>
+      </div>
+    </Container>
+  </section>
+
+  <!-- About -->
+  <Section background="cream">
+    <Container>
+      <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Par namu</p>
+          <h2 class="mt-4 font-serif text-4xl md:text-5xl text-burgundy leading-tight">
+            A+ energoefektivitātes klases jauns dzīvojamais nams Rīgā
+          </h2>
+          <p class="mt-6 text-lg text-ink-muted leading-relaxed">
+            AlmaHome ir mūsdienīga, mērogam piemērota māja klusā Rīgas rajonā, dažu minūšu attālumā no Mežaparka un Ķīšezera. Augsta energoefektivitāte, dabīgi materiāli un pārdomāta plānojuma kvalitāte ikdienai.
+          </p>
+          <ul class="mt-8 space-y-3">
+            {features.map((f) => (
+              <li class="flex items-start gap-3 text-base text-ink">
+                <span class="mt-2 h-1.5 w-1.5 rounded-full bg-burgundy shrink-0" aria-hidden="true"></span>
+                <span>{f}</span>
+              </li>
+            ))}
+          </ul>
+          <div class="mt-10">
+            <Button variant="secondary" href="/par-namu">Uzzināt vairāk</Button>
+          </div>
+        </div>
+        <div>
+          <PhotoOrPlaceholder
+            src="/images/exterior/about.jpg"
+            width={800}
+            height={600}
+            alt="AlmaHome ēkas detaļa"
+            label="Mājas detaļa"
+            rounded
+            class="w-full h-auto object-cover aspect-[4/3]"
+          />
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Location -->
+  <Section background="beige">
+    <Container>
+      <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div class="md:order-2">
+          <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Atrašanās vieta</p>
+          <h2 class="mt-4 font-serif text-4xl md:text-5xl text-burgundy leading-tight">
+            Klusums un zaļums minūšu attālumā no centra
+          </h2>
+          <p class="mt-6 text-lg text-ink-muted leading-relaxed">
+            Mežaparks, Ķīšezers un OZO Golf Club — pastaigas un sports gandrīz aiz mājas durvīm. Vecāķu pludmale ~15 minūtes ar auto, Rīgas centrs ~15 minūtes. Ērta piekļuve sabiedriskajam transportam un Brīvības gatvei.
+          </p>
+          <ul class="mt-8 grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-ink">
+            <li class="flex items-baseline gap-2"><span class="font-serif text-burgundy">5'</span> Mežaparks</li>
+            <li class="flex items-baseline gap-2"><span class="font-serif text-burgundy">7'</span> Ķīšezers</li>
+            <li class="flex items-baseline gap-2"><span class="font-serif text-burgundy">10'</span> OZO Golf Club</li>
+            <li class="flex items-baseline gap-2"><span class="font-serif text-burgundy">15'</span> Vecāķi pludmale</li>
+            <li class="flex items-baseline gap-2"><span class="font-serif text-burgundy">15'</span> Rīgas centrs</li>
+            <li class="flex items-baseline gap-2"><span class="font-serif text-burgundy">3'</span> Veikali, skolas</li>
+          </ul>
+        </div>
+        <div class="md:order-1">
+          <PhotoOrPlaceholder
+            src="/images/exterior/location.jpg"
+            width={800}
+            height={600}
+            alt="Apkārtne — Mežaparks"
+            label="Apkārtne"
+            rounded
+            class="w-full h-auto object-cover aspect-[4/3]"
+          />
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Apartments preview -->
+  <Section background="cream">
+    <Container>
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Pieejamie dzīvokļi</p>
+          <h2 class="mt-4 font-serif text-4xl md:text-5xl text-burgundy">Izvēlies savu māju</h2>
+        </div>
+        <p class="max-w-md text-base text-ink-muted">
+          24 dzīvokļi, 1–4 istabas, terases vai balkoni. Atrodi savu plānojumu un cenu.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {previewApartments.map((apt) => (
+          <a
+            href={`/dzivokli/${apt.data.number}`}
+            class="group bg-beige rounded-xl overflow-hidden flex flex-col transition-shadow hover:shadow-lg"
+          >
+            <div class="relative aspect-[4/3] overflow-hidden bg-cream">
+              <PhotoOrPlaceholder
+                src={apt.data.floor_plan_image}
+                width={400}
+                height={300}
+                alt={`Dzīvoklis Nr.${apt.data.number} plānojums`}
+                label={`Plānojums Nr.${apt.data.number}`}
+                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              />
+              <span class="absolute top-3 left-3 inline-flex items-center px-2.5 py-1 rounded-full bg-status-available/90 text-cream text-xs font-medium">
+                Pieejams
+              </span>
+            </div>
+            <div class="p-5 flex flex-col flex-1">
+              <div class="flex items-baseline justify-between gap-2">
+                <h3 class="font-serif text-2xl text-burgundy">Nr. {apt.data.number}</h3>
+                <span class="text-sm text-ink-muted">{apt.data.floor}. stāvs</span>
+              </div>
+              <div class="mt-2 text-sm text-ink-muted">
+                {apt.data.rooms} istabas · {apt.data.area_total} m²{apt.data.has_terrace ? ' · terase' : apt.data.has_balcony ? ' · balkons' : ''}
+              </div>
+              <div class="mt-4 flex items-end justify-between gap-3">
+                <span class="font-serif text-xl text-burgundy">{priceLabel(apt.data.price)}</span>
+                <span class="text-sm text-burgundy group-hover:underline">Skatīt →</span>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <div class="mt-12 text-center">
+        <Button variant="primary" href="/dzivokli">Apskatīt visus dzīvokļus</Button>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Banks -->
+  <Section background="beige" class="!py-16 md:!py-20">
+    <Container>
+      <div class="text-center mb-10">
+        <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Hipotekārā kredīta partneri</p>
+        <h2 class="mt-3 font-serif text-3xl md:text-4xl text-burgundy">
+          Sadarbojamies ar vadošajām bankām
+        </h2>
+      </div>
+      <div class="mx-auto max-w-5xl grid grid-cols-2 gap-y-10 gap-x-12 items-center md:flex md:justify-between md:gap-12">
+        {partnerBanks.map((bank) => (
+          <PhotoOrPlaceholder
+            src={bank.logo}
+            width={160}
+            height={48}
+            alt={bank.name}
+            label={bank.name}
+            class="object-contain h-10 md:h-12 w-auto max-w-[140px] mx-auto opacity-60 hover:opacity-100 transition-opacity duration-200"
+          />
+        ))}
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Contacts -->
+  <Section background="cream">
+    <Container>
+      <div class="text-center mb-12">
+        <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Kontakti</p>
+        <h2 class="mt-3 font-serif text-4xl md:text-5xl text-burgundy">Sazinies ar mums</h2>
+        <p class="mt-4 text-ink-muted max-w-xl mx-auto">
+          Atbildam ātri un palīdzam izvēlēties piemērotāko dzīvokli.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+        <div class="rounded-xl bg-beige p-8">
+          <h3 class="font-serif text-xl text-burgundy">Adrese</h3>
+          <p class="mt-3 text-ink-muted leading-relaxed">
+            Mores iela 15<br />Rīga, LV-1034
+          </p>
+        </div>
+        <div class="rounded-xl bg-beige p-8">
+          <h3 class="font-serif text-xl text-burgundy">Telefons</h3>
+          <p class="mt-3">
+            <a href="tel:+37126148011" class="text-ink-muted hover:text-burgundy transition-colors">+371 26 148 011</a>
+          </p>
+        </div>
+        <div class="rounded-xl bg-beige p-8">
+          <h3 class="font-serif text-xl text-burgundy">E-pasts</h3>
+          <p class="mt-3">
+            <a href="mailto:info@almahome.lv" class="text-ink-muted hover:text-burgundy transition-colors">info@almahome.lv</a>
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-12 text-center">
+        <Button variant="primary" size="lg" href="/kontakti">Aizpildīt pieprasījumu</Button>
       </div>
     </Container>
   </Section>

@@ -1,0 +1,30 @@
+---
+interface Props {
+  width: number;
+  height: number;
+  label?: string;
+  class?: string;
+  rounded?: boolean;
+}
+const { width, height, label = 'Photo', class: className = '', rounded = false } = Astro.props;
+
+// Inline SVG so the build stays offline-safe — no placehold.co fetches.
+const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid slice">
+  <rect width="${width}" height="${height}" fill="#E8DDC9"/>
+  <g fill="#5A1F2A" font-family="'Cormorant Garamond', Georgia, serif" text-anchor="middle">
+    <text x="${width / 2}" y="${height / 2 - 8}" font-size="${Math.round(Math.min(width, height) / 12)}" font-weight="500">${label}</text>
+    <text x="${width / 2}" y="${height / 2 + Math.round(Math.min(width, height) / 22)}" font-size="${Math.round(Math.min(width, height) / 32)}" font-family="Inter, system-ui, sans-serif" opacity="0.55">${width} × ${height}</text>
+  </g>
+</svg>`.trim();
+
+const dataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+---
+<img
+  src={dataUrl}
+  alt={label}
+  width={width}
+  height={height}
+  class={`block ${rounded ? 'rounded-xl' : ''} ${className}`}
+  loading="lazy"
+/>
