@@ -1,0 +1,58 @@
+---
+interface Option {
+  value: string;
+  label: string;
+}
+interface Props {
+  name: string;
+  label?: string;
+  options: Option[];
+  value?: string;
+  required?: boolean;
+  error?: string;
+  id?: string;
+  class?: string;
+}
+const {
+  name,
+  label,
+  options,
+  value,
+  required = false,
+  error,
+  id = name,
+  class: className = '',
+} = Astro.props;
+
+const base =
+  'w-full appearance-none rounded-lg border bg-cream px-4 py-3 pr-10 text-ink transition-colors duration-200 focus:outline-none focus:border-burgundy';
+const borderCls = error ? 'border-burgundy-light' : 'border-ink-muted/30';
+---
+<div class={`flex flex-col gap-2 ${className}`}>
+  {label && (
+    <label for={id} class="text-sm font-medium text-ink">
+      {label}{required && <span class="text-burgundy"> *</span>}
+    </label>
+  )}
+  <div class="relative">
+    <select
+      id={id}
+      name={name}
+      required={required}
+      class={`${base} ${borderCls}`}
+    >
+      {options.map((opt) => (
+        <option value={opt.value} selected={opt.value === value}>{opt.label}</option>
+      ))}
+    </select>
+    <svg
+      class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-muted"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+    </svg>
+  </div>
+  {error && <span class="text-sm text-burgundy">{error}</span>}
+</div>

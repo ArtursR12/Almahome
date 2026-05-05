@@ -1,0 +1,21 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+---
+<BaseLayout title="AlmaHome — drīzumā">
+  <Section background="cream">
+    <Container class="text-center">
+      <p class="text-sm uppercase tracking-[0.3em] text-ink-muted">Mores iela 15, Rīga</p>
+      <h1 class="mt-6 font-serif text-5xl md:text-7xl text-burgundy">AlmaHome</h1>
+      <p class="mx-auto mt-6 max-w-xl text-lg text-ink-muted">
+        Jauns A+ energoefektivitātes klases dzīvojamais nams Mežaparka tuvumā. Mājaslapa drīzumā.
+      </p>
+      <div class="mt-10 flex justify-center gap-3">
+        <Button variant="primary" href="mailto:info@almahome.lv">Sazināties</Button>
+        <Button variant="secondary" href="tel:+37126148011">+371 26 148 011</Button>
+      </div>
+    </Container>
+  </Section>
+</BaseLayout>

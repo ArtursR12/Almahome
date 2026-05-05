@@ -1,0 +1,36 @@
+@import "tailwindcss";
+@import "@fontsource/cormorant-garamond/500.css";
+@import "@fontsource/cormorant-garamond/600.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+
+@theme {
+  --color-cream: #F5EFE6;
+  --color-beige: #E8DDC9;
+  --color-burgundy: #5A1F2A;
+  --color-burgundy-dark: #3D1419;
+  --color-burgundy-light: #7A2F3A;
+  --color-ink: #2A1F1A;
+  --color-ink-muted: #6B5D52;
+  --color-status-available: #4A7C59;
+  --color-status-reserved: #C9A961;
+  --color-status-sold: #8B8680;
+
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  --container-max: 1280px;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background: var(--color-cream);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+  }
+}
