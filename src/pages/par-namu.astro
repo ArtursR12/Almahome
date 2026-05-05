@@ -1,0 +1,203 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import PhotoOrPlaceholder from '@/components/ui/PhotoOrPlaceholder.astro';
+
+const materials = [
+  {
+    title: 'Grīdas',
+    desc: 'Dabīgi koka un keramikas pārklājumi viesistabās un guļamistabās; mitrumizturīgs keramogranīts vannas istabās un priekštelpās.',
+    image: '/images/_misc/2026__03__22__gridas001.jpg',
+  },
+  {
+    title: 'Durvis',
+    desc: 'Slēptās jūklietas, augstas durvis ar paslēptām eņģēm un kvalitatīvi pildījumi — paaugstina telpas augstumu vizuāli un samazina troksni.',
+    image: '/images/_misc/2026__03__25__durvi.jpg',
+  },
+  {
+    title: 'Virtuves',
+    desc: 'Itālijas ražotāju virtuves ar iebūvētu tehniku, akmens darba virsmām un klusajiem doborfaktoriem — pieskaņojami pasūtītāja izvēlētam dizainam.',
+    image: '/images/_misc/2026__03__25__kuhnja_0002.jpg',
+  },
+  {
+    title: 'Santehnika',
+    desc: 'Hansgrohe / Grohe maisītāji, ievietoti tualetes podi, dušas sistēmas ar termostatu un akmens izlietnes — premium klases sanitārija.',
+    image: '/images/_misc/2026__03__25__santeh1.jpg',
+  },
+];
+---
+<BaseLayout
+  title="Par namu — AlmaHome"
+  description="AlmaHome ir A+ energoefektivitātes klases jauns dzīvojamais nams Rīgā: arhitektūra, materiāli, apdare un apkārtne."
+>
+  <!-- Hero -->
+  <section class="relative min-h-[60vh] flex items-center overflow-hidden py-24 md:py-32">
+    <PhotoOrPlaceholder
+      src="/images/exterior/exterior-summer.jpg"
+      width={1920}
+      height={1080}
+      alt="AlmaHome fasāde vasarā"
+      label="Fasāde"
+      loading="eager"
+      class="absolute inset-0 h-full w-full object-cover"
+    />
+    <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/55 to-black/70"></div>
+    <Container class="relative text-center text-cream">
+      <div class="flex flex-col items-center space-y-7">
+        <p class="text-[11px] md:text-xs uppercase tracking-[0.5em] text-cream/70">Par namu</p>
+        <h1 class="font-serif text-5xl md:text-7xl leading-[1.05]">Mājīga arhitektūra</h1>
+        <p class="max-w-xl text-base md:text-lg text-cream/85 leading-relaxed">
+          AlmaHome ir mērogam piemērota dzīvojamā ēka — moderni materiāli, klusums un dabīgs gaismas pieplūdums.
+        </p>
+      </div>
+    </Container>
+  </section>
+
+  <!-- Architecture & design -->
+  <Section background="cream">
+    <Container>
+      <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Arhitektūra un dizains</p>
+          <h2 class="mt-4 font-serif text-4xl md:text-5xl text-burgundy leading-tight">
+            Klusais dizains, kas iederas vidē
+          </h2>
+          <p class="mt-6 text-lg text-ink-muted leading-relaxed">
+            Trīs stāvu mēroga ēka ar mūsdienīgu fasādes ritmu un zemu siluetu. Lielas vertikālas spraugas un dziļi logu ieliekumi rada pārliecinātu, bet maigu izteiksmi. Pirmais stāvs ar terasēm, augšējie ar balkoniem.
+          </p>
+          <p class="mt-4 text-lg text-ink-muted leading-relaxed">
+            Iekšpagalms aizsargāts no ielas trokšņa, ar zaļo zonu, soliem un bērnu rotaļu laukumu — vieta, kur iepazīt kaimiņus.
+          </p>
+        </div>
+        <div>
+          <PhotoOrPlaceholder
+            src="/images/exterior/alma_0006.jpg"
+            width={800}
+            height={600}
+            alt="AlmaHome ārējais skats"
+            label="Fasādes detaļa"
+            rounded
+            class="w-full h-auto object-cover aspect-[4/3]"
+          />
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Materials -->
+  <Section background="beige">
+    <Container>
+      <div class="text-center mb-12">
+        <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Materiāli un apdare</p>
+        <h2 class="mt-4 font-serif text-4xl md:text-5xl text-burgundy">Premium klases pabeigtība</h2>
+        <p class="mt-4 text-ink-muted max-w-2xl mx-auto">
+          Mēs strādājam ar Eiropas ražotājiem un izvēlamies materiālus, kas izskatās un dzīvo labi gadiem. Bāzes komplektācija ietver visu, kas redzams attēlos.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+        {materials.map((m, i) => (
+          <article class="group bg-cream rounded-2xl overflow-hidden flex flex-col border border-burgundy/5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_60px_-30px_rgba(90,31,42,0.35)]">
+            <div class="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-cream via-beige/60 to-beige flex items-center justify-center">
+              <span class="absolute top-3 left-3 text-[10px] uppercase tracking-[0.3em] text-burgundy/50 font-medium">{String(i + 1).padStart(2, '0')}</span>
+              <PhotoOrPlaceholder
+                src={m.image}
+                width={400}
+                height={300}
+                alt={m.title}
+                label={m.title}
+                class="max-h-[78%] max-w-[78%] object-contain transition-transform duration-300 group-hover:scale-[1.04]"
+              />
+            </div>
+            <div class="p-6 flex flex-col flex-1 min-h-[180px]">
+              <h3 class="font-serif text-2xl text-burgundy leading-tight">{m.title}</h3>
+              <p class="mt-3 text-sm text-ink-muted leading-relaxed flex-1">{m.desc}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Energy efficiency -->
+  <Section background="cream">
+    <Container>
+      <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div class="md:order-2">
+          <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Energoefektivitāte</p>
+          <h2 class="mt-4 font-serif text-4xl md:text-5xl text-burgundy leading-tight">
+            A+ klase — siltāka māja, mazāks rēķins
+          </h2>
+          <p class="mt-6 text-lg text-ink-muted leading-relaxed">
+            Augsti izolētas sienas un jumta segums, trīskāršie stikla pakešu logi, rekuperators un apkure ar siltumsūkni. Mājas enerģijas patēriņš atbilst A+ klasei — viens no augstākajiem standartiem Latvijā.
+          </p>
+          <ul class="mt-6 space-y-2 text-base text-ink">
+            <li class="flex items-baseline gap-3"><span class="font-serif text-burgundy">·</span> 30 cm akmens vates izolācija fasādei</li>
+            <li class="flex items-baseline gap-3"><span class="font-serif text-burgundy">·</span> Trīskāršie selektīvie logi ar Uw &lt; 0.9</li>
+            <li class="flex items-baseline gap-3"><span class="font-serif text-burgundy">·</span> Rekuperācijas ventilācija katrā dzīvoklī</li>
+            <li class="flex items-baseline gap-3"><span class="font-serif text-burgundy">·</span> Siltais grīdas apkure dzīvojamās zonās</li>
+          </ul>
+        </div>
+        <div class="md:order-1">
+          <PhotoOrPlaceholder
+            src="/images/renders/alma_kitchen_final.jpg"
+            width={800}
+            height={600}
+            alt="Virtuves un viesistabas interjers"
+            label="Interjera vizualizācija"
+            rounded
+            class="w-full h-auto object-cover aspect-[4/3]"
+          />
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Surroundings -->
+  <Section background="beige">
+    <Container>
+      <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Apkārtne un infrastruktūra</p>
+          <h2 class="mt-4 font-serif text-4xl md:text-5xl text-burgundy leading-tight">
+            Kluss rajons, viss vajadzīgais tuvumā
+          </h2>
+          <p class="mt-6 text-lg text-ink-muted leading-relaxed">
+            Mežaparks un Ķīšezers piecu minūšu attālumā, OZO Golf Club tepat blakus. Pārtikas veikali, aptiekas, bērnudārzi un skolas — kājāmgājēja attālumā. Sabiedriskais transports uz centru kursē regulāri.
+          </p>
+          <p class="mt-4 text-lg text-ink-muted leading-relaxed">
+            Brīvības gatve un Vairoga iela nodrošina ātru piekļuvi gan pilsētas centram (~15 min), gan Vecāķu pludmalei (~15 min ar auto).
+          </p>
+        </div>
+        <div>
+          <PhotoOrPlaceholder
+            src="/images/exterior/exterior-autumn.jpg"
+            width={800}
+            height={600}
+            alt="Apkārtne rudenī"
+            label="Apkārtne rudenī"
+            rounded
+            class="w-full h-auto object-cover aspect-[4/3]"
+          />
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- CTA -->
+  <Section background="cream" class="!py-16">
+    <Container class="text-center">
+      <h2 class="font-serif text-3xl md:text-4xl text-burgundy">
+        Gatavs apskatīt savu nākamo māju?
+      </h2>
+      <p class="mt-4 text-ink-muted max-w-xl mx-auto">
+        24 dzīvokļi ar terasēm un balkoniem. Atrodi piemērotāko plānojumu un cenu.
+      </p>
+      <div class="mt-8">
+        <Button variant="primary" size="lg" href="/dzivokli">Apskatīt dzīvokļus</Button>
+      </div>
+    </Container>
+  </Section>
+</BaseLayout>

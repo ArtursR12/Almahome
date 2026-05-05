@@ -29,3 +29,6 @@ _*.txt
 _*.html
 _*.py
 template-*.json
+
+# Playwright screenshot output (regenerable, not committed)
+screenshots/

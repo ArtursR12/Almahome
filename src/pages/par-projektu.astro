@@ -1,0 +1,170 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import PhotoOrPlaceholder from '@/components/ui/PhotoOrPlaceholder.astro';
+
+const stats = [
+  { value: '3', label: 'stāvi' },
+  { value: '24', label: 'dzīvokļi' },
+  { value: '1–4', label: 'istabas' },
+  { value: 'A+', label: 'enerģijas klase' },
+];
+
+const landmarks = [
+  { time: '5 min', name: 'Mežaparks', note: 'pastaigām un sportam' },
+  { time: '7 min', name: 'Ķīšezers', note: 'peldēšanai vasarā' },
+  { time: '10 min', name: 'OZO Golf Club', note: 'golfa laukums' },
+  { time: '15 min', name: 'Vecāķu pludmale', note: 'ar auto' },
+  { time: '15 min', name: 'Rīgas centrs', note: 'pa Brīvības gatvi' },
+  { time: '3 min', name: 'Veikali un skolas', note: 'kājām' },
+];
+---
+<BaseLayout
+  title="Par projektu — AlmaHome"
+  description="AlmaHome projekts: 24 dzīvokļi 3 stāvos, Mores ielā 15, Rīgā. A+ klase, terases un balkoni. Detalizēts apkārtnes un atrašanās vietas pārskats."
+>
+  <!-- Hero -->
+  <section class="relative min-h-[60vh] flex items-center overflow-hidden py-24 md:py-32">
+    <PhotoOrPlaceholder
+      src="/images/exterior/exterior-winter.jpg"
+      width={1920}
+      height={1080}
+      alt="AlmaHome ziemā"
+      label="AlmaHome ziemā"
+      loading="eager"
+      class="absolute inset-0 h-full w-full object-cover"
+    />
+    <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/55 to-black/70"></div>
+    <Container class="relative text-center text-cream">
+      <div class="flex flex-col items-center space-y-7">
+        <p class="text-[11px] md:text-xs uppercase tracking-[0.5em] text-cream/70">Par projektu</p>
+        <h1 class="font-serif text-5xl md:text-7xl leading-[1.05]">Mores iela 15</h1>
+        <p class="max-w-xl text-base md:text-lg text-cream/85 leading-relaxed">
+          Jauns dzīvojamais komplekss klusā Rīgas rajonā, Mežaparka tuvumā.
+        </p>
+      </div>
+    </Container>
+  </section>
+
+  <!-- Stats -->
+  <Section background="cream" class="!py-16">
+    <Container>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+        {stats.map((s) => (
+          <div class="text-center">
+            <div class="font-serif text-5xl md:text-6xl text-burgundy">{s.value}</div>
+            <div class="mt-2 text-sm uppercase tracking-widest text-ink-muted">{s.label}</div>
+          </div>
+        ))}
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Project overview -->
+  <Section background="beige">
+    <Container>
+      <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Pārskats</p>
+          <h2 class="mt-4 font-serif text-4xl md:text-5xl text-burgundy leading-tight">
+            Pārdomāts plānojums katram stāvam
+          </h2>
+          <p class="mt-6 text-lg text-ink-muted leading-relaxed">
+            Trīs stāvos kopā 24 dzīvokļi: pirmajā stāvā astoņi dzīvokļi ar privātām terasēm un piekļuvi kopējam pagalmam, otrajā un trešajā stāvā pa astoņi dzīvokļi ar balkoniem un saulainu skatu uz dārzu.
+          </p>
+          <p class="mt-4 text-lg text-ink-muted leading-relaxed">
+            Plānojumi izstrādāti tā, lai vienistabas līdz četristabu dzīvokļi varētu organiski sadzīvot vienā ēkā — bez kompromisiem privātumā un dabīga apgaismojuma.
+          </p>
+          <div class="mt-8">
+            <Button variant="secondary" href="/dzivokli">Apskatīt visus dzīvokļus</Button>
+          </div>
+        </div>
+        <div>
+          <PhotoOrPlaceholder
+            src="/images/exterior/3stavs.jpg"
+            width={800}
+            height={600}
+            alt="Mājas plāns no augšas"
+            label="Plāns no augšas"
+            rounded
+            class="w-full h-auto object-cover aspect-[4/3]"
+          />
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Map -->
+  <Section background="cream">
+    <Container>
+      <div class="text-center mb-12">
+        <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Atrašanās vieta</p>
+        <h2 class="mt-4 font-serif text-4xl md:text-5xl text-burgundy">Mores iela 15, Rīga</h2>
+        <p class="mt-4 text-ink-muted max-w-2xl mx-auto">
+          Klusais Mežaparka rajons — 15 minūtes ar auto līdz centram, daba un sports gandrīz aiz mājas durvīm.
+        </p>
+      </div>
+
+      <a
+        href="https://www.google.com/maps/search/?api=1&query=Mores+iela+15%2C+Riga%2C+Latvia"
+        target="_blank"
+        rel="noopener"
+        class="group block rounded-xl overflow-hidden bg-beige aspect-[16/9] md:aspect-[21/9] relative"
+        aria-label="Atvērt Mores iela 15, Rīga Google Maps"
+      >
+        <img
+          src="/images/maps/almahome-map.jpg"
+          alt="Karte: AlmaHome atrašanās vieta Mīlgrāvī, Rīgā"
+          loading="lazy"
+          width={1600}
+          height={700}
+          class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+        />
+        <span class="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-cream/95 backdrop-blur px-4 py-2 text-sm text-burgundy shadow-md">
+          Atvērt Google Maps
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7v8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
+    </Container>
+  </Section>
+
+  <!-- Landmarks -->
+  <Section background="beige">
+    <Container>
+      <div class="text-center mb-12">
+        <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Apkārtne</p>
+        <h2 class="mt-4 font-serif text-4xl md:text-5xl text-burgundy">Kas ir tuvumā</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {landmarks.map((l) => (
+          <div class="bg-cream rounded-xl p-6 flex items-start gap-5 border border-burgundy/5">
+            <span class="font-serif text-3xl text-burgundy whitespace-nowrap leading-none pt-1 shrink-0">{l.time}</span>
+            <div class="min-w-0">
+              <div class="text-base font-medium text-ink leading-tight">{l.name}</div>
+              <div class="mt-1 text-sm text-ink-muted leading-snug">{l.note}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Container>
+  </Section>
+
+  <!-- CTA -->
+  <Section background="cream" class="!py-16">
+    <Container class="text-center">
+      <h2 class="font-serif text-3xl md:text-4xl text-burgundy">
+        Apskaties dzīvokļus klātienē
+      </h2>
+      <p class="mt-4 text-ink-muted max-w-xl mx-auto">
+        Vienojies par individuālu apskati objektā — palīdzēsim atrast piemērotāko plānojumu.
+      </p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+        <Button variant="primary" size="lg" href="/dzivokli">Apskatīt dzīvokļus</Button>
+        <Button variant="secondary" size="lg" href="/kontakti">Sazināties</Button>
+      </div>
+    </Container>
+  </Section>
+</BaseLayout>

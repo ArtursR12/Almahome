@@ -1,0 +1,142 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import Input from '@/components/ui/Input.astro';
+import PhotoOrPlaceholder from '@/components/ui/PhotoOrPlaceholder.astro';
+
+const partnerBanks: { name: string; logo: string }[] = [
+  { name: 'Bigbank',  logo: '/images/logos/bigbank.jpg' },
+  { name: 'Citadele', logo: '/images/logos/citadele.jpg' },
+  { name: 'Luminor',  logo: '/images/logos/luminor.jpg' },
+  { name: 'Swedbank', logo: '/images/logos/swedbank.jpg' },
+  { name: 'SEB',      logo: '/images/logos/seb.jpg' },
+];
+---
+<BaseLayout
+  title="Kontakti — AlmaHome"
+  description="Sazinies ar AlmaHome komandu: Mores iela 15, Rīga, +371 26 148 011, info@almahome.lv. Aizpildi pieprasījumu vai uzraksti tieši."
+>
+  <Section background="cream">
+    <Container>
+      <div class="text-center mb-12">
+        <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Kontakti</p>
+        <h1 class="mt-4 font-serif text-5xl md:text-6xl text-burgundy">Sazinies ar mums</h1>
+        <p class="mt-4 text-ink-muted max-w-2xl mx-auto">
+          Atbildam ātri darba dienās. Aizpildi formu vai zvani tieši — palīdzēsim atrast piemērotāko dzīvokli.
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-5 gap-12">
+        <!-- Form -->
+        <form class="lg:col-span-3 bg-beige rounded-xl p-6 md:p-10 space-y-5" novalidate>
+          <h2 class="font-serif text-2xl text-burgundy">Pieprasījums</h2>
+
+          <!-- Honeypot -->
+          <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <Input name="name" label="Vārds, uzvārds" required autocomplete="name" />
+            <Input name="phone" label="Tālrunis" type="tel" required autocomplete="tel" placeholder="+371 ..." />
+          </div>
+          <Input name="email" label="E-pasts" type="email" required autocomplete="email" />
+
+          <div class="flex flex-col gap-2">
+            <label for="message" class="text-sm font-medium text-ink">Ziņojums</label>
+            <textarea
+              id="message"
+              name="message"
+              rows="5"
+              placeholder="Mani interesē 2-istabu dzīvoklis 1. stāvā ar terasi..."
+              class="w-full rounded-lg border border-ink-muted/30 bg-cream px-4 py-3 text-ink placeholder-ink-muted/60 transition-colors duration-200 focus:outline-none focus:border-burgundy"
+            ></textarea>
+          </div>
+
+          <p class="text-xs text-ink-muted">
+            Nospiežot pogu, jūs piekrītat, ka jūsu kontaktinformācija tiks izmantota tikai šī pieprasījuma apstrādei.
+          </p>
+
+          <Button variant="primary" size="lg" type="submit">Nosūtīt pieprasījumu</Button>
+        </form>
+
+        <!-- Contact info -->
+        <aside class="lg:col-span-2 space-y-5">
+          <div class="rounded-xl bg-beige p-6 md:p-8">
+            <h3 class="font-serif text-xl text-burgundy">Adrese</h3>
+            <address class="not-italic mt-3 text-lg text-ink leading-relaxed">
+              Mores iela 15<br />Rīga, LV-1034<br />Latvija
+            </address>
+          </div>
+          <div class="rounded-xl bg-beige p-6 md:p-8">
+            <h3 class="font-serif text-xl text-burgundy">Telefons</h3>
+            <p class="mt-3 text-lg">
+              <a href="tel:+37126148011" class="text-ink hover:text-burgundy transition-colors">+371 26 148 011</a>
+            </p>
+            <p class="mt-1 text-sm text-ink-muted">Darbdienās 9:00 – 18:00</p>
+          </div>
+          <div class="rounded-xl bg-beige p-6 md:p-8">
+            <h3 class="font-serif text-xl text-burgundy">E-pasts</h3>
+            <p class="mt-3 text-lg">
+              <a href="mailto:info@almahome.lv" class="text-ink hover:text-burgundy transition-colors">info@almahome.lv</a>
+            </p>
+          </div>
+        </aside>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Map -->
+  <Section background="beige" class="!py-16">
+    <Container>
+      <div class="text-center mb-8">
+        <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Atrašanās</p>
+        <h2 class="mt-4 font-serif text-3xl md:text-4xl text-burgundy">Mores iela 15, Rīga</h2>
+      </div>
+      <a
+        href="https://www.google.com/maps/search/?api=1&query=Mores+iela+15%2C+Riga%2C+Latvia"
+        target="_blank"
+        rel="noopener"
+        class="group block rounded-xl overflow-hidden bg-cream aspect-[16/9] md:aspect-[21/9] relative"
+        aria-label="Atvērt Mores iela 15, Rīga Google Maps"
+      >
+        <img
+          src="/images/maps/almahome-map.jpg"
+          alt="Karte: AlmaHome atrašanās vieta Mīlgrāvī, Rīgā"
+          loading="lazy"
+          width={1600}
+          height={700}
+          class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+        />
+        <span class="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-cream/95 backdrop-blur px-4 py-2 text-sm text-burgundy shadow-md">
+          Atvērt Google Maps
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7v8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+      </a>
+    </Container>
+  </Section>
+
+  <!-- Bank partners -->
+  <Section background="cream" class="!py-16">
+    <Container>
+      <div class="text-center mb-10">
+        <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Hipotekārā kredīta partneri</p>
+        <h2 class="mt-3 font-serif text-3xl md:text-4xl text-burgundy">
+          Sadarbojamies ar vadošajām bankām
+        </h2>
+      </div>
+      <div class="mx-auto max-w-5xl grid grid-cols-2 gap-y-10 gap-x-12 items-center md:flex md:justify-between md:gap-12">
+        {partnerBanks.map((bank) => (
+          <PhotoOrPlaceholder
+            src={bank.logo}
+            width={160}
+            height={48}
+            alt={bank.name}
+            label={bank.name}
+            class="object-contain h-10 md:h-12 w-auto max-w-[140px] mx-auto opacity-60 hover:opacity-100 transition-opacity duration-200"
+          />
+        ))}
+      </div>
+    </Container>
+  </Section>
+</BaseLayout>
