@@ -18,9 +18,16 @@
   let success    = $state(false);
   let errorMsg   = $state('');
 
+  function parsePriceInput(raw: unknown): number | null {
+    const cleaned = String(raw ?? '').replace(/[^\d]/g, '');
+    if (cleaned === '') return null;
+    const n = Number(cleaned);
+    return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
+  }
+
   const dirty = $derived(
     status !== apartment.status ||
-      (priceInput.trim() === '' ? apartment.price !== null : Number(priceInput) !== apartment.price),
+      parsePriceInput(priceInput) !== apartment.price,
   );
 
   function openEditor() {
@@ -43,17 +50,11 @@
     errorMsg = '';
     success = false;
 
-    const trimmed = priceInput.trim();
-    let price: number | null;
-    if (trimmed === '') {
-      price = null;
-    } else {
-      const n = Number(trimmed);
-      if (!Number.isFinite(n) || n <= 0) {
-        errorMsg = 'Cena ir nederīga';
-        return;
-      }
-      price = Math.round(n);
+    // Be lenient about formatting: "76200", "76 200", "€76,200" all → 76200.
+    let price = parsePriceInput(priceInput);
+    if (price === null && String(priceInput ?? '').replace(/[^\d]/g, '') !== '') {
+      errorMsg = 'Cena ir nederīga';
+      return;
     }
 
     saving = true;
@@ -166,15 +167,18 @@
             <label for="apt-price" class="block text-xs uppercase tracking-widest text-zinc-500">
               Cena (€)
             </label>
+            <!-- type="text" + inputmode="numeric" so bind:value stays a string.
+                 Svelte 5's bind:value on type="number" coerces to number, which
+                 broke the priceInput.trim() calls in the dirty/save logic. -->
             <input
               id="apt-price"
-              type="number"
-              min="0"
-              step="100"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
               placeholder="Atstāj tukšu — Pēc pieprasījuma"
               bind:value={priceInput}
               disabled={saving}
-              class="w-full rounded-md bg-zinc-800 border border-zinc-700 px-3 py-2 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-burgundy disabled:opacity-50"
+              class="w-full rounded-md bg-zinc-800 border border-zinc-700 px-3 py-2 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-burgundy disabled:opacity-50 tabular-nums"
             />
             <p class="text-xs text-zinc-500">Tukšs lauks → "Pēc pieprasījuma".</p>
           </div>
