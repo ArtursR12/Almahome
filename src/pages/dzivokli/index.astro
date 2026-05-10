@@ -493,6 +493,9 @@ function notesFor(a: { has_terrace: boolean; has_balcony: boolean }): string {
     // Polygon hover tooltip — single shared element repositioned per pointer move.
     // We track an active polygon so moving between polygons hands off cleanly
     // without a race between a pending hide-timer and the next show.
+    // Skipped on touch-only devices because tap → navigate makes the tooltip
+    // useless (and visually noisy if it flashes during the tap).
+    const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     const tip       = document.getElementById('apt-tooltip')!;
     const tipDot    = document.getElementById('apt-tooltip-dot')!;
     const tipStatus = document.getElementById('apt-tooltip-status')!;
@@ -547,13 +550,15 @@ function notesFor(a: { has_terrace: boolean; has_balcony: boolean }): string {
       tip.style.top  = `${e.clientY}px`;
     }
 
-    document.querySelectorAll<SVGPolygonElement>('polygon.apt-polygon').forEach((poly) => {
-      // pointerenter/pointerleave fire reliably even when the cursor crosses
-      // between sibling polygons in the same SVG (mouseenter/leave don't always).
-      poly.addEventListener('pointerenter', (e) => showFor(poly, e as PointerEvent));
-      poly.addEventListener('pointermove',  moveTooltip);
-      poly.addEventListener('pointerleave', () => hideFor(poly));
-    });
+    if (supportsHover) {
+      document.querySelectorAll<SVGPolygonElement>('polygon.apt-polygon').forEach((poly) => {
+        // pointerenter/pointerleave fire reliably even when the cursor crosses
+        // between sibling polygons in the same SVG (mouseenter/leave don't always).
+        poly.addEventListener('pointerenter', (e) => showFor(poly, e as PointerEvent));
+        poly.addEventListener('pointermove',  moveTooltip);
+        poly.addEventListener('pointerleave', () => hideFor(poly));
+      });
+    }
 
     const floorTabs = document.querySelectorAll<HTMLButtonElement>('.floor-tab');
     const floorPanels = document.querySelectorAll<HTMLElement>('[data-floor-panel]');

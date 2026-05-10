@@ -139,9 +139,10 @@
   .field label { @apply text-sm font-medium text-ink; }
   .field input,
   .field textarea {
-    @apply w-full bg-transparent border-0 border-b border-ink-muted/30 px-0 py-2.5 text-ink
+    @apply w-full bg-transparent border-0 border-b border-ink-muted/30 px-0 py-3 text-base text-ink
            placeholder-ink-muted/50 transition-colors duration-150
            focus:outline-none focus:border-burgundy focus:border-b-2;
+    min-height: 44px; /* mobile touch target */
   }
   .field textarea { @apply resize-y min-h-[100px]; }
 </style>
