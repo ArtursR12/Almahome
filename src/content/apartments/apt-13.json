@@ -2,18 +2,49 @@
   "number": 13,
   "floor": 2,
   "rooms": 2,
-  "area_total": 70.0,
-  "price": 138000,
+  "area_total": 62.7,
+  "price": 127900,
   "has_terrace": false,
   "has_balcony": true,
   "status": "available",
   "rooms_breakdown": [
-    { "name_lv": "Virtuve un istaba", "name_ru": "Кухня-гостиная", "name_en": "Kitchen-living room", "area": 30.0 },
-    { "name_lv": "Istaba", "name_ru": "Комната", "name_en": "Room", "area": 14.5 },
-    { "name_lv": "Vannas istaba", "name_ru": "Ванная", "name_en": "Bathroom", "area": 4.5 },
-    { "name_lv": "Balkons", "name_ru": "Балкон", "name_en": "Balcony", "area": 7.5 }
+    {
+      "name_lv": "Virtuve un istaba",
+      "name_ru": "Кухня-гостиная",
+      "name_en": "Kitchen-living room",
+      "area": 27.8
+    },
+    {
+      "name_lv": "Istaba",
+      "name_ru": "Комната",
+      "name_en": "Room",
+      "area": 11.6
+    },
+    {
+      "name_lv": "Gaitenis",
+      "name_ru": "Коридор",
+      "name_en": "Hallway",
+      "area": 10.2
+    },
+    {
+      "name_lv": "Vannas istaba",
+      "name_ru": "Ванная комната",
+      "name_en": "Bathroom",
+      "area": 4.1
+    },
+    {
+      "name_lv": "Balkons",
+      "name_ru": "Балкон",
+      "name_en": "Balcony",
+      "area": 4.5
+    },
+    {
+      "name_lv": "Balkons",
+      "name_ru": "Балкон",
+      "name_en": "Balcony",
+      "area": 4.5
+    }
   ],
   "floor_plan_image": "/images/floor-plans/apt-13.jpg",
-  "render_images": [],
-  "_comment": "TODO: проверить с реальным сайтом — заглушка"
+  "render_images": []
 }

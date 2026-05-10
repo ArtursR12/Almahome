@@ -2,21 +2,67 @@
   "number": 22,
   "floor": 3,
   "rooms": 4,
-  "area_total": 128.0,
-  "price": 264000,
-  "has_terrace": true,
+  "area_total": 99.6,
+  "price": null,
+  "has_terrace": false,
   "has_balcony": true,
-  "status": "available",
+  "status": "reserved",
   "rooms_breakdown": [
-    { "name_lv": "Virtuve un istaba", "name_ru": "Кухня-гостиная", "name_en": "Kitchen-living room", "area": 40.0 },
-    { "name_lv": "Istaba", "name_ru": "Комната", "name_en": "Room", "area": 15.0 },
-    { "name_lv": "Istaba", "name_ru": "Комната", "name_en": "Room", "area": 14.0 },
-    { "name_lv": "Istaba", "name_ru": "Комната", "name_en": "Room", "area": 12.0 },
-    { "name_lv": "Vannas istaba", "name_ru": "Ванная", "name_en": "Bathroom", "area": 5.0 },
-    { "name_lv": "Vannas istaba", "name_ru": "Ванная", "name_en": "Bathroom", "area": 3.5 },
-    { "name_lv": "Terase", "name_ru": "Терраса", "name_en": "Terrace", "area": 26.0 }
+    {
+      "name_lv": "Virtuve un istaba",
+      "name_ru": "Кухня-гостиная",
+      "name_en": "Kitchen-living room",
+      "area": 28.7
+    },
+    {
+      "name_lv": "Istaba",
+      "name_ru": "Комната",
+      "name_en": "Room",
+      "area": 13.4
+    },
+    {
+      "name_lv": "Istaba",
+      "name_ru": "Комната",
+      "name_en": "Room",
+      "area": 12.4
+    },
+    {
+      "name_lv": "Istaba",
+      "name_ru": "Комната",
+      "name_en": "Room",
+      "area": 12.8
+    },
+    {
+      "name_lv": "Gaitenis",
+      "name_ru": "Коридор",
+      "name_en": "Hallway",
+      "area": 16.3
+    },
+    {
+      "name_lv": "Vannas istaba",
+      "name_ru": "Ванная комната",
+      "name_en": "Bathroom",
+      "area": 4.8
+    },
+    {
+      "name_lv": "Tualete",
+      "name_ru": "Туалет",
+      "name_en": "Toilet",
+      "area": 2.2
+    },
+    {
+      "name_lv": "Balkons",
+      "name_ru": "Балкон",
+      "name_en": "Balcony",
+      "area": 4.5
+    },
+    {
+      "name_lv": "Balkons",
+      "name_ru": "Балкон",
+      "name_en": "Balcony",
+      "area": 4.5
+    }
   ],
   "floor_plan_image": "/images/floor-plans/apt-22.jpg",
-  "render_images": [],
-  "_comment": "TODO: проверить с реальным сайтом — заглушка (предположительно penthouse с террасой на крыше)"
+  "render_images": []
 }

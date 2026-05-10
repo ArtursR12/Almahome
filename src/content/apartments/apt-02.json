@@ -2,17 +2,42 @@
   "number": 2,
   "floor": 1,
   "rooms": 3,
-  "area_total": 67.2,
+  "area_total": 67.5,
   "price": 137500,
   "has_terrace": true,
   "has_balcony": false,
   "status": "available",
   "rooms_breakdown": [
-    { "name_lv": "Virtuve un istaba", "name_ru": "Кухня-гостиная", "name_en": "Kitchen-living room", "area": 26.95 },
-    { "name_lv": "Istaba", "name_ru": "Комната", "name_en": "Room", "area": 9.16 },
-    { "name_lv": "Istaba", "name_ru": "Комната", "name_en": "Room", "area": 11.26 },
-    { "name_lv": "Vannas istaba", "name_ru": "Ванная", "name_en": "Bathroom", "area": 3.79 },
-    { "name_lv": "Terase", "name_ru": "Терраса", "name_en": "Terrace", "area": 16.02 }
+    {
+      "name_lv": "Virtuve un istaba",
+      "name_ru": "Кухня-гостиная",
+      "name_en": "Kitchen-living room",
+      "area": 27.2
+    },
+    {
+      "name_lv": "Istaba",
+      "name_ru": "Комната",
+      "name_en": "Room",
+      "area": 9.2
+    },
+    {
+      "name_lv": "Istaba",
+      "name_ru": "Комната",
+      "name_en": "Room",
+      "area": 11.3
+    },
+    {
+      "name_lv": "Vannas istaba",
+      "name_ru": "Ванная комната",
+      "name_en": "Bathroom",
+      "area": 3.8
+    },
+    {
+      "name_lv": "Terase",
+      "name_ru": "Терраса",
+      "name_en": "Terrace",
+      "area": 16
+    }
   ],
   "floor_plan_image": "/images/floor-plans/apt-02.jpg",
   "render_images": []
