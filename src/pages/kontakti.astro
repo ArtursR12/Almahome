@@ -2,9 +2,8 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Container from '@/components/ui/Container.astro';
 import Section from '@/components/ui/Section.astro';
-import Button from '@/components/ui/Button.astro';
-import Input from '@/components/ui/Input.astro';
 import PhotoOrPlaceholder from '@/components/ui/PhotoOrPlaceholder.astro';
+import ContactForm from '@/components/forms/ContactForm.svelte';
 
 const partnerBanks: { name: string; logo: string }[] = [
   { name: 'Bigbank',  logo: '/images/logos/bigbank.jpg' },
@@ -30,35 +29,10 @@ const partnerBanks: { name: string; logo: string }[] = [
 
       <div class="grid lg:grid-cols-5 gap-12">
         <!-- Form -->
-        <form class="lg:col-span-3 bg-beige rounded-xl p-6 md:p-10 space-y-5" novalidate>
-          <h2 class="font-serif text-2xl text-burgundy">Pieprasījums</h2>
-
-          <!-- Honeypot -->
-          <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
-
-          <div class="grid md:grid-cols-2 gap-4">
-            <Input name="name" label="Vārds, uzvārds" required autocomplete="name" />
-            <Input name="phone" label="Tālrunis" type="tel" required autocomplete="tel" placeholder="+371 ..." />
-          </div>
-          <Input name="email" label="E-pasts" type="email" required autocomplete="email" />
-
-          <div class="flex flex-col gap-2">
-            <label for="message" class="text-sm font-medium text-ink">Ziņojums</label>
-            <textarea
-              id="message"
-              name="message"
-              rows="5"
-              placeholder="Mani interesē 2-istabu dzīvoklis 1. stāvā ar terasi..."
-              class="w-full rounded-lg border border-ink-muted/30 bg-cream px-4 py-3 text-ink placeholder-ink-muted/60 transition-colors duration-200 focus:outline-none focus:border-burgundy"
-            ></textarea>
-          </div>
-
-          <p class="text-xs text-ink-muted">
-            Nospiežot pogu, jūs piekrītat, ka jūsu kontaktinformācija tiks izmantota tikai šī pieprasījuma apstrādei.
-          </p>
-
-          <Button variant="primary" size="lg" type="submit">Nosūtīt pieprasījumu</Button>
-        </form>
+        <div class="lg:col-span-3 bg-beige rounded-xl p-6 md:p-10">
+          <h2 class="font-serif text-2xl text-burgundy mb-6">Sazināties ar mums</h2>
+          <ContactForm client:load />
+        </div>
 
         <!-- Contact info -->
         <aside class="lg:col-span-2 space-y-5">

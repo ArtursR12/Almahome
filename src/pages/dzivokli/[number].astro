@@ -1,0 +1,285 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import PhotoOrPlaceholder from '@/components/ui/PhotoOrPlaceholder.astro';
+import ContactForm from '@/components/forms/ContactForm.svelte';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const apartments = await getCollection('apartments');
+  return apartments.map((apt) => ({
+    params: { number: String(apt.data.number) },
+    props: { apt },
+  }));
+}
+
+const { apt } = Astro.props;
+const a = apt.data;
+
+// Locator (small site map showing this apartment's position in the building).
+import fs from 'node:fs';
+import path from 'node:path';
+const padded = String(a.number).padStart(2, '0');
+const locatorSrc = `/images/floor-plans/apt-${padded}-locator.jpg`;
+const locatorExists = (() => {
+  try { return fs.statSync(path.join(process.cwd(), 'public', locatorSrc.slice(1))).isFile(); }
+  catch { return false; }
+})();
+
+const allApts = (await getCollection('apartments')).map((x) => x.data);
+const otherAvailable = allApts
+  .filter((x) => x.status === 'available' && x.number !== a.number)
+  .sort(() => Math.random() - 0.5)
+  .slice(0, 3);
+
+function priceLabel(price: number | null): string {
+  if (price === null) return 'Pēc pieprasījuma';
+  return `${price.toLocaleString('lv-LV')} €`;
+}
+
+const statusDict = {
+  available: { label: 'Pieejams',  bg: 'bg-status-available/15', dot: 'bg-status-available', text: 'text-status-available' },
+  reserved:  { label: 'Rezervēts', bg: 'bg-status-reserved/20',  dot: 'bg-status-reserved',  text: 'text-[#8a7531]' },
+  sold:      { label: 'Pārdots',   bg: 'bg-status-sold/15',      dot: 'bg-status-sold',      text: 'text-ink-muted' },
+} as const;
+const status = statusDict[a.status];
+const features = [
+  a.has_terrace ? { label: 'Terase', icon: 'terrace' } : null,
+  a.has_balcony ? { label: 'Balkons', icon: 'balcony' } : null,
+].filter(Boolean) as { label: string; icon: string }[];
+---
+<BaseLayout
+  title={`Dzīvoklis Nr.${a.number} — ${a.rooms} ist., ${a.area_total} m² — AlmaHome`}
+  description={`AlmaHome dzīvoklis Nr.${a.number}: ${a.floor}. stāvs, ${a.rooms} istabas, ${a.area_total} m², ${priceLabel(a.price)}.`}
+>
+  <!-- Hero -->
+  <section class="relative bg-burgundy text-cream overflow-hidden">
+    <div class="absolute inset-0 opacity-[0.07] pointer-events-none">
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(245,239,230,0.5),_transparent_60%)]"></div>
+    </div>
+    <Container class="relative py-14 md:py-20">
+      <a
+        href="/dzivokli"
+        class="inline-flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-cream/75 hover:text-cream transition-colors"
+      >
+        <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Visi dzīvokļi
+      </a>
+      <div class="mt-5 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <p class="text-[11px] md:text-xs uppercase tracking-[0.4em] text-cream/70">Dzīvoklis</p>
+          <h1 class="mt-2 font-serif text-5xl md:text-7xl leading-[1.05]">
+            Nr. <span class="font-light">{a.number}</span>
+          </h1>
+          <p class="mt-3 text-sm md:text-base text-cream/75">
+            {a.floor}. stāvs · {a.rooms} {a.rooms === 1 ? 'istaba' : 'istabas'} · {a.area_total} m²
+          </p>
+        </div>
+        <span class:list={['self-start md:self-end inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm bg-cream/95', status.text]}>
+          <span class:list={['h-2 w-2 rounded-full', status.dot]} aria-hidden="true"></span>
+          {status.label}
+        </span>
+      </div>
+    </Container>
+  </section>
+
+  <!-- Info + plan -->
+  <Section background="cream">
+    <Container>
+      <div class="grid lg:grid-cols-5 gap-12">
+        <!-- Info -->
+        <div class="lg:col-span-2 space-y-8">
+          <div>
+            <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Cena</p>
+            <p class="mt-2 font-serif text-5xl text-burgundy tabular-nums">{priceLabel(a.price)}</p>
+            {a.price && (
+              <p class="mt-1 text-sm text-ink-muted tabular-nums">
+                ≈ {Math.round(a.price / a.area_total).toLocaleString('lv-LV')} € / m²
+              </p>
+            )}
+          </div>
+
+          <dl class="grid grid-cols-2 gap-x-6 gap-y-5 border-y border-ink-muted/15 py-6">
+            <div>
+              <dt class="text-xs uppercase tracking-[0.25em] text-ink-muted">Stāvs</dt>
+              <dd class="mt-1.5 font-serif text-2xl text-burgundy">{a.floor}.</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-[0.25em] text-ink-muted">Istabas</dt>
+              <dd class="mt-1.5 font-serif text-2xl text-burgundy">{a.rooms}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-[0.25em] text-ink-muted">Platība</dt>
+              <dd class="mt-1.5 font-serif text-2xl text-burgundy tabular-nums">{a.area_total} <span class="text-base text-ink-muted">m²</span></dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-[0.25em] text-ink-muted">Ērtības</dt>
+              <dd class="mt-1.5 text-base text-ink">
+                {features.length === 0 ? '—' : features.map((f) => f.label).join(' · ')}
+              </dd>
+            </div>
+          </dl>
+
+          <div>
+            <p class="text-xs uppercase tracking-[0.25em] text-ink-muted mb-3">Telpu sadalījums</p>
+            <table class="w-full text-sm">
+              <tbody>
+                {a.rooms_breakdown.map((r) => (
+                  <tr class="border-b border-ink-muted/10 last:border-0">
+                    <td class="py-2.5 text-ink">{r.name_lv}</td>
+                    <td class="py-2.5 text-right text-ink-muted tabular-nums">{r.area} m²</td>
+                  </tr>
+                ))}
+                <tr class="border-t-2 border-ink-muted/30">
+                  <td class="pt-3 font-medium text-ink">Kopā</td>
+                  <td class="pt-3 text-right font-medium text-burgundy tabular-nums">{a.area_total} m²</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {locatorExists && (
+            <div>
+              <p class="text-xs uppercase tracking-[0.25em] text-ink-muted mb-3">Atrašanās namā</p>
+              <img
+                src={locatorSrc}
+                alt={`Dzīvoklis Nr. ${a.number} — atrašanās ēkā`}
+                width="600"
+                height="370"
+                loading="lazy"
+                class="w-full h-auto rounded-xl border border-burgundy/10 max-w-[480px]"
+              />
+            </div>
+          )}
+
+          {a.status === 'available' && (
+            <Button variant="primary" size="lg" href="#pieteikuma-forma" class="w-full !justify-center js-smooth-scroll">
+              Pieteikties
+            </Button>
+          )}
+        </div>
+
+        <!-- Plan image -->
+        <div class="lg:col-span-3">
+          <div class="rounded-xl bg-beige/50 p-4 md:p-8 sticky top-24">
+            <PhotoOrPlaceholder
+              src={a.floor_plan_image}
+              width={1000}
+              height={750}
+              alt={`Dzīvoklis Nr. ${a.number} — plānojums`}
+              label={`Plānojums Nr. ${a.number}`}
+              class="w-full h-auto object-contain max-h-[70vh] mx-auto"
+            />
+          </div>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Renders -->
+  {a.render_images && a.render_images.length > 0 && (
+    <Section background="beige">
+      <Container>
+        <div class="text-center mb-10">
+          <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Vizualizācijas</p>
+          <h2 class="mt-3 font-serif text-3xl md:text-4xl text-burgundy">Iekārtota dzīvošana</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          {a.render_images.map((src, i) => (
+            <div class="rounded-xl overflow-hidden bg-cream aspect-[4/3]">
+              <img
+                src={src}
+                alt={`Dzīvoklis Nr. ${a.number} — render ${i + 1}`}
+                loading="lazy"
+                class="h-full w-full object-cover"
+              />
+            </div>
+          ))}
+        </div>
+      </Container>
+    </Section>
+  )}
+
+  <!-- Application form -->
+  <Section background="beige" id="pieteikuma-forma">
+    <Container>
+      <div class="max-w-2xl mx-auto">
+        <div class="text-center mb-10">
+          <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Pieteikums</p>
+          <h2 class="mt-3 font-serif text-3xl md:text-4xl text-burgundy">Pieteikties šim dzīvoklim</h2>
+          <p class="mt-3 text-ink-muted">
+            Aizpildiet formu un mēs sazināsimies tuvāko 24 stundu laikā darba dienās.
+          </p>
+        </div>
+
+        <div class="bg-cream rounded-xl p-6 md:p-8">
+          <ContactForm apartmentNumber={a.number} client:load />
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <script>
+    // Smooth-scroll the in-page CTA to the form anchor.
+    document.querySelectorAll<HTMLAnchorElement>('a.js-smooth-scroll[href^="#"]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        const target = document.querySelector(a.getAttribute('href')!);
+        if (!target) return;
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  </script>
+
+  <!-- Other available -->
+  {otherAvailable.length > 0 && (
+    <Section background="cream">
+      <Container>
+        <div class="flex items-end justify-between gap-4 mb-10">
+          <div>
+            <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Citi pieejamie dzīvokļi</p>
+            <h2 class="mt-3 font-serif text-3xl md:text-4xl text-burgundy">Apskati arī šos</h2>
+          </div>
+          <a href="/dzivokli" class="hidden sm:inline-block text-sm text-burgundy hover:underline underline-offset-4">Visi dzīvokļi →</a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {otherAvailable.map((o) => (
+            <a
+              href={`/dzivokli/${o.number}`}
+              class="group bg-beige rounded-xl overflow-hidden flex flex-col transition-shadow hover:shadow-lg"
+            >
+              <div class="relative aspect-[4/3] overflow-hidden bg-cream">
+                <PhotoOrPlaceholder
+                  src={o.floor_plan_image}
+                  width={400}
+                  height={300}
+                  alt={`Dzīvoklis Nr. ${o.number}`}
+                  label={`Plānojums Nr. ${o.number}`}
+                  class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                />
+              </div>
+              <div class="p-5 flex-1 flex flex-col">
+                <div class="flex items-baseline justify-between">
+                  <h3 class="font-serif text-2xl text-burgundy">Nr. {o.number}</h3>
+                  <span class="text-sm text-ink-muted">{o.floor}. stāvs</span>
+                </div>
+                <div class="mt-2 text-sm text-ink-muted">
+                  {o.rooms} ist. · {o.area_total} m²{o.has_terrace ? ' · terase' : o.has_balcony ? ' · balkons' : ''}
+                </div>
+                <div class="mt-4 flex items-end justify-between">
+                  <span class="font-serif text-xl text-burgundy">{priceLabel(o.price)}</span>
+                  <span class="text-sm text-burgundy group-hover:underline">Skatīt →</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </Container>
+    </Section>
+  )}
+</BaseLayout>
