@@ -6,7 +6,7 @@
   "price": 76200,
   "has_terrace": true,
   "has_balcony": false,
-  "status": "reserved",
+  "status": "available",
   "rooms_breakdown": [
     {
       "name_lv": "Virtuve un istaba",
