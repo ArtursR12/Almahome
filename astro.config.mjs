@@ -4,13 +4,13 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import svelte from '@astrojs/svelte';
 import sitemap from '@astrojs/sitemap';
-import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://almahome.lv',
   output: 'server',
-  adapter: node({ mode: 'standalone' }),
+  adapter: vercel(),
   i18n: {
     defaultLocale: 'lv',
     locales: ['lv', 'ru', 'en'],
