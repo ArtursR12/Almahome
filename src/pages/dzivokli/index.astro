@@ -4,7 +4,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Container from '@/components/ui/Container.astro';
 import Section from '@/components/ui/Section.astro';
 import floorPlansData from '@/data/floor-plans.json';
-import { getLocaleFromUrl, useTranslations, getLocalizedUrl, formatPrice } from '@/i18n/utils';
+import { getLocaleFromUrl, useTranslations, getLocalizedUrl, formatPrice, roomsLabel } from '@/i18n/utils';
 
 const lang = getLocaleFromUrl(Astro.url);
 const t = useTranslations(lang);
@@ -138,13 +138,21 @@ function notesFor(a: { has_terrace: boolean; has_balcony: boolean }): string {
                         stroke="transparent"
                         stroke-width="2"
                         data-number={number}
+                        data-status={status}
+                        data-status-label={statusDict[status].label}
+                        data-rooms={apt.rooms}
+                        data-rooms-label={roomsLabel(apt.rooms, lang)}
+                        data-area={apt.area_total}
+                        data-price={formatPrice(apt.price, lang)}
+                        data-floor={apt.floor}
+                        data-floor-label={floorLabel(apt.floor)}
                       />
                     </a>
                   );
                 })}
               </svg>
             </div>
-            <div class="mt-5 flex flex-wrap gap-2">
+            <div class="mt-5 flex flex-wrap gap-2" data-floor-chips>
               {f.apartments.map((a) => {
                 const s = statusDict[a.status];
                 const clickable = a.status === 'available';
@@ -357,6 +365,25 @@ function notesFor(a: { has_terrace: boolean; has_balcony: boolean }): string {
     </Container>
   </Section>
 
+  <!-- Floor-plan polygon tooltip — single shared element repositioned on hover. -->
+  <div
+    id="apt-tooltip"
+    role="tooltip"
+    aria-hidden="true"
+    class="pointer-events-none fixed z-50 hidden rounded-xl border border-burgundy/15 bg-cream/95 backdrop-blur shadow-[0_12px_30px_-12px_rgba(90,31,42,0.35)] px-4 py-3 text-sm transition-opacity duration-100"
+    style="opacity:0; transform: translate(-50%, calc(-100% - 12px));"
+  >
+    <div class="flex items-center gap-2">
+      <span id="apt-tooltip-dot" class="h-2 w-2 rounded-full" aria-hidden="true"></span>
+      <span id="apt-tooltip-status" class="text-[11px] uppercase tracking-[0.2em] text-ink-muted"></span>
+    </div>
+    <div class="mt-1.5 flex items-baseline gap-2">
+      <span id="apt-tooltip-number" class="font-serif text-2xl text-burgundy"></span>
+      <span id="apt-tooltip-meta" class="text-xs text-ink-muted tabular-nums"></span>
+    </div>
+    <div id="apt-tooltip-price" class="mt-1 font-serif text-lg text-burgundy tabular-nums"></div>
+  </div>
+
   <style>
     @reference "@/styles/globals.css";
     .filter-chip {
@@ -424,6 +451,49 @@ function notesFor(a: { has_terrace: boolean; has_balcony: boolean }): string {
       const href = row.dataset.href;
       if (!href) return;
       row.addEventListener('click', () => { window.location.href = href; });
+    });
+
+    // Polygon hover tooltip
+    const tip       = document.getElementById('apt-tooltip')!;
+    const tipDot    = document.getElementById('apt-tooltip-dot')!;
+    const tipStatus = document.getElementById('apt-tooltip-status')!;
+    const tipNumber = document.getElementById('apt-tooltip-number')!;
+    const tipMeta   = document.getElementById('apt-tooltip-meta')!;
+    const tipPrice  = document.getElementById('apt-tooltip-price')!;
+
+    const dotByStatus: Record<string, string> = {
+      available: 'bg-status-available',
+      reserved:  'bg-status-reserved',
+      sold:      'bg-status-sold',
+    };
+
+    function showTooltip(poly: SVGPolygonElement) {
+      const d = poly.dataset;
+      tipNumber.textContent = `Nr. ${d.number}`;
+      tipMeta.textContent   = `${d.floorLabel} · ${d.rooms} ${d.roomsLabel} · ${d.area} m²`;
+      tipPrice.textContent  = d.price ?? '';
+      tipStatus.textContent = d.statusLabel ?? '';
+      tipDot.className = `h-2 w-2 rounded-full ${dotByStatus[d.status ?? 'available']}`;
+      tip.classList.remove('hidden');
+      tip.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => { tip.style.opacity = '1'; });
+    }
+
+    function hideTooltip() {
+      tip.style.opacity = '0';
+      tip.setAttribute('aria-hidden', 'true');
+      window.setTimeout(() => { tip.classList.add('hidden'); }, 100);
+    }
+
+    function moveTooltip(e: MouseEvent) {
+      tip.style.left = `${e.clientX}px`;
+      tip.style.top  = `${e.clientY}px`;
+    }
+
+    document.querySelectorAll<SVGPolygonElement>('polygon.apt-polygon').forEach((poly) => {
+      poly.addEventListener('mouseenter', (e) => { showTooltip(poly); moveTooltip(e as MouseEvent); });
+      poly.addEventListener('mousemove', moveTooltip);
+      poly.addEventListener('mouseleave', hideTooltip);
     });
 
     const floorTabs = document.querySelectorAll<HTMLButtonElement>('.floor-tab');
