@@ -453,7 +453,9 @@ function notesFor(a: { has_terrace: boolean; has_balcony: boolean }): string {
       row.addEventListener('click', () => { window.location.href = href; });
     });
 
-    // Polygon hover tooltip
+    // Polygon hover tooltip — single shared element repositioned per pointer move.
+    // We track an active polygon so moving between polygons hands off cleanly
+    // without a race between a pending hide-timer and the next show.
     const tip       = document.getElementById('apt-tooltip')!;
     const tipDot    = document.getElementById('apt-tooltip-dot')!;
     const tipStatus = document.getElementById('apt-tooltip-status')!;
@@ -467,22 +469,40 @@ function notesFor(a: { has_terrace: boolean; has_balcony: boolean }): string {
       sold:      'bg-status-sold',
     };
 
-    function showTooltip(poly: SVGPolygonElement) {
+    let active: SVGPolygonElement | null = null;
+    // Make sure the tooltip is participating in layout so transitions work.
+    tip.classList.remove('hidden');
+    tip.style.visibility = 'hidden';
+    tip.style.opacity = '0';
+
+    function populate(poly: SVGPolygonElement) {
       const d = poly.dataset;
       tipNumber.textContent = `Nr. ${d.number}`;
       tipMeta.textContent   = `${d.floorLabel} · ${d.rooms} ${d.roomsLabel} · ${d.area} m²`;
       tipPrice.textContent  = d.price ?? '';
       tipStatus.textContent = d.statusLabel ?? '';
       tipDot.className = `h-2 w-2 rounded-full ${dotByStatus[d.status ?? 'available']}`;
-      tip.classList.remove('hidden');
-      tip.setAttribute('aria-hidden', 'false');
-      requestAnimationFrame(() => { tip.style.opacity = '1'; });
     }
 
-    function hideTooltip() {
+    function showFor(poly: SVGPolygonElement, e: MouseEvent) {
+      active = poly;
+      populate(poly);
+      tip.style.left = `${e.clientX}px`;
+      tip.style.top  = `${e.clientY}px`;
+      tip.style.visibility = 'visible';
+      tip.style.opacity = '1';
+      tip.setAttribute('aria-hidden', 'false');
+    }
+
+    function hideFor(poly: SVGPolygonElement) {
+      // Only hide if leaving the polygon we're currently showing — protects
+      // against an out-of-order mouseleave landing after we already showed
+      // the tooltip for the next polygon.
+      if (active !== poly) return;
+      active = null;
       tip.style.opacity = '0';
+      tip.style.visibility = 'hidden';
       tip.setAttribute('aria-hidden', 'true');
-      window.setTimeout(() => { tip.classList.add('hidden'); }, 100);
     }
 
     function moveTooltip(e: MouseEvent) {
@@ -491,9 +511,11 @@ function notesFor(a: { has_terrace: boolean; has_balcony: boolean }): string {
     }
 
     document.querySelectorAll<SVGPolygonElement>('polygon.apt-polygon').forEach((poly) => {
-      poly.addEventListener('mouseenter', (e) => { showTooltip(poly); moveTooltip(e as MouseEvent); });
-      poly.addEventListener('mousemove', moveTooltip);
-      poly.addEventListener('mouseleave', hideTooltip);
+      // pointerenter/pointerleave fire reliably even when the cursor crosses
+      // between sibling polygons in the same SVG (mouseenter/leave don't always).
+      poly.addEventListener('pointerenter', (e) => showFor(poly, e as PointerEvent));
+      poly.addEventListener('pointermove',  moveTooltip);
+      poly.addEventListener('pointerleave', () => hideFor(poly));
     });
 
     const floorTabs = document.querySelectorAll<HTMLButtonElement>('.floor-tab');
