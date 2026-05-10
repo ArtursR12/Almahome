@@ -6,6 +6,7 @@ import Section from '@/components/ui/Section.astro';
 import Button from '@/components/ui/Button.astro';
 import PhotoOrPlaceholder from '@/components/ui/PhotoOrPlaceholder.astro';
 import BottomCTA from '@/components/layout/BottomCTA.astro';
+import { partnerBanks } from '@/data/partner-banks';
 import { getLocaleFromUrl, useTranslations, useTranslationsRaw, getLocalizedUrl, formatPrice, roomsLabel } from '@/i18n/utils';
 
 const lang = getLocaleFromUrl(Astro.url);
@@ -56,14 +57,6 @@ const residentialComplex: Record<string, unknown> = {
 
 const features = tr<string[]>('home.features');
 const landmarks = tr<{ time: string; name: string }[]>('home.location_landmarks');
-
-const partnerBanks: { name: string; logo: string }[] = [
-  { name: 'Bigbank',  logo: '/images/logos/bigbank.jpg' },
-  { name: 'Citadele', logo: '/images/logos/citadele.jpg' },
-  { name: 'Luminor',  logo: '/images/logos/luminor.jpg' },
-  { name: 'Swedbank', logo: '/images/logos/swedbank.jpg' },
-  { name: 'SEB',      logo: '/images/logos/seb.jpg' },
-];
 ---
 <BaseLayout
   lang={lang}
@@ -239,14 +232,22 @@ const partnerBanks: { name: string; logo: string }[] = [
       </div>
       <div class="mx-auto max-w-5xl grid grid-cols-2 gap-y-10 gap-x-12 items-center md:flex md:justify-between md:gap-12">
         {partnerBanks.map((bank) => (
-          <PhotoOrPlaceholder
-            src={bank.logo}
-            width={160}
-            height={48}
-            alt={bank.name}
-            label={bank.name}
-            class="object-contain h-10 md:h-12 w-auto max-w-[140px] mx-auto opacity-60 hover:opacity-100 transition-opacity duration-200"
-          />
+          <a
+            href={bank.url}
+            target="_blank"
+            rel="noopener nofollow"
+            aria-label={bank.name}
+            class="block mx-auto max-w-[140px]"
+          >
+            <PhotoOrPlaceholder
+              src={bank.logo}
+              width={160}
+              height={48}
+              alt={bank.name}
+              label={bank.name}
+              class="object-contain h-10 md:h-12 w-auto opacity-60 hover:opacity-100 transition-opacity duration-200"
+            />
+          </a>
         ))}
       </div>
     </Container>
