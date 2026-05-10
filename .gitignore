@@ -36,3 +36,4 @@ screenshots/
 # polygon-helper backups + image previews (created locally on each save)
 src/data/.floor-plans.*.bak.json
 public/images/floor-plans/_*.png
+.vercel/

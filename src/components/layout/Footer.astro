@@ -1,68 +1,24 @@
 ---
 import Container from '@/components/ui/Container.astro';
+import { useTranslations, getLocalizedUrl, getLocaleFromUrl, type Locale } from '@/i18n/utils';
 
 interface Props {
-  lang?: 'lv' | 'ru' | 'en';
+  lang?: Locale;
 }
-const { lang = 'lv' } = Astro.props;
+const { lang = getLocaleFromUrl(Astro.url) } = Astro.props;
+const t = useTranslations(lang);
 
-const dict: Record<'lv' | 'ru' | 'en', {
-  tagline: string;
-  contactsTitle: string;
-  navTitle: string;
-  legalTitle: string;
-  privacy: string;
-  rights: string;
-  navItems: { label: string; href: string }[];
-}> = {
-  lv: {
-    tagline: 'A+ klases jauns dzīvojamais nams Mežaparka tuvumā.',
-    contactsTitle: 'Kontakti',
-    navTitle: 'Saites',
-    legalTitle: 'Juridiski',
-    privacy: 'Privātuma politika',
-    rights: 'Visas tiesības aizsargātas.',
-    navItems: [
-      { label: 'Par namu', href: '/par-namu' },
-      { label: 'Par projektu', href: '/par-projektu' },
-      { label: 'Dzīvokļi', href: '/dzivokli' },
-      { label: 'Kontakti', href: '/kontakti' },
-    ],
-  },
-  ru: {
-    tagline: 'Новый дом класса A+ рядом с Межапарком.',
-    contactsTitle: 'Контакты',
-    navTitle: 'Ссылки',
-    legalTitle: 'Правовое',
-    privacy: 'Политика конфиденциальности',
-    rights: 'Все права защищены.',
-    navItems: [
-      { label: 'О доме', href: '/ru/par-namu' },
-      { label: 'О проекте', href: '/ru/par-projektu' },
-      { label: 'Квартиры', href: '/ru/dzivokli' },
-      { label: 'Контакты', href: '/ru/kontakti' },
-    ],
-  },
-  en: {
-    tagline: 'A new A+ class residential building near Mežaparks.',
-    contactsTitle: 'Contact',
-    navTitle: 'Links',
-    legalTitle: 'Legal',
-    privacy: 'Privacy policy',
-    rights: 'All rights reserved.',
-    navItems: [
-      { label: 'About', href: '/en/par-namu' },
-      { label: 'Project', href: '/en/par-projektu' },
-      { label: 'Apartments', href: '/en/dzivokli' },
-      { label: 'Contact', href: '/en/kontakti' },
-    ],
-  },
-};
+const navItems = [
+  { label: t('nav.par_namu'),     path: '/par-namu' },
+  { label: t('nav.par_projektu'), path: '/par-projektu' },
+  { label: t('nav.dzivokli'),     path: '/dzivokli' },
+  { label: t('nav.apdares'),      path: '/apdares' },
+  { label: t('nav.kontakti'),     path: '/kontakti' },
+];
 
-const t = dict[lang];
-const homeHref = lang === 'lv' ? '/' : `/${lang}/`;
-const privacyHref = lang === 'lv' ? '/privatums' : `/${lang}/privatums`;
-const year = new Date().getFullYear();
+const homeHref    = getLocalizedUrl('/', lang);
+const privacyHref = getLocalizedUrl('/privatums', lang);
+const year        = new Date().getFullYear();
 ---
 <footer class="border-t border-ink-muted/15 bg-beige">
   <Container class="py-14">
@@ -71,37 +27,37 @@ const year = new Date().getFullYear();
         <a href={homeHref} class="font-serif text-xl tracking-[0.25em] uppercase text-burgundy">
           Alma Home
         </a>
-        <p class="text-sm text-ink-muted leading-relaxed">{t.tagline}</p>
+        <p class="text-sm text-ink-muted leading-relaxed">{t('footer.about_brief')}</p>
       </div>
 
       <div class="space-y-3">
-        <h3 class="font-serif text-lg text-burgundy">{t.contactsTitle}</h3>
+        <h3 class="font-serif text-lg text-burgundy">{t('footer.section_contacts')}</h3>
         <address class="not-italic text-sm text-ink-muted leading-relaxed space-y-1">
           <div>Mores iela 15<br />Rīga, LV-1034</div>
-          <div><a href="tel:+37126148011" class="hover:text-burgundy transition-colors">+371 26 148 011</a></div>
-          <div><a href="mailto:info@almahome.lv" class="hover:text-burgundy transition-colors">info@almahome.lv</a></div>
+          <div><a href={`tel:${t('site.phone_compact')}`} class="hover:text-burgundy transition-colors">{t('site.phone')}</a></div>
+          <div><a href={`mailto:${t('site.email')}`} class="hover:text-burgundy transition-colors">{t('site.email')}</a></div>
         </address>
       </div>
 
       <div class="space-y-3">
-        <h3 class="font-serif text-lg text-burgundy">{t.navTitle}</h3>
+        <h3 class="font-serif text-lg text-burgundy">{t('footer.section_navigation')}</h3>
         <ul class="text-sm text-ink-muted space-y-2">
-          {t.navItems.map((item) => (
-            <li><a href={item.href} class="hover:text-burgundy transition-colors">{item.label}</a></li>
+          {navItems.map((item) => (
+            <li><a href={getLocalizedUrl(item.path, lang)} class="hover:text-burgundy transition-colors">{item.label}</a></li>
           ))}
         </ul>
       </div>
 
       <div class="space-y-3">
-        <h3 class="font-serif text-lg text-burgundy">{t.legalTitle}</h3>
+        <h3 class="font-serif text-lg text-burgundy">{t('footer.section_legal')}</h3>
         <ul class="text-sm text-ink-muted space-y-2">
-          <li><a href={privacyHref} class="hover:text-burgundy transition-colors">{t.privacy}</a></li>
+          <li><a href={privacyHref} class="hover:text-burgundy transition-colors">{t('footer.privacy_policy')}</a></li>
         </ul>
       </div>
     </div>
 
     <div class="mt-12 pt-6 border-t border-ink-muted/15 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-ink-muted">
-      <span>© {year} Alma Home. {t.rights}</span>
+      <span>{t('footer.copyright').replace('2026', String(year))}</span>
       <span>Mores iela 15, Rīga</span>
     </div>
   </Container>

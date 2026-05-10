@@ -1,9 +1,14 @@
 <script lang="ts">
+  import { useTranslations, type Locale } from '@/i18n/utils';
+
   interface Props {
     apartmentNumber?: number;
     submitLabel?: string;
+    lang?: Locale;
   }
-  let { apartmentNumber, submitLabel }: Props = $props();
+  let { apartmentNumber, submitLabel, lang = 'lv' }: Props = $props();
+
+  const t = useTranslations(lang);
 
   type Status = 'idle' | 'submitting' | 'success' | 'error';
   let status = $state<Status>('idle');
@@ -12,7 +17,7 @@
 
   const buttonText = $derived(
     submitLabel ??
-      (apartmentNumber ? `Nosūtīt pieteikumu par Nr. ${apartmentNumber}` : 'Nosūtīt pieteikumu'),
+      (apartmentNumber ? `${t('form.submit_apt')} ${apartmentNumber}` : t('form.submit')),
   );
 
   async function onSubmit(e: SubmitEvent) {
@@ -26,13 +31,13 @@
       const res = await fetch('/api/contact', { method: 'POST', body: fd });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        errorMsg = data?.error || 'Nezināma kļūda. Lūdzu mēģiniet vēlreiz.';
+        errorMsg = data?.error || t('form.error_generic');
         status = 'error';
         return;
       }
       status = 'success';
     } catch {
-      errorMsg = 'Tīkla kļūda. Pārbaudiet savienojumu un mēģiniet vēlreiz.';
+      errorMsg = t('form.error_network');
       status = 'error';
     }
   }
@@ -50,9 +55,9 @@
         <path d="M5 12.5l5 5 9-11" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
     </div>
-    <h3 class="font-serif text-2xl text-burgundy">Paldies!</h3>
+    <h3 class="font-serif text-2xl text-burgundy">{t('form.success_title')}</h3>
     <p class="mt-3 text-ink leading-relaxed">
-      Mēs sazināsimies ar jums tuvāko 24 stundu laikā darba dienās.
+      {t('form.success_body')}
     </p>
   </div>
 {:else}
@@ -67,28 +72,28 @@
 
     <div class="grid md:grid-cols-2 gap-x-5 gap-y-5">
       <div class="field">
-        <label for="cf-name">Vārds, uzvārds <span class="text-burgundy">*</span></label>
+        <label for="cf-name">{t('form.name')} <span class="text-burgundy">*</span></label>
         <input id="cf-name" name="name" type="text" required maxlength="100" autocomplete="name" />
       </div>
       <div class="field">
-        <label for="cf-phone">Tālrunis <span class="text-burgundy">*</span></label>
-        <input id="cf-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" placeholder="+371 ..." />
+        <label for="cf-phone">{t('form.phone')} <span class="text-burgundy">*</span></label>
+        <input id="cf-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" placeholder={t('form.phone_placeholder')} />
       </div>
     </div>
 
     <div class="field">
-      <label for="cf-email">E-pasts <span class="text-burgundy">*</span></label>
+      <label for="cf-email">{t('form.email')} <span class="text-burgundy">*</span></label>
       <input id="cf-email" name="email" type="email" required maxlength="254" autocomplete="email" />
     </div>
 
     <div class="field">
-      <label for="cf-message">Ziņojums</label>
+      <label for="cf-message">{t('form.message')}</label>
       <textarea
         id="cf-message"
         name="message"
         rows="4"
         maxlength="2000"
-        placeholder="Jautājumi vai komentāri"
+        placeholder={t('form.message_placeholder')}
       ></textarea>
     </div>
 
@@ -100,14 +105,14 @@
         <div class="flex-1">
           <p>{errorMsg}</p>
           <button type="button" onclick={reset} class="mt-1 text-burgundy underline underline-offset-2 hover:no-underline">
-            Mēģināt vēlreiz
+            {t('form.retry')}
           </button>
         </div>
       </div>
     {/if}
 
     <p class="text-xs text-ink-muted">
-      Nospiežot pogu, jūs piekrītat, ka jūsu kontaktinformācija tiks izmantota tikai šī pieteikuma apstrādei.
+      {t('form.consent')}
     </p>
 
     <button
@@ -120,7 +125,7 @@
           <circle cx="12" cy="12" r="9" opacity="0.25" />
           <path d="M21 12a9 9 0 0 0-9-9" stroke-linecap="round" />
         </svg>
-        Sūta…
+        {t('form.submitting')}
       {:else}
         {buttonText}
       {/if}

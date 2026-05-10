@@ -2,24 +2,35 @@
 import '@/styles/globals.css';
 import Header from '@/components/layout/Header.astro';
 import Footer from '@/components/layout/Footer.astro';
+import { getLocaleFromUrl, getLocalizedUrl, useTranslations, type Locale } from '@/i18n/utils';
 
 interface Props {
   title?: string;
   description?: string;
-  lang?: 'lv' | 'ru' | 'en';
+  lang?: Locale;
   ogImage?: string;
   noindex?: boolean;
 }
 
+const detectedLang = getLocaleFromUrl(Astro.url);
 const {
-  title = 'AlmaHome — A+ klases jauns dzīvojamais nams Rīgā',
-  description = 'AlmaHome — jauns A+ energoefektivitātes klases dzīvojamais nams Mežaparka tuvumā, Rīgā. 24 dzīvokļi (1–3 istabas), terases, balkoni, autostāvvieta.',
-  lang = 'lv',
+  lang = detectedLang,
   ogImage = '/og-image.jpg',
   noindex = false,
 } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://almahome.lv').toString();
+const t = useTranslations(lang);
+const fallbackTitle = Astro.props.title ?? t('site.default_title');
+const fallbackDescription = Astro.props.description ?? t('site.default_description');
+
+const siteOrigin = Astro.site ?? new URL('https://almahome.lv');
+const canonical = new URL(Astro.url.pathname, siteOrigin).toString();
+
+// Build hreflang URLs by stripping the current locale prefix and re-adding the
+// target locale's prefix.
+const altLv = new URL(getLocalizedUrl(Astro.url.pathname, 'lv'), siteOrigin).toString();
+const altRu = new URL(getLocalizedUrl(Astro.url.pathname, 'ru'), siteOrigin).toString();
+const altEn = new URL(getLocalizedUrl(Astro.url.pathname, 'en'), siteOrigin).toString();
 ---
 <!doctype html>
 <html lang={lang}>
@@ -28,21 +39,28 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://almahome.lv
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonical} />
-    <title>{title}</title>
-    <meta name="description" content={description} />
+    <link rel="alternate" hreflang="lv" href={altLv} />
+    <link rel="alternate" hreflang="ru" href={altRu} />
+    <link rel="alternate" hreflang="en" href={altEn} />
+    <link rel="alternate" hreflang="x-default" href={altLv} />
+    <title>{fallbackTitle}</title>
+    <meta name="description" content={fallbackDescription} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     <meta property="og:type" content="website" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={fallbackTitle} />
+    <meta property="og:description" content={fallbackDescription} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={new URL(ogImage, Astro.site ?? 'https://almahome.lv').toString()} />
+    <meta property="og:image" content={new URL(ogImage, siteOrigin).toString()} />
     <meta property="og:locale" content={lang === 'lv' ? 'lv_LV' : lang === 'ru' ? 'ru_RU' : 'en_US'} />
+    <meta property="og:locale:alternate" content="lv_LV" />
+    <meta property="og:locale:alternate" content="ru_RU" />
+    <meta property="og:locale:alternate" content="en_US" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL(ogImage, Astro.site ?? 'https://almahome.lv').toString()} />
+    <meta name="twitter:title" content={fallbackTitle} />
+    <meta name="twitter:description" content={fallbackDescription} />
+    <meta name="twitter:image" content={new URL(ogImage, siteOrigin).toString()} />
 
     <meta name="generator" content={Astro.generator} />
   </head>
