@@ -5,7 +5,7 @@ import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const baseUrl = process.argv[2] ?? 'http://localhost:4321';
-const routes = ['/', '/par-namu', '/par-projektu', '/atteli', '/kontakti'];
+const routes = ['/', '/par-namu', '/par-projektu', '/atteli', '/kontakti', '/dzivokli', '/dzivokli/2', '/apdares'];
 const viewports = [
   { name: 'desktop', width: 1440, height: 900 },
   { name: 'mobile',  width: 390,  height: 844 },
