@@ -1,0 +1,133 @@
+---
+import { getCollection } from 'astro:content';
+import AdminApartmentEditor from '@/components/AdminApartmentEditor.svelte';
+import '@/styles/globals.css';
+
+export const prerender = false;
+
+const apartments = (await getCollection('apartments'))
+  .map((entry) => entry.data)
+  .sort((a, b) => a.number - b.number);
+
+const counts = {
+  total:     apartments.length,
+  available: apartments.filter((a) => a.status === 'available').length,
+  reserved:  apartments.filter((a) => a.status === 'reserved').length,
+  sold:      apartments.filter((a) => a.status === 'sold').length,
+};
+
+function priceLabel(p: number | null): string {
+  return p === null ? 'Pēc pieprasījuma' : `${p.toLocaleString('lv-LV')} €`;
+}
+---
+<!doctype html>
+<html lang="lv" class="bg-zinc-950">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>AlmaHome — Admin</title>
+  <style is:global>
+    /* Override BaseLayout's cream/ink so the admin reads as a separate dark surface. */
+    html, body { background: #09090B; color: #E4E4E7; }
+  </style>
+</head>
+<body class="min-h-screen bg-zinc-950 text-zinc-100">
+  <header class="border-b border-zinc-800 bg-zinc-900/40 sticky top-0 backdrop-blur z-30">
+    <div class="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
+      <div class="flex items-baseline gap-4">
+        <span class="font-serif text-xl tracking-[0.25em] uppercase text-zinc-100">Alma Home</span>
+        <span class="text-xs uppercase tracking-widest text-zinc-500">Admin</span>
+      </div>
+      <div class="flex items-center gap-3 text-sm">
+        <a href="/" class="text-zinc-400 hover:text-zinc-100 transition-colors">↗ Publiskā vietne</a>
+        <button
+          id="logout-btn"
+          type="button"
+          class="rounded-md bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 text-zinc-200 transition-colors"
+        >
+          Iziet
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-6 py-10">
+    <h1 class="font-serif text-4xl text-zinc-50">Dzīvokļu pārvaldība</h1>
+    <p class="mt-2 text-sm text-zinc-400">
+      Mainot statusu vai cenu, AlmaHome GitHub repo tiek izveidots commit.
+      Vietne tiek atjaunota automātiski pēc ~30 sekundēm.
+    </p>
+
+    <!-- Stats -->
+    <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="rounded-lg bg-zinc-900 border border-zinc-800 p-5">
+        <div class="text-xs uppercase tracking-widest text-zinc-500">Kopā</div>
+        <div class="mt-2 font-serif text-3xl text-zinc-50 tabular-nums">{counts.total}</div>
+      </div>
+      <div class="rounded-lg bg-zinc-900 border border-zinc-800 p-5">
+        <div class="text-xs uppercase tracking-widest text-emerald-400/80">Pieejami</div>
+        <div class="mt-2 font-serif text-3xl text-emerald-300 tabular-nums">{counts.available}</div>
+      </div>
+      <div class="rounded-lg bg-zinc-900 border border-zinc-800 p-5">
+        <div class="text-xs uppercase tracking-widest text-amber-400/80">Rezervēti</div>
+        <div class="mt-2 font-serif text-3xl text-amber-300 tabular-nums">{counts.reserved}</div>
+      </div>
+      <div class="rounded-lg bg-zinc-900 border border-zinc-800 p-5">
+        <div class="text-xs uppercase tracking-widest text-zinc-400">Pārdoti</div>
+        <div class="mt-2 font-serif text-3xl text-zinc-300 tabular-nums">{counts.sold}</div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="mt-10 rounded-xl bg-zinc-900 border border-zinc-800 overflow-hidden">
+      <div class="hidden md:grid grid-cols-[64px_72px_88px_84px_1fr] gap-4 px-5 py-3 border-b border-zinc-800 text-xs uppercase tracking-widest text-zinc-500">
+        <div>№</div>
+        <div>Stāvs</div>
+        <div>Platība</div>
+        <div>Istabas</div>
+        <div>Statuss · Cena</div>
+      </div>
+      <ul class="divide-y divide-zinc-800">
+        {apartments.map((a) => (
+          <li class="px-5 py-4 grid grid-cols-2 md:grid-cols-[64px_72px_88px_84px_1fr] gap-4 items-center">
+            <div class="font-serif text-2xl text-zinc-50 tabular-nums">{a.number}</div>
+            <div class="text-sm text-zinc-400">{a.floor}. st.</div>
+            <div class="text-sm text-zinc-400 tabular-nums">{a.area_total} m²</div>
+            <div class="text-sm text-zinc-400">{a.rooms} ist.</div>
+            <div class="col-span-2 md:col-span-1">
+              <AdminApartmentEditor client:load apartment={{
+                number: a.number,
+                floor: a.floor,
+                rooms: a.rooms,
+                area_total: a.area_total,
+                status: a.status,
+                price: a.price,
+              }} />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <p class="mt-8 text-xs text-zinc-500">
+      <strong class="text-zinc-400">Tehniska piezīme:</strong>
+      katra izmaiņa rada GitHub commit. Pārmērīgi klikšķi = pārmērīgi commit'i.
+    </p>
+  </main>
+
+  <script>
+    // Logout: re-request /admin with a deliberately wrong credential to force the
+    // browser to drop the cached Basic Auth header, then bounce to the public site.
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      try {
+        await fetch(location.origin + '/admin', {
+          headers: { Authorization: 'Basic ' + btoa('logout:logout') },
+          cache: 'no-store',
+        });
+      } catch { /* ignore — the 401 is expected and is what clears the cred */ }
+      location.href = '/';
+    });
+  </script>
+</body>
+</html>
