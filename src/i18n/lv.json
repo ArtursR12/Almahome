@@ -6,8 +6,8 @@
     "phone": "+371 26 148 011",
     "phone_compact": "+37126148011",
     "email": "info@almahome.lv",
-    "default_title": "AlmaHome — A+ klases jauns dzīvojamais nams Rīgā",
-    "default_description": "AlmaHome — jauns A+ energoefektivitātes klases dzīvojamais nams Mežaparka tuvumā, Rīgā. 24 dzīvokļi (1–4 istabas), terases, balkoni, autostāvvieta."
+    "default_title": "ALMA HOME — Jauns projekts Mores ielā, Rīga",
+    "default_description": "24 dzīvokļi 3 stāvu jaunbūvē Mores ielā 15. No 42 līdz 121 m². Pieejami no €76 200. A+ klase, terases, balkoni, autostāvvieta."
   },
   "nav": {
     "home": "Sākums",
@@ -42,7 +42,8 @@
     "minutes_short": "min",
     "balcony": "balkons",
     "terrace": "terase",
-    "back_to_apartments": "Visi dzīvokļi"
+    "back_to_apartments": "Visi dzīvokļi",
+    "skip_to_content": "Pāriet uz saturu"
   },
   "status": {
     "available": "Pieejams",
@@ -232,8 +233,8 @@
     "banks_title": "Sadarbojamies ar vadošajām bankām"
   },
   "dzivokli": {
-    "title": "Dzīvokļi — AlmaHome",
-    "description": "Visi 24 AlmaHome dzīvokļi: stāvs, istabu skaits, platība, cena un statuss. Atrodi sev piemērotāko.",
+    "title": "Dzīvokļi pārdošanā — ALMA HOME",
+    "description": "Visi 24 ALMA HOME dzīvokļi: filtrē pēc stāva, istabu skaita, platības un statusa. Cenas no €76 200.",
     "hero_kicker": "Dzīvokļi",
     "hero_title": "Atrodi savu māju",
     "hero_subtitle": "24 dzīvokļi 3 stāvos. Filtrē pēc stāva, istabu skaita un piedāvātajām ērtībām.",

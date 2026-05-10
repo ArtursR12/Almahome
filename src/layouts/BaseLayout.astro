@@ -2,7 +2,8 @@
 import '@/styles/globals.css';
 import Header from '@/components/layout/Header.astro';
 import Footer from '@/components/layout/Footer.astro';
-import { getLocaleFromUrl, getLocalizedUrl, useTranslations, type Locale } from '@/i18n/utils';
+import SEO from '@/components/SEO.astro';
+import { getLocaleFromUrl, useTranslations, type Locale } from '@/i18n/utils';
 
 interface Props {
   title?: string;
@@ -10,6 +11,8 @@ interface Props {
   lang?: Locale;
   ogImage?: string;
   noindex?: boolean;
+  /** Additional schema.org entities for this page (Apartment, ItemList, etc.). */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const detectedLang = getLocaleFromUrl(Astro.url);
@@ -17,58 +20,52 @@ const {
   lang = detectedLang,
   ogImage = '/og-image.jpg',
   noindex = false,
+  jsonLd,
 } = Astro.props;
 
 const t = useTranslations(lang);
-const fallbackTitle = Astro.props.title ?? t('site.default_title');
-const fallbackDescription = Astro.props.description ?? t('site.default_description');
-
-const siteOrigin = Astro.site ?? new URL('https://almahome.lv');
-const canonical = new URL(Astro.url.pathname, siteOrigin).toString();
-
-// Build hreflang URLs by stripping the current locale prefix and re-adding the
-// target locale's prefix.
-const altLv = new URL(getLocalizedUrl(Astro.url.pathname, 'lv'), siteOrigin).toString();
-const altRu = new URL(getLocalizedUrl(Astro.url.pathname, 'ru'), siteOrigin).toString();
-const altEn = new URL(getLocalizedUrl(Astro.url.pathname, 'en'), siteOrigin).toString();
+const title       = Astro.props.title       ?? t('site.default_title');
+const description = Astro.props.description ?? t('site.default_description');
 ---
 <!doctype html>
 <html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="canonical" href={canonical} />
-    <link rel="alternate" hreflang="lv" href={altLv} />
-    <link rel="alternate" hreflang="ru" href={altRu} />
-    <link rel="alternate" hreflang="en" href={altEn} />
-    <link rel="alternate" hreflang="x-default" href={altLv} />
-    <title>{fallbackTitle}</title>
-    <meta name="description" content={fallbackDescription} />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
-
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={fallbackTitle} />
-    <meta property="og:description" content={fallbackDescription} />
-    <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={new URL(ogImage, siteOrigin).toString()} />
-    <meta property="og:locale" content={lang === 'lv' ? 'lv_LV' : lang === 'ru' ? 'ru_RU' : 'en_US'} />
-    <meta property="og:locale:alternate" content="lv_LV" />
-    <meta property="og:locale:alternate" content="ru_RU" />
-    <meta property="og:locale:alternate" content="en_US" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={fallbackTitle} />
-    <meta name="twitter:description" content={fallbackDescription} />
-    <meta name="twitter:image" content={new URL(ogImage, siteOrigin).toString()} />
-
+    <SEO
+      title={title}
+      description={description}
+      image={ogImage}
+      lang={lang}
+      jsonLd={jsonLd}
+      noindex={noindex}
+    />
     <meta name="generator" content={Astro.generator} />
   </head>
   <body class="min-h-screen flex flex-col">
+    <a href="#main" class="skip-link">{t('common.skip_to_content')}</a>
     <Header lang={lang} />
-    <main class="flex-1">
+    <main id="main" class="flex-1">
       <slot />
     </main>
     <Footer lang={lang} />
   </body>
 </html>
+
+<style is:global>
+  /* Skip-to-content link — visible only when focused via keyboard. */
+  .skip-link {
+    position: absolute;
+    left: 50%;
+    top: -40px;
+    transform: translateX(-50%);
+    z-index: 100;
+    background: #5A1F2A;
+    color: #F5EFE6;
+    padding: 0.5rem 1rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+    font-size: 0.875rem;
+    transition: top 150ms;
+  }
+  .skip-link:focus { top: 0; outline: none; }
+</style>

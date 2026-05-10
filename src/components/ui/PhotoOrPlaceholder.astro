@@ -12,8 +12,19 @@ interface Props {
   class?: string;
   rounded?: boolean;
   loading?: 'lazy' | 'eager';
+  fetchpriority?: 'high' | 'low' | 'auto';
 }
-const { src, width, height, alt, label, class: className = '', rounded = false, loading = 'lazy' } = Astro.props;
+const {
+  src,
+  width,
+  height,
+  alt,
+  label,
+  class: className = '',
+  rounded = false,
+  loading = 'lazy',
+  fetchpriority,
+} = Astro.props;
 
 // Check whether the file exists in /public so we can fall back to a placeholder
 // without breaking the page when assets haven't been added yet.
@@ -33,6 +44,8 @@ try {
     height={height}
     class={`block ${rounded ? 'rounded-xl' : ''} ${className}`}
     loading={loading}
+    decoding={loading === 'eager' ? 'sync' : 'async'}
+    fetchpriority={fetchpriority}
   />
 ) : (
   <Placeholder width={width} height={height} label={label ?? alt} class={className} rounded={rounded} />

@@ -17,6 +17,42 @@ const previewApartments = allApartments
   .sort((a, b) => a.data.number - b.data.number)
   .slice(0, 6);
 
+// Schema.org ApartmentComplex/ResidentialComplex for the homepage so search
+// engines understand this page describes the development.
+const siteOrigin = Astro.site ?? new URL('https://almahome.lv');
+const minPrice = Math.min(
+  ...allApartments
+    .map((a) => a.data.price)
+    .filter((p): p is number => typeof p === 'number' && p > 0),
+);
+const residentialComplex: Record<string, unknown> = {
+  '@type': 'ApartmentComplex',
+  '@id': new URL('/#complex', siteOrigin).toString(),
+  name: 'ALMA HOME',
+  description: t('site.default_description'),
+  url: siteOrigin.toString(),
+  numberOfAccommodationUnits: allApartments.length,
+  image: new URL('/og-image.jpg', siteOrigin).toString(),
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Mores iela 15',
+    addressLocality: 'Rīga',
+    postalCode: 'LV-1034',
+    addressCountry: 'LV',
+  },
+  geo: { '@type': 'GeoCoordinates', latitude: 57.0244, longitude: 24.1571 },
+  ...(Number.isFinite(minPrice) && minPrice > 0
+    ? {
+        offers: {
+          '@type': 'AggregateOffer',
+          lowPrice: minPrice,
+          priceCurrency: 'EUR',
+          offerCount: allApartments.filter((a) => a.data.status === 'available').length,
+        },
+      }
+    : {}),
+};
+
 const features = tr<string[]>('home.features');
 const landmarks = tr<{ time: string; name: string }[]>('home.location_landmarks');
 
@@ -28,7 +64,12 @@ const partnerBanks: { name: string; logo: string }[] = [
   { name: 'SEB',      logo: '/images/logos/seb.jpg' },
 ];
 ---
-<BaseLayout lang={lang} title={t('site.default_title')} description={t('site.default_description')}>
+<BaseLayout
+  lang={lang}
+  title={t('site.default_title')}
+  description={t('site.default_description')}
+  jsonLd={residentialComplex}
+>
   <!-- Hero -->
   <section class="relative h-[90vh] min-h-[560px] overflow-hidden">
     <PhotoOrPlaceholder
@@ -38,6 +79,7 @@ const partnerBanks: { name: string; logo: string }[] = [
       alt="AlmaHome"
       label="AlmaHome"
       loading="eager"
+      fetchpriority="high"
       class="absolute inset-0 h-full w-full object-cover"
     />
     <div class="absolute inset-0 bg-gradient-to-b from-burgundy-dark/55 via-burgundy-dark/35 to-burgundy-dark/65"></div>

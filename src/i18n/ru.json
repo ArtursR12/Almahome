@@ -6,8 +6,8 @@
     "phone": "+371 26 148 011",
     "phone_compact": "+37126148011",
     "email": "info@almahome.lv",
-    "default_title": "AlmaHome — новый жилой дом класса A+ в Риге",
-    "default_description": "AlmaHome — новый жилой дом высокого класса энергоэффективности A+ рядом с Межапарком, в Риге. 24 квартиры (1–4 комнаты), террасы, балконы, парковка."
+    "default_title": "ALMA HOME — новостройка на Mores iela, Рига",
+    "default_description": "24 квартиры в трёхэтажной новостройке на Mores iela 15. От 42 до 121 м². От €76 200. Класс A+, террасы, балконы, парковка."
   },
   "nav": {
     "home": "Главная",
@@ -42,7 +42,8 @@
     "minutes_short": "мин",
     "balcony": "балкон",
     "terrace": "терраса",
-    "back_to_apartments": "Все квартиры"
+    "back_to_apartments": "Все квартиры",
+    "skip_to_content": "Перейти к содержимому"
   },
   "status": {
     "available": "Доступна",

@@ -57,13 +57,50 @@ const summary = t('apartment_detail.summary')
   .replace('{rooms_label}', roomsLabel(a.rooms, lang))
   .replace('{area}', String(a.area_total));
 
-const pageTitle = `${t('apartment_detail.kicker')} ${t('apartment_detail.label_number')}${a.number} — ${summary} — AlmaHome`;
-const pageDescription = `${pageTitle}. ${formatPrice(a.price, lang)}.`;
+const pageTitle = `${t('apartment_detail.kicker')} ${t('apartment_detail.label_number')}${a.number} — ${a.rooms} ${roomsLabel(a.rooms, lang)}, ${a.area_total} m² — ALMA HOME`;
+const pageDescription = `${a.rooms} ${roomsLabel(a.rooms, lang)} · ${a.floor}. ${t('common.floor_long')} · ${a.area_total} m² · ${formatPrice(a.price, lang)}. ALMA HOME — Mores iela 15, Rīga.`;
+
+// Apartment schema. Search engines surface bedroom count, area, and price
+// directly when this is well-formed.
+const siteOrigin = Astro.site ?? new URL('https://almahome.lv');
+const apartmentSchema: Record<string, unknown> = {
+  '@type': 'Apartment',
+  '@id': new URL(`/dzivokli/${a.number}#apartment`, siteOrigin).toString(),
+  name: `ALMA HOME — Nr. ${a.number}`,
+  description: pageDescription,
+  numberOfRooms: a.rooms,
+  floorSize: { '@type': 'QuantitativeValue', value: a.area_total, unitCode: 'MTK' },
+  floorLevel: String(a.floor),
+  url: new URL(`/dzivokli/${a.number}`, siteOrigin).toString(),
+  image: new URL(a.floor_plan_image, siteOrigin).toString(),
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Mores iela 15',
+    addressLocality: 'Rīga',
+    postalCode: 'LV-1034',
+    addressCountry: 'LV',
+  },
+  ...(typeof a.price === 'number' && a.status === 'available'
+    ? {
+        offers: {
+          '@type': 'Offer',
+          price: a.price,
+          priceCurrency: 'EUR',
+          availability: 'https://schema.org/InStock',
+        },
+      }
+    : a.status === 'reserved'
+    ? { offers: { '@type': 'Offer', availability: 'https://schema.org/PreOrder', priceCurrency: 'EUR' } }
+    : a.status === 'sold'
+    ? { offers: { '@type': 'Offer', availability: 'https://schema.org/SoldOut', priceCurrency: 'EUR' } }
+    : {}),
+};
 ---
 <BaseLayout
   lang={lang}
   title={pageTitle}
   description={pageDescription}
+  jsonLd={apartmentSchema}
 >
   <!-- Hero -->
   <section class="relative bg-burgundy text-cream overflow-hidden">

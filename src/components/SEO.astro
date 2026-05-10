@@ -1,0 +1,112 @@
+---
+import { getLocalizedUrl, type Locale } from '@/i18n/utils';
+
+type JsonLd = Record<string, unknown> | Record<string, unknown>[];
+
+interface Props {
+  title: string;
+  description: string;
+  /** Public-relative path or absolute URL. Default: /og-image.jpg. */
+  image?: string;
+  lang: Locale;
+  /**
+   * Optional structured-data graph for the current page (Apartment,
+   * ResidentialComplex, BreadcrumbList, etc.). Organization and WebSite are
+   * always emitted automatically.
+   */
+  jsonLd?: JsonLd;
+  /** Page is not search-indexable (admin, drafts). */
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  image = '/og-image.jpg',
+  lang,
+  jsonLd,
+  noindex = false,
+} = Astro.props;
+
+const siteOrigin = Astro.site ?? new URL('https://almahome.lv');
+const canonical  = new URL(Astro.url.pathname, siteOrigin).toString();
+const ogImageUrl = new URL(image, siteOrigin).toString();
+
+const altLv = new URL(getLocalizedUrl(Astro.url.pathname, 'lv'), siteOrigin).toString();
+const altRu = new URL(getLocalizedUrl(Astro.url.pathname, 'ru'), siteOrigin).toString();
+const altEn = new URL(getLocalizedUrl(Astro.url.pathname, 'en'), siteOrigin).toString();
+
+const ogLocale = lang === 'lv' ? 'lv_LV' : lang === 'ru' ? 'ru_RU' : 'en_US';
+
+// Always-on entities for the property's brand and the site itself.
+const organization = {
+  '@type': 'RealEstateAgent',
+  '@id': new URL('/#organization', siteOrigin).toString(),
+  name: 'ALMA HOME',
+  url: siteOrigin.toString(),
+  logo: new URL('/favicon.svg', siteOrigin).toString(),
+  email: 'info@almahome.lv',
+  telephone: '+371 26 148 011',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Mores iela 15',
+    addressLocality: 'Rīga',
+    postalCode: 'LV-1034',
+    addressCountry: 'LV',
+  },
+};
+
+const website = {
+  '@type': 'WebSite',
+  '@id': new URL('/#website', siteOrigin).toString(),
+  url: siteOrigin.toString(),
+  name: 'ALMA HOME',
+  inLanguage: ogLocale.replace('_', '-'),
+  publisher: { '@id': new URL('/#organization', siteOrigin).toString() },
+};
+
+const baseGraph: Record<string, unknown>[] = [organization, website];
+const extra = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
+const graph = { '@context': 'https://schema.org', '@graph': [...baseGraph, ...extra] };
+---
+<!-- Primary -->
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<!-- Hreflang -->
+<link rel="alternate" hreflang="lv" href={altLv} />
+<link rel="alternate" hreflang="ru" href={altRu} />
+<link rel="alternate" hreflang="en" href={altEn} />
+<link rel="alternate" hreflang="x-default" href={altLv} />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="ALMA HOME" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImageUrl} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="ALMA HOME — Mores iela 15, Rīga" />
+<meta property="og:locale" content={ogLocale} />
+<meta property="og:locale:alternate" content="lv_LV" />
+<meta property="og:locale:alternate" content="ru_RU" />
+<meta property="og:locale:alternate" content="en_US" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImageUrl} />
+
+<!-- Icons -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- JSON-LD -->
+<script type="application/ld+json" set:html={JSON.stringify(graph)} />

@@ -6,8 +6,8 @@
     "phone": "+371 26 148 011",
     "phone_compact": "+37126148011",
     "email": "info@almahome.lv",
-    "default_title": "AlmaHome — A+ class new residential building in Rīga",
-    "default_description": "AlmaHome — a new A+ energy efficiency class residential building near Mežaparks, Rīga. 24 apartments (1–4 rooms), terraces, balconies, parking."
+    "default_title": "ALMA HOME — New development at Mores iela, Rīga",
+    "default_description": "24 apartments in a three-storey new build at Mores iela 15. From 42 to 121 m². Priced from €76 200. A+ class, terraces, balconies, parking."
   },
   "nav": {
     "home": "Home",
@@ -42,7 +42,8 @@
     "minutes_short": "min",
     "balcony": "balcony",
     "terrace": "terrace",
-    "back_to_apartments": "All apartments"
+    "back_to_apartments": "All apartments",
+    "skip_to_content": "Skip to content"
   },
   "status": {
     "available": "Available",
