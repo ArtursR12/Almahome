@@ -1,0 +1,438 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import floorPlansData from '@/data/floor-plans.json';
+const apartments = (await getCollection('apartments')).sort((a, b) => a.data.number - b.data.number);
+
+const counts = {
+  available: apartments.filter((a) => a.data.status === 'available').length,
+  reserved:  apartments.filter((a) => a.data.status === 'reserved').length,
+  sold:      apartments.filter((a) => a.data.status === 'sold').length,
+  total:     apartments.length,
+};
+
+const aptByNumber = new Map(apartments.map((a) => [a.data.number, a.data]));
+
+const floors = floorPlansData.floors.map((f) => ({
+  floor: f.floor,
+  image: f.image,
+  width: floorPlansData.image_width,
+  height: floorPlansData.image_height,
+  shapes: f.apartments.map((p) => {
+    const apt = aptByNumber.get(p.number)!;
+    return { number: p.number, polygon: p.polygon, apt };
+  }),
+  apartments: apartments.filter((a) => a.data.floor === f.floor).map((a) => a.data),
+}));
+
+function priceLabel(price: number | null): string {
+  if (price === null) return 'Pēc pieprasījuma';
+  return `${price.toLocaleString('lv-LV')} €`;
+}
+
+const statusDict = {
+  available: { label: 'Pieejams',  bg: 'bg-status-available/15',  dot: 'bg-status-available',  text: 'text-status-available' },
+  reserved:  { label: 'Rezervēts', bg: 'bg-status-reserved/20',   dot: 'bg-status-reserved',   text: 'text-[#8a7531]' },
+  sold:      { label: 'Pārdots',   bg: 'bg-status-sold/15',       dot: 'bg-status-sold',       text: 'text-ink-muted' },
+} as const;
+---
+<BaseLayout
+  title="Dzīvokļi — AlmaHome"
+  description="Visi 24 AlmaHome dzīvokļi: stāvs, istabu skaits, platība, cena un statuss. Atrodi sev piemērotāko."
+>
+  <Section background="cream" class="!pt-16 md:!pt-20">
+    <Container>
+      <!-- Heading -->
+      <div class="text-center mb-10">
+        <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Dzīvokļi</p>
+        <h1 class="mt-4 font-serif text-5xl md:text-6xl text-burgundy">Atrodi savu māju</h1>
+        <p class="mt-4 text-ink-muted max-w-2xl mx-auto">
+          24 dzīvokļi 3 stāvos. Filtrē pēc stāva, istabu skaita un piedāvātajām ērtībām.
+        </p>
+      </div>
+
+      <!-- Floor plans -->
+      <div id="floor-plans" class="mb-12">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
+          <p class="text-xs uppercase tracking-[0.25em] text-ink-muted">Stāvu plāni</p>
+          <div role="tablist" aria-label="Stāvi" class="flex gap-2 bg-beige/60 rounded-full p-1">
+            {floors.map((f, i) => (
+              <button
+                type="button"
+                role="tab"
+                aria-selected={i === 0 ? 'true' : 'false'}
+                aria-controls={`floor-panel-${f.floor}`}
+                id={`floor-tab-${f.floor}`}
+                data-floor-tab={f.floor}
+                class:list={[
+                  'floor-tab inline-flex items-center justify-center px-5 py-2 rounded-full text-sm font-medium transition-colors',
+                  i === 0 ? 'bg-burgundy text-cream' : 'text-ink hover:text-burgundy',
+                ]}
+              >
+                {f.floor}. stāvs
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {floors.map((f, i) => (
+          <div
+            id={`floor-panel-${f.floor}`}
+            role="tabpanel"
+            aria-labelledby={`floor-tab-${f.floor}`}
+            data-floor-panel={f.floor}
+            class:list={['floor-panel', i !== 0 && 'hidden']}
+          >
+            <div class="rounded-2xl bg-cream border border-ink-muted/15 p-4 md:p-6">
+              <svg
+                viewBox={`0 0 ${f.width} ${f.height}`}
+                role="img"
+                aria-label={`AlmaHome ${f.floor}. stāva plāns`}
+                class="w-full h-auto select-none"
+              >
+                <image href={f.image} width={f.width} height={f.height} />
+                {f.shapes.map(({ number, polygon, apt }) => {
+                  const status = apt.status;
+                  const fillClass =
+                    status === 'available' ? 'fill-status-available' :
+                    status === 'reserved'  ? 'fill-status-reserved'  :
+                                             'fill-status-sold';
+                  const clickable = status === 'available';
+                  return (
+                    <a
+                      href={clickable ? `/dzivokli/${number}` : undefined}
+                      aria-label={`Dzīvoklis Nr.${number} — ${statusDict[status].label}`}
+                    >
+                      <polygon
+                        points={polygon}
+                        class:list={[
+                          'apt-polygon transition-opacity',
+                          fillClass,
+                          clickable ? 'cursor-pointer' : 'cursor-not-allowed',
+                        ]}
+                        fill-opacity="0.18"
+                        stroke="transparent"
+                        stroke-width="2"
+                        data-number={number}
+                      />
+                    </a>
+                  );
+                })}
+              </svg>
+            </div>
+            <div class="mt-5 flex flex-wrap gap-2">
+              {f.apartments.map((a) => {
+                const s = statusDict[a.status];
+                const clickable = a.status === 'available';
+                return (
+                  <a
+                    href={clickable ? `/dzivokli/${a.number}` : '#'}
+                    aria-disabled={clickable ? undefined : 'true'}
+                    title={`Dzīvoklis Nr.${a.number} · ${a.rooms} ist. · ${a.area_total} m² · ${s.label}`}
+                    class:list={[
+                      'inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm transition-colors',
+                      clickable
+                        ? 'border-ink-muted/20 bg-cream hover:border-burgundy hover:text-burgundy'
+                        : 'border-ink-muted/10 bg-cream/60 pointer-events-none opacity-60',
+                    ]}
+                  >
+                    <span class:list={['h-2 w-2 rounded-full', s.dot]} aria-hidden="true"></span>
+                    <span class="font-serif text-burgundy">Nr.{a.number}</span>
+                    <span class="text-ink-muted text-xs">· {a.area_total} m²</span>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Status legend -->
+      <div class="flex flex-wrap justify-center gap-x-8 gap-y-3 mb-12">
+        {(['available', 'reserved', 'sold'] as const).map((key) => {
+          const s = statusDict[key];
+          const n = counts[key];
+          return (
+            <div class="flex items-center gap-3 text-sm">
+              <span class:list={['inline-block h-3 w-3 rounded-full', s.dot]} aria-hidden="true"></span>
+              <span class="text-ink">{s.label}</span>
+              <span class="text-ink-muted tabular-nums">— {n}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      <!-- Filters -->
+      <form id="apt-filters" class="bg-beige/60 rounded-xl p-5 md:p-7 mb-8 grid grid-cols-1 md:grid-cols-4 gap-5 md:gap-8" novalidate>
+        <fieldset>
+          <legend class="text-xs uppercase tracking-[0.25em] text-ink-muted mb-3">Stāvs</legend>
+          <div class="flex flex-wrap gap-2">
+            {[1, 2, 3].map((f) => (
+              <label class="filter-chip">
+                <input type="checkbox" name="floor" value={f} class="peer sr-only" />
+                <span>{f}.</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend class="text-xs uppercase tracking-[0.25em] text-ink-muted mb-3">Istabas</legend>
+          <div class="flex flex-wrap gap-2">
+            {[1, 2, 3, 4].map((r) => (
+              <label class="filter-chip">
+                <input type="checkbox" name="rooms" value={r} class="peer sr-only" />
+                <span>{r}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend class="text-xs uppercase tracking-[0.25em] text-ink-muted mb-3">Ērtības</legend>
+          <div class="flex flex-wrap gap-2">
+            <label class="filter-chip">
+              <input type="checkbox" name="terrace" class="peer sr-only" />
+              <span>Terase</span>
+            </label>
+            <label class="filter-chip">
+              <input type="checkbox" name="balcony" class="peer sr-only" />
+              <span>Balkons</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend class="text-xs uppercase tracking-[0.25em] text-ink-muted mb-3">Statuss</legend>
+          <div class="flex flex-wrap gap-2">
+            <label class="filter-chip" data-status="available">
+              <input type="checkbox" name="status" value="available" class="peer sr-only" checked />
+              <span>Pieejami</span>
+            </label>
+            <label class="filter-chip" data-status="reserved">
+              <input type="checkbox" name="status" value="reserved" class="peer sr-only" checked />
+              <span>Rezervēti</span>
+            </label>
+            <label class="filter-chip" data-status="sold">
+              <input type="checkbox" name="status" value="sold" class="peer sr-only" />
+              <span>Pārdoti</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="md:col-span-4 flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-ink-muted/15">
+          <p class="text-sm text-ink-muted">
+            Atrasti <span id="filter-count" class="font-medium text-ink tabular-nums">{counts.available + counts.reserved}</span> no <span class="tabular-nums">{counts.total}</span> dzīvokļiem.
+          </p>
+          <button type="reset" class="text-sm text-burgundy hover:underline underline-offset-4">
+            Notīrīt visus filtrus
+          </button>
+        </div>
+      </form>
+
+      <!-- Table (desktop) -->
+      <div class="hidden md:block rounded-xl overflow-hidden border border-ink-muted/15 bg-cream">
+        <table class="w-full text-left">
+          <thead class="bg-beige/70 text-xs uppercase tracking-[0.18em] text-ink-muted">
+            <tr>
+              <th class="px-5 py-4 w-20">Dz. nr.</th>
+              <th class="px-5 py-4 w-20">Stāvs</th>
+              <th class="px-5 py-4 w-24">Istabas</th>
+              <th class="px-5 py-4 w-28">Platība</th>
+              <th class="px-5 py-4">Cena</th>
+              <th class="px-5 py-4">Piezīmes</th>
+              <th class="px-5 py-4 w-32 text-right pr-6">Statuss</th>
+            </tr>
+          </thead>
+          <tbody>
+            {apartments.map((apt) => {
+              const a = apt.data;
+              const s = statusDict[a.status];
+              const clickable = a.status === 'available';
+              const notes = [
+                a.has_terrace ? 'terase' : null,
+                a.has_balcony ? 'balkons' : null,
+              ].filter(Boolean).join(' · ') || '—';
+              return (
+                <tr
+                  class:list={[
+                    'apt-row border-t border-ink-muted/10 transition-colors',
+                    clickable ? 'cursor-pointer hover:bg-beige/40' : 'opacity-70',
+                  ]}
+                  data-number={a.number}
+                  data-floor={a.floor}
+                  data-rooms={a.rooms}
+                  data-terrace={a.has_terrace ? '1' : '0'}
+                  data-balcony={a.has_balcony ? '1' : '0'}
+                  data-status={a.status}
+                  data-href={clickable ? `/dzivokli/${a.number}` : ''}
+                >
+                  <td class="px-5 py-4">
+                    <span class="font-serif text-xl text-burgundy">{a.number}</span>
+                  </td>
+                  <td class="px-5 py-4 text-ink-muted">{a.floor}.</td>
+                  <td class="px-5 py-4 text-ink">{a.rooms}</td>
+                  <td class="px-5 py-4 text-ink tabular-nums">{a.area_total} m²</td>
+                  <td class="px-5 py-4 text-ink tabular-nums">{priceLabel(a.price)}</td>
+                  <td class="px-5 py-4 text-ink-muted text-sm">{notes}</td>
+                  <td class="px-5 py-4 text-right pr-6">
+                    <span class:list={['inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium', s.bg, s.text]}>
+                      <span class:list={['h-1.5 w-1.5 rounded-full', s.dot]} aria-hidden="true"></span>
+                      {s.label}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <p
+          id="empty-state"
+          class="hidden text-center py-10 text-ink-muted text-sm"
+        >
+          Pēc šiem filtriem nav atrasts neviens dzīvoklis.
+        </p>
+      </div>
+
+      <!-- Cards (mobile) -->
+      <div class="md:hidden space-y-3">
+        {apartments.map((apt) => {
+          const a = apt.data;
+          const s = statusDict[a.status];
+          const clickable = a.status === 'available';
+          const notes = [
+            a.has_terrace ? 'terase' : null,
+            a.has_balcony ? 'balkons' : null,
+          ].filter(Boolean).join(' · ') || '—';
+          return (
+            <a
+              href={clickable ? `/dzivokli/${a.number}` : '#'}
+              class:list={[
+                'apt-row block rounded-xl bg-cream border border-ink-muted/15 p-4',
+                clickable ? 'hover:border-burgundy/30' : 'opacity-70 pointer-events-none',
+              ]}
+              data-number={a.number}
+              data-floor={a.floor}
+              data-rooms={a.rooms}
+              data-terrace={a.has_terrace ? '1' : '0'}
+              data-balcony={a.has_balcony ? '1' : '0'}
+              data-status={a.status}
+            >
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <span class="font-serif text-2xl text-burgundy">Nr. {a.number}</span>
+                  <div class="mt-1 text-sm text-ink-muted">{a.floor}. stāvs · {a.rooms} ist. · {a.area_total} m²</div>
+                </div>
+                <span class:list={['inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-[11px] font-medium whitespace-nowrap', s.bg, s.text]}>
+                  <span class:list={['h-1.5 w-1.5 rounded-full', s.dot]} aria-hidden="true"></span>
+                  {s.label}
+                </span>
+              </div>
+              <div class="mt-3 flex items-baseline justify-between gap-2">
+                <span class="font-serif text-lg text-burgundy tabular-nums">{priceLabel(a.price)}</span>
+                <span class="text-xs text-ink-muted">{notes}</span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </Container>
+  </Section>
+
+  <style>
+    @reference "@/styles/globals.css";
+    .filter-chip {
+      @apply inline-flex items-center justify-center min-w-[2.5rem] h-10 px-3 rounded-full bg-cream border border-ink-muted/20 text-sm text-ink cursor-pointer select-none transition-colors;
+    }
+    .filter-chip:hover { @apply border-burgundy/40; }
+    .filter-chip:has(input:checked) { @apply bg-burgundy text-cream border-burgundy; }
+    .apt-polygon { transition: fill-opacity 200ms; }
+    .apt-polygon:hover,
+    .apt-polygon.is-active { fill-opacity: 0.55 !important; }
+  </style>
+
+  <script>
+    type FilterState = {
+      floors: number[];
+      rooms: number[];
+      terrace: boolean;
+      balcony: boolean;
+      statuses: string[];
+    };
+
+    const form = document.getElementById('apt-filters') as HTMLFormElement;
+    const rows = document.querySelectorAll<HTMLElement>('.apt-row');
+    const counter = document.getElementById('filter-count')!;
+    const empty = document.getElementById('empty-state');
+
+    function readFilters(): FilterState {
+      const fd = new FormData(form);
+      return {
+        floors:   fd.getAll('floor').map((v) => Number(v)),
+        rooms:    fd.getAll('rooms').map((v) => Number(v)),
+        terrace:  fd.has('terrace'),
+        balcony:  fd.has('balcony'),
+        statuses: fd.getAll('status').map(String),
+      };
+    }
+
+    function apply() {
+      const f = readFilters();
+      // Both desktop table rows and mobile cards carry .apt-row; dedupe by
+      // apartment number so the counter doesn't double.
+      const visibleNumbers = new Set<number>();
+      rows.forEach((row) => {
+        const num = Number(row.dataset.number);
+        const floor = Number(row.dataset.floor);
+        const rooms = Number(row.dataset.rooms);
+        const terrace = row.dataset.terrace === '1';
+        const balcony = row.dataset.balcony === '1';
+        const status = row.dataset.status ?? '';
+        const matches =
+          (f.floors.length === 0 || f.floors.includes(floor)) &&
+          (f.rooms.length === 0  || f.rooms.includes(rooms)) &&
+          (!f.terrace || terrace) &&
+          (!f.balcony || balcony) &&
+          (f.statuses.length === 0 || f.statuses.includes(status));
+        row.classList.toggle('hidden', !matches);
+        if (matches) visibleNumbers.add(num);
+      });
+      counter.textContent = String(visibleNumbers.size);
+      if (empty) empty.classList.toggle('hidden', visibleNumbers.size !== 0);
+    }
+
+    form.addEventListener('change', apply);
+    form.addEventListener('reset', () => requestAnimationFrame(apply));
+
+    // Make table rows clickable
+    document.querySelectorAll<HTMLElement>('tr.apt-row').forEach((row) => {
+      const href = row.dataset.href;
+      if (!href) return;
+      row.addEventListener('click', () => { window.location.href = href; });
+    });
+
+    // Floor plan tabs
+    const floorTabs = document.querySelectorAll<HTMLButtonElement>('.floor-tab');
+    const floorPanels = document.querySelectorAll<HTMLElement>('[data-floor-panel]');
+    floorTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const floor = tab.dataset.floorTab;
+        floorTabs.forEach((t) => {
+          const isActive = t === tab;
+          t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          t.classList.toggle('bg-burgundy', isActive);
+          t.classList.toggle('text-cream', isActive);
+          t.classList.toggle('text-ink', !isActive);
+        });
+        floorPanels.forEach((p) => {
+          p.classList.toggle('hidden', p.dataset.floorPanel !== floor);
+        });
+      });
+    });
+
+    apply();
+  </script>
+</BaseLayout>

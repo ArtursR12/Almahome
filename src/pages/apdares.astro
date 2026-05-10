@@ -1,0 +1,571 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+
+interface Row {
+  name?: string;
+  description: string;
+  provider?: string;
+  notes?: string;
+  image?: string;
+  imageAlt?: string;
+}
+
+interface Group {
+  title: string;
+  rows: Row[];
+}
+
+const groups: Group[] = [
+  {
+    title: 'Sienas',
+    rows: [
+      {
+        name: 'Pamati un cokols',
+        description:
+          'Lentveida betona pamati, uz kuriem novietotas no keramzītbetona blokiem būvējamas sienas.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Ārējās sienas',
+        description:
+          'Keramzītbetona bloki 300 mm 1. stāvā un 250 mm 2. un 3. stāvos, siltināti ar akmens vati 150 mm un apmesti ar dekoratīvo apmetumu.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Koplietošanas telpu un starpdzīvokļu sienas, starpsienas',
+        description:
+          'Keramzītbetona bloki 250/200 mm ar apmetumu no abām pusēm.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Dzīvokļa starpsienas',
+        description:
+          'Starpsienas no ģipškartona ar diviem ģipškartona slāņiem no abām pusēm (125 mm) un akmens vates skaņas izolācijas pildījumu 75 mm.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Sanitārā mezgla starpsienas',
+        description:
+          'Starp sanitāro mezglu un citām telpām starpsienas no ģipškartona ar diviem ģipškartona slāņiem (125 mm) un akmens vates skaņas izolācijas pildījumu 75 mm. No sanitārā mezgla puses — mitrumizturīgs ģipškartons.',
+        provider: 'Jā',
+      },
+    ],
+  },
+  {
+    title: 'Grīdas',
+    rows: [
+      {
+        name: 'Pārseguma konstrukcija',
+        description:
+          'Saliekami dzelzbetona paneļi. 2. un 3. stāvos izolēti ar akmens vates skaņas un siltuma izolācijas plātnēm 50 mm; 1. stāvā betona grīda siltināta ar putupolistirolu 150 mm.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Dzīvojamās zonas',
+        description:
+          'Lamināts 10 mm KronoOriginal ATL10-K405P, 33. klase, ar substrātu („peldošā grīda"). Grīdlīstes — MDF finierētas, mitrumizturīgas, 16×70 mm XSR 164.',
+        provider: 'Jā',
+        image: '/images/finishes/apdares__gridas001.jpg',
+        imageAlt: 'Lamināta paraugs — KronoOriginal',
+      },
+      {
+        name: 'Sanitārie mezgli',
+        description:
+          'Flīžu segums. Akmens masas flīzes Italgraniti / Terre Bianco, izmērs 60×60 cm.',
+        provider: 'Jā',
+        image: '/images/finishes/apdares__gridas002.jpg',
+        imageAlt: 'Flīžu paraugs — Italgraniti Terre Bianco',
+      },
+    ],
+  },
+  {
+    title: 'Kāpņu telpas',
+    rows: [
+      {
+        name: 'Koridori un laukumi',
+        description:
+          'Koridoros un laukumos starp stāviem flīžu segums; saliekamie dzelzbetona kāpņu laidumi ar epoksīdu pārklājumu.',
+        provider: 'Jā',
+      },
+    ],
+  },
+  {
+    title: 'Jumts',
+    rows: [
+      {
+        name: 'Konstrukcija',
+        description:
+          'Saliekamie dzelzsbetona paneļi, slīpums izveidots ar putupolistirola plāksnēm, trīskārša akmens vates siltumizolācija, virsū ruļļveida jumta membrāna divās kārtās.',
+        provider: 'Jā',
+      },
+    ],
+  },
+  {
+    title: 'Griesti',
+    rows: [
+      {
+        name: 'Dzīvojamās telpas',
+        description:
+          'Dzelzsbetona pārsegumi, špaktelēti un krāsoti, redzamas savienojuma vietas. Griestu augstums 2,7 m.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Sanitārie mezgli un koridori',
+        description:
+          'Piekaramie ģipškartona griesti. Augstums 2,40 m.',
+        provider: 'Jā',
+      },
+    ],
+  },
+  {
+    title: 'Sienu apdare',
+    rows: [
+      {
+        name: 'Dzīvokļi',
+        description:
+          'Sienas apmestas un nokrāsotas. Katrā telpā divi toņi: NCS S 0804-G90Y — visas pamatsienas; NCS S 1505-Y50R — akcenta siena.',
+        provider: 'Jā',
+        image: '/images/finishes/apdares__image003.jpg',
+        imageAlt: 'NCS toņu paraugi — pamatsiena un akcenta siena',
+      },
+      {
+        name: 'Sanitārie mezgli',
+        description:
+          'Sienas hidroizolētas, apdare — akmens masas flīzes Italgraniti / Travertini Beige Vein Cut / Terre Bianco, izmērs 30×60 cm.',
+        provider: 'Jā',
+        image: '/images/finishes/apdares__image004.jpg',
+        imageAlt: 'Sienas flīžu paraugs — Travertini Beige Vein Cut',
+      },
+    ],
+  },
+  {
+    title: 'Griestu apdare',
+    rows: [
+      {
+        name: 'Visas telpas',
+        description:
+          'Nokrāsoti ar ūdens emulsiju. Sanitārajos mezglos — ūdensizturīga emulsijas krāsa. Krāsas tonis — balts.',
+        provider: 'Jā',
+      },
+    ],
+  },
+  {
+    title: 'Durvis un logi',
+    rows: [
+      {
+        name: 'Dzīvokļa ārdurvis',
+        description:
+          'Koka ugunsizturīgas ārdurvis, skaņas izolācija līdz 38 dBW.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Iekšdurvis',
+        description:
+          'Durvis dzīvokļos starp istabām — šponētas PRODEX Torino PRO bez slēdzenēm. Sanitāro mezglu durvīm paredzēta santehniskā slēdzene. Rokturis L.AL43A110-MSN (PRODEX).',
+        provider: 'Jā',
+        image: '/images/finishes/apdares__durvi.jpg',
+        imageAlt: 'Iekšdurvju paraugs — PRODEX Torino PRO',
+      },
+      {
+        name: 'Logi un balkona durvis',
+        description:
+          'Tumši pelēkas / baltas krāsas PVH rāmji (REHAU). 7 kameru rāmja profili, 6 kameru vērtnes profili. Trīskārša (2 kameru) stikla pakete, Ug = 0.5 W/m²K. Iekļautas palodzes.',
+        provider: 'Jā',
+        image: '/images/finishes/apdares__durvi2.jpg',
+        imageAlt: 'REHAU PVH loga profila šķērsgriezums',
+      },
+    ],
+  },
+  {
+    title: 'Ārdurvis (kāpņu telpa)',
+    rows: [
+      {
+        name: 'Ieejas durvis',
+        description:
+          'Alumīnija profils ar koda slēdzeni, savienots ar domofona iekārtu.',
+        provider: 'Jā',
+      },
+    ],
+  },
+  {
+    title: 'Balkoni un terases',
+    rows: [
+      {
+        name: 'Balkoni',
+        description:
+          'Balkonu grīdu konstrukcija — betons. Cinkotas un rūpnieciski krāsotas metāla margas ar krāsotām perforēta metāla plāksnēm no ārpuses.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Terases',
+        description:
+          '1. stāva dzīvokļiem — ārējās terases ar bruģakmens segumu. Pieeja no dzīvojamās istabas.',
+        provider: 'Jā',
+      },
+    ],
+  },
+  {
+    title: 'Ūdensapgāde un kanalizācija',
+    rows: [
+      {
+        name: 'Vispārīgi',
+        description:
+          'Ūdensapgāde un kanalizācija paredzētas sanitārajos mezglos un virtuves zonā. Paredzēti pieslēgumi veļas mašīnām.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Virtuve',
+        description:
+          'Virtuves zonā ir pieslēgumi ūdensvadam un kanalizācijai.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Skaitītāji',
+        description:
+          'Aukstā un karstā ūdens skaitītāji atrodas koplietošanas koridorī.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Izlietne',
+        description:
+          'CONNECT AIR CUBE 600×460 mm, white. Maisītājs CERAFINE ar pop-up, chrome. Sifons DESIGN izlietnei, chrome / Ideal Standard.',
+        provider: 'Jā',
+        image: '/images/finishes/apdares__santeh1.jpg',
+        imageAlt: 'Izlietne, maisītājs un sifons — Ideal Standard',
+      },
+      {
+        name: 'WC',
+        description:
+          'Iebūvējamais WC rāmis PROSYS ar skalošanas kasti un stiprinājumiem. Poga OLEAS M1, black matt. Pods TESI AQUABLADE, piekarams, white. Vāks TESI ar softclose, white / Ideal Standard.',
+        provider: 'Jā',
+        image: '/images/finishes/apdares__santeh2.jpg',
+        imageAlt: 'WC rāmis PROSYS, pods TESI AQUABLADE un poga OLEAS M1',
+      },
+      {
+        name: 'Dušas kabīne',
+        description:
+          'Akmensmasas dušas paliktnis PAA 900×900, sifons paliktnim. Dušas kabīne CONNECT2 900×900×H1950 mm, R550, bīdāmās durvis. Dušas sistēma CERATHERM T25+ ar termostatu, rokas dušu un augšējo dušu D260 mm, chrome / Ideal Standard.',
+        provider: 'Jā',
+        image: '/images/finishes/apdares__santeh3.jpg',
+        imageAlt: 'Dušas paliktnis, sistēma CERATHERM un sifons',
+      },
+    ],
+  },
+  {
+    title: 'Apkure',
+    rows: [
+      {
+        name: 'Sistēma',
+        description:
+          'Apkuri nodrošina centralizēta siltuma padeves sistēma no mājas siltummezgla ar uzstādītiem gāzes apkures katliem.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Radiatori',
+        description:
+          'Dzīvokļos paredzēti termoregulējami sienu radiatori PURMO FCV (gludie).',
+        provider: 'Jā',
+      },
+      {
+        name: 'Siltās grīdas',
+        description:
+          'Sanitārajos mezglos — regulējamas apsildāmas grīdas.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Skaitītāji',
+        description:
+          'Katram dzīvoklim individuāls apkures skaitītājs koplietošanas koridorī, skaitītāju skapītī.',
+        provider: 'Jā',
+      },
+    ],
+  },
+  {
+    title: 'Ventilācija',
+    rows: [
+      {
+        name: 'Sanitārie mezgli un virtuve',
+        description:
+          'Sanitārajos mezglos — izslēdzamie ventilatori ar taimeriem. Virtuves zonā — dabiskā ventilācija.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Stāvvadi',
+        description:
+          'Katram dzīvoklim individuālie ventilācijas stāvvadi.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Rekuperācija',
+        description:
+          'Sienas rekuperatori katrā dzīvoklī.',
+        provider: 'Jā',
+      },
+    ],
+  },
+  {
+    title: 'Elektroapgāde',
+    rows: [
+      {
+        name: 'Pieslēgums',
+        description:
+          'Katram dzīvoklim paredzēts 3 fāžu pieslēgums, 20 A.',
+        provider: 'Jā',
+      },
+    ],
+  },
+  {
+    title: 'Dzīvokļa elektroapgāde un apgaismojums',
+    rows: [
+      {
+        name: 'Skaitītāji',
+        description:
+          'Katram dzīvoklim individuāls elektrības skaitītājs koplietošanas koridorī, skaitītāju skapītī.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Sadales skapis',
+        description:
+          'Elektrības padeve dzīvokļos notiek caur sadales skapi.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Zemstrāvas tīkls',
+        description:
+          'Zemās strāvas tīkla sadales skapis.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Kontaktligzdas',
+        description:
+          'Elektriskie kontakti katrā dzīvoklī saskaņā ar projektu / EPAFEL.',
+        provider: 'Jā',
+        image: '/images/finishes/apdares__rozet1.jpg',
+        imageAlt: 'Kontaktligzda — EPAFEL',
+      },
+      {
+        name: 'Slēdži',
+        description:
+          'Elektriskie slēdži katrā dzīvoklī saskaņā ar projektu / EPAFEL.',
+        provider: 'Jā',
+        image: '/images/finishes/apdares__rozet2.jpg',
+        imageAlt: 'Slēdzis — EPAFEL',
+      },
+      {
+        name: 'Pieslēgumi',
+        description:
+          'Pieslēgumi elektriskai plītij un apgaismojuma lampām katrā dzīvoklī saskaņā ar projektu.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Dvieļu žāvētājs',
+        description:
+          'Elektriskais kontakts dvieļu žāvētājam.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Veļas mašīna',
+        description:
+          'Elektriskais kontakts veļas mašīnai.',
+        provider: 'Jā',
+      },
+      {
+        name: 'TV un internets',
+        description:
+          'TV un interneta tīklu pieslēgumi katrā dzīvoklī saskaņā ar projektu. Operators SIA Balticom (pircējs slēdz pieslēguma līgumu atsevišķi).',
+        provider: 'Jā',
+        notes: 'Līgums atsevišķi',
+      },
+      {
+        name: 'Piekļuves sistēma',
+        description:
+          'Uz ieejas durvīm kāpņu telpā un izejas vārtiem — kodu un čipu sistēma.',
+        provider: 'Jā',
+      },
+      {
+        name: 'Domofons un drošība',
+        description:
+          'Domofona iekārta. Ugunsgrēka detektors — 1 gab.',
+        provider: 'Jā',
+      },
+    ],
+  },
+  {
+    title: 'Virtuves mēbeles un aprīkojums',
+    rows: [
+      {
+        name: 'Materiāli un toņi',
+        description:
+          'Augšējie skapīši — H3433 ST22, 18 mm, Polar Aland Pine (EGGER). Apakšējie skapīši — U211 ST9, 18 mm, Almond Beige (EGGER). Darba virsma — Basaltino Terra F352 ST76 (EGGER).',
+        provider: 'Jā',
+        image: '/images/finishes/apdares__kuhnja_0002.jpg',
+        imageAlt: 'EGGER materiālu paraugi virtuvei',
+      },
+      {
+        name: 'Vizualizācija',
+        description:
+          'Tipiska virtuves komplektācija ar iebūvēto tehniku, akmens darba virsmu un noslēptiem rokturiem.',
+        provider: 'Jā',
+        image: '/images/finishes/apdares__kuhnja_003333i.jpg',
+        imageAlt: 'Virtuves vizualizācija',
+      },
+    ],
+  },
+];
+---
+<BaseLayout
+  title="Apdares specifikācija — AlmaHome"
+  description="Detalizēta AlmaHome dzīvokļu un kopējo telpu apdares un materiālu specifikācija: sienas, grīdas, kāpņu telpas un visi būvniecībā izmantotie materiāli."
+>
+  <!-- Hero -->
+  <section class="relative bg-burgundy text-cream overflow-hidden">
+    <div class="absolute inset-0 opacity-[0.06] pointer-events-none">
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(245,239,230,0.4),_transparent_60%)]"></div>
+    </div>
+    <Container class="relative py-24 md:py-32">
+      <div class="max-w-3xl">
+        <p class="text-[11px] md:text-xs uppercase tracking-[0.5em] text-cream/60">AlmaHome · Specifikācija</p>
+        <h1 class="mt-6 font-serif text-5xl md:text-7xl leading-[1.05]">Apdares specifikācija</h1>
+        <p class="mt-7 text-base md:text-lg text-cream/80 leading-relaxed max-w-2xl">
+          Pilnais izmantoto materiālu un būvniecības risinājumu saraksts — no pamatiem līdz sanitārijai. Bāzes komplektācija, kas iekļauta dzīvokļa cenā.
+        </p>
+        <div class="mt-10 flex flex-wrap gap-3">
+          <a href="/dzivokli" class="inline-flex items-center justify-center rounded-lg bg-cream px-6 py-3 text-base font-medium text-burgundy transition-colors hover:bg-beige">
+            Izvēlēties dzīvokli
+          </a>
+          <a href="#specifikacija" class="inline-flex items-center justify-center rounded-lg border border-cream/40 px-6 py-3 text-base font-medium text-cream transition-colors hover:bg-cream hover:text-burgundy">
+            Skatīt specifikāciju
+          </a>
+        </div>
+      </div>
+    </Container>
+  </section>
+
+  <!-- Specification table -->
+  <Section background="cream" id="specifikacija">
+    <Container>
+      <div class="mb-12 md:mb-16 max-w-3xl">
+        <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">Materiāli un risinājumi</p>
+        <h2 class="mt-4 font-serif text-3xl md:text-4xl text-burgundy leading-tight">
+          Pārbaudāmā kvalitāte — katrā detaļā
+        </h2>
+        <p class="mt-5 text-ink-muted leading-relaxed">
+          Specifikācija ir saistoša un veido daļu no pirkuma līguma. Ja jums ir jautājumi par konkrētu pozīciju vai vēlaties individuālu komplektāciju, sazinieties ar mums.
+        </p>
+      </div>
+
+      <!-- Desktop table -->
+      <div class="hidden md:block overflow-x-auto rounded-2xl border border-burgundy/10 bg-cream">
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="bg-burgundy text-cream">
+              <th class="font-medium uppercase tracking-[0.2em] text-[11px] px-6 py-4 w-[22%]">Nosaukums</th>
+              <th class="font-medium uppercase tracking-[0.2em] text-[11px] px-6 py-4">Apraksts</th>
+              <th class="font-medium uppercase tracking-[0.2em] text-[11px] px-6 py-4 w-[12%] whitespace-nowrap">Nodrošina pārdevējs</th>
+              <th class="font-medium uppercase tracking-[0.2em] text-[11px] px-6 py-4 w-[18%]">Piezīmes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {groups.map((g) => (
+              <>
+                <tr class="bg-beige/60">
+                  <td colspan="4" class="px-6 py-3 font-serif text-lg text-burgundy">
+                    {g.title}
+                  </td>
+                </tr>
+                {g.rows.map((row, i) => (
+                  <tr class:list={[
+                    'align-top border-t border-burgundy/10',
+                    i % 2 === 1 ? 'bg-cream' : 'bg-cream/60',
+                  ]}>
+                    <td class="px-6 py-5 font-medium text-ink">{row.name ?? ''}</td>
+                    <td class="px-6 py-5 text-ink-muted leading-relaxed">{row.description}</td>
+                    <td class="px-6 py-5 text-ink-muted">{row.provider ?? '—'}</td>
+                    <td class="px-6 py-5 text-ink-muted">
+                      {row.image ? (
+                        <a href={row.image} target="_blank" rel="noopener" class="block group">
+                          <img
+                            src={row.image}
+                            alt={row.imageAlt ?? row.name ?? 'Apdares paraugs'}
+                            loading="lazy"
+                            width="160"
+                            height="120"
+                            class="w-40 h-24 object-cover rounded-md ring-1 ring-burgundy/15 transition-transform duration-200 group-hover:scale-[1.03]"
+                          />
+                        </a>
+                      ) : (
+                        row.notes ?? '—'
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards -->
+      <div class="md:hidden space-y-10">
+        {groups.map((g) => (
+          <div>
+            <h3 class="font-serif text-2xl text-burgundy">{g.title}</h3>
+            <div class="mt-4 space-y-3">
+              {g.rows.map((row) => (
+                <article class="overflow-hidden rounded-xl border border-burgundy/10 bg-cream">
+                  {row.image && (
+                    <a href={row.image} target="_blank" rel="noopener" class="block bg-beige/40">
+                      <img
+                        src={row.image}
+                        alt={row.imageAlt ?? row.name ?? 'Apdares paraugs'}
+                        loading="lazy"
+                        width="800"
+                        height="600"
+                        class="w-full h-44 object-cover"
+                      />
+                    </a>
+                  )}
+                  <div class="p-5">
+                    {row.name && (
+                      <h4 class="font-medium text-ink leading-tight">{row.name}</h4>
+                    )}
+                    <p class="mt-2 text-sm text-ink-muted leading-relaxed">{row.description}</p>
+                    <dl class="mt-4 grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <dt class="uppercase tracking-[0.2em] text-ink-muted/70">Nodrošina pārdevējs</dt>
+                        <dd class="mt-1 text-ink">{row.provider ?? '—'}</dd>
+                      </div>
+                      <div>
+                        <dt class="uppercase tracking-[0.2em] text-ink-muted/70">Piezīmes</dt>
+                        <dd class="mt-1 text-ink">{row.notes ?? '—'}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Container>
+  </Section>
+
+  <!-- CTA -->
+  <Section background="beige" class="!py-20">
+    <Container class="text-center">
+      <h2 class="font-serif text-3xl md:text-4xl text-burgundy">
+        Vēlaties uzzināt vairāk?
+      </h2>
+      <p class="mt-4 text-ink-muted max-w-xl mx-auto">
+        Sūtiet pieprasījumu — atbildēsim uz jautājumiem par materiāliem, individuālu komplektāciju un dzīvokļu apskati.
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <Button variant="primary" size="lg" href="/kontakti">Sazināties ar mums</Button>
+        <Button variant="secondary" size="lg" href="/dzivokli">Apskatīt dzīvokļus</Button>
+      </div>
+    </Container>
+  </Section>
+</BaseLayout>

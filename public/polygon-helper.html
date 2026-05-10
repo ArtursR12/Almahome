@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AlmaHome — polygon helper</title>
+<style>
+  :root { --bg:#F5EFE6; --beige:#E8DDC9; --burgundy:#5A1F2A; --ink:#2A1F1A; --muted:#6B5D52; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:var(--bg); color:var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
+  body { display:grid; grid-template-columns: 320px 1fr; min-height:100vh; }
+  aside { background:#fff; border-right:1px solid #ddd; padding:18px; overflow-y:auto; max-height:100vh; }
+  main  { padding:18px; overflow:auto; }
+  h1 { font-size: 18px; margin: 0 0 12px; color:var(--burgundy); }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.18em; color:var(--muted); margin: 18px 0 8px; }
+  .floor-tabs { display:flex; gap:6px; margin-bottom:14px; }
+  .floor-tabs button { flex:1; padding:8px 0; border:1px solid #ccc; background:#fff; cursor:pointer; border-radius:6px; }
+  .floor-tabs button.active { background:var(--burgundy); color:#fff; border-color:var(--burgundy); }
+  .apt-list { display:grid; grid-template-columns: repeat(2, 1fr); gap:6px; }
+  .apt-list button {
+    padding: 8px 10px; border:1px solid #ddd; background:#fff; border-radius:6px;
+    cursor:pointer; text-align:left; font-size: 13px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .apt-list button.active { background:var(--burgundy); color:#fff; border-color:var(--burgundy); }
+  .apt-list button.has-polygon::after { content: "✓"; opacity:.8; margin-left:6px; }
+  .apt-list button.active.has-polygon::after { color:#fff; }
+  .toolbar { display:flex; flex-direction:column; gap:8px; }
+  .toolbar button {
+    padding: 9px 12px; border:1px solid #ccc; background:#fff; cursor:pointer;
+    border-radius:6px; text-align:left; font-size: 13px;
+  }
+  .toolbar button:hover { background:#f5f5f5; }
+  .toolbar button.primary { background:var(--burgundy); color:#fff; border-color:var(--burgundy); }
+  .toolbar button.primary:hover { background:#3D1419; }
+  .toolbar button.danger  { color:#a13b3b; border-color:#e0bcbc; }
+  .help { font-size:12px; color:var(--muted); line-height:1.5; }
+  .help kbd { background:#f0f0f0; padding:1px 6px; border-radius:3px; border:1px solid #ddd; font-family: ui-monospace, monospace; font-size: 11px; }
+  textarea { width:100%; min-height: 240px; font-family: ui-monospace, monospace; font-size: 12px; padding:10px; border:1px solid #ccc; border-radius:6px; background:#fafafa; resize: vertical; }
+  .stage { position: relative; max-width: 1212px; margin: 0 auto; background:#fff; border-radius:8px; padding:8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .stage svg { display:block; width:100%; height:auto; cursor: crosshair; user-select: none; }
+  .legend { display:flex; gap:10px; flex-wrap:wrap; font-size:12px; color:var(--muted); margin-bottom: 8px; }
+  .legend span { display:inline-flex; align-items:center; gap:4px; }
+  .swatch { display:inline-block; width:10px; height:10px; border-radius:2px; }
+  .ok { color: #2c7a4b; }
+</style>
+</head>
+<body>
+<aside>
+  <h1>Polygon helper</h1>
+  <p class="help">Click points to trace each apartment, then close it. Tab through apartments. Export JSON when done.</p>
+
+  <h2>Floor</h2>
+  <div class="floor-tabs">
+    <button data-floor="1" class="active">1.</button>
+    <button data-floor="2">2.</button>
+    <button data-floor="3">3.</button>
+  </div>
+
+  <h2>Apartment</h2>
+  <div class="apt-list" id="apt-list"></div>
+
+  <h2>Tools</h2>
+  <div class="toolbar">
+    <button id="btn-close"  class="primary">Close polygon (or press <kbd>Enter</kbd>)</button>
+    <button id="btn-undo">Undo last point  (<kbd>Z</kbd>)</button>
+    <button id="btn-clear" class="danger">Clear current apartment</button>
+  </div>
+
+  <h2>Pixel</h2>
+  <div class="help" id="cursor-readout">—</div>
+
+  <h2>Save</h2>
+  <div class="toolbar" style="margin-bottom:8px;">
+    <button id="btn-save" class="primary">💾 Save to project (dev only)</button>
+    <button id="btn-copy">Copy JSON to clipboard</button>
+    <button id="btn-load">Load existing JSON from disk ↓</button>
+  </div>
+  <p class="help" id="save-status"></p>
+
+  <h2>JSON</h2>
+  <textarea id="output" spellcheck="false"></textarea>
+
+  <h2>Shortcuts</h2>
+  <div class="help">
+    <p><kbd>Click</kbd> add point · <kbd>Enter</kbd> close polygon · <kbd>Z</kbd> undo last · <kbd>Esc</kbd> abandon current · <kbd>Tab</kbd>/<kbd>Shift+Tab</kbd> next/prev apartment</p>
+  </div>
+</aside>
+
+<main>
+  <div class="legend">
+    <span><span class="swatch" style="background:#5A1F2A;opacity:.5;"></span> current polygon (in progress)</span>
+    <span><span class="swatch" style="background:#4A7C59;opacity:.4;"></span> finished polygons</span>
+    <span><span class="swatch" style="background:#C9A961;"></span> selected apartment</span>
+  </div>
+
+  <div class="stage">
+    <svg id="stage-svg" viewBox="0 0 1212 854" xmlns="http://www.w3.org/2000/svg">
+      <image id="bg-image" href="/images/floor-plans/floor-1.png" width="1212" height="854"/>
+      <g id="finished-layer"></g>
+      <polyline id="current-line" fill="rgba(90,31,42,0.18)" stroke="#5A1F2A" stroke-width="2" stroke-dasharray="4 4" stroke-linejoin="round" points=""/>
+      <g id="point-handles"></g>
+    </svg>
+  </div>
+</main>
+
+<script>
+const FLOOR_TO_APTS = {
+  1: [1, 2, 3, 4, 5, 6, 7, 8],
+  2: [9, 10, 11, 12, 13, 14, 15, 16],
+  3: [17, 18, 19, 20, 21, 22, 23, 24],
+};
+
+const STORAGE_KEY = 'alma_polygons_v1';
+
+// Persistent state: { "1": [{number, polygon}], "2": [...], "3": [...] }
+let state = loadFromStorage() ?? { "1": [], "2": [], "3": [] };
+
+let activeFloor = 1;
+let activeApt = FLOOR_TO_APTS[activeFloor][0];
+let inProgressPoints = []; // [{x, y}]
+
+// --- elements
+const svg            = document.getElementById('stage-svg');
+const bgImage        = document.getElementById('bg-image');
+const finishedLayer  = document.getElementById('finished-layer');
+const currentLine    = document.getElementById('current-line');
+const pointHandles   = document.getElementById('point-handles');
+const aptListEl      = document.getElementById('apt-list');
+const outputEl       = document.getElementById('output');
+const readout        = document.getElementById('cursor-readout');
+
+// --- helpers
+function loadFromStorage() {
+  try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null; }
+  catch { return null; }
+}
+function saveToStorage() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {} }
+
+function findApt(floor, num) {
+  return state[floor].find(a => a.number === num);
+}
+function setApt(floor, num, polygon) {
+  const list = state[floor];
+  const i = list.findIndex(a => a.number === num);
+  if (i >= 0) list[i].polygon = polygon;
+  else list.push({ number: num, polygon });
+  list.sort((a, b) => a.number - b.number);
+  saveToStorage();
+}
+function deleteApt(floor, num) {
+  state[floor] = state[floor].filter(a => a.number !== num);
+  saveToStorage();
+}
+
+function pointsToString(pts) {
+  return pts.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join(' ');
+}
+function stringToPoints(s) {
+  return s.trim().split(/\s+/).map(pair => {
+    const [x, y] = pair.split(',').map(Number);
+    return { x, y };
+  });
+}
+
+function statusColorForApt(num) { return '#4A7C59'; }
+
+function svgCoords(evt) {
+  const rect = svg.getBoundingClientRect();
+  const x = (evt.clientX - rect.left) / rect.width  * 1212;
+  const y = (evt.clientY - rect.top)  / rect.height * 854;
+  return { x: Math.max(0, Math.min(1212, x)), y: Math.max(0, Math.min(854, y)) };
+}
+
+// --- rendering
+function renderFloor() {
+  bgImage.setAttribute('href', `/images/floor-plans/floor-${activeFloor}.png`);
+  finishedLayer.innerHTML = '';
+  for (const apt of state[activeFloor]) {
+    if (apt.number === activeApt) continue;
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', apt.polygon);
+    poly.setAttribute('fill', statusColorForApt(apt.number));
+    poly.setAttribute('fill-opacity', '0.35');
+    poly.setAttribute('stroke', '#2c7a4b');
+    poly.setAttribute('stroke-width', '1.5');
+    poly.setAttribute('stroke-opacity', '0.6');
+    finishedLayer.appendChild(poly);
+
+    // Number label at centroid.
+    const pts = stringToPoints(apt.polygon);
+    const cx = pts.reduce((a, p) => a + p.x, 0) / pts.length;
+    const cy = pts.reduce((a, p) => a + p.y, 0) / pts.length;
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.textContent = apt.number;
+    text.setAttribute('x', cx);
+    text.setAttribute('y', cy + 6);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('font-family', 'sans-serif');
+    text.setAttribute('font-weight', '600');
+    text.setAttribute('font-size', '18');
+    text.setAttribute('fill', '#1f4d31');
+    finishedLayer.appendChild(text);
+  }
+  renderInProgress();
+}
+
+function renderInProgress() {
+  // The dashed current polyline.
+  if (inProgressPoints.length === 0) {
+    currentLine.setAttribute('points', '');
+  } else {
+    currentLine.setAttribute('points', pointsToString(inProgressPoints));
+  }
+
+  // Point handles (small filled circles).
+  pointHandles.innerHTML = '';
+  inProgressPoints.forEach((p, i) => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', p.x);
+    c.setAttribute('cy', p.y);
+    c.setAttribute('r', i === 0 ? 7 : 5);
+    c.setAttribute('fill', i === 0 ? '#C9A961' : '#5A1F2A');
+    c.setAttribute('stroke', '#fff');
+    c.setAttribute('stroke-width', '2');
+    pointHandles.appendChild(c);
+  });
+
+  // Render existing polygon for active apt as ghost.
+  const existing = findApt(activeFloor, activeApt);
+  if (existing && inProgressPoints.length === 0) {
+    const ghost = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    ghost.setAttribute('points', existing.polygon);
+    ghost.setAttribute('fill', '#C9A961');
+    ghost.setAttribute('fill-opacity', '0.5');
+    ghost.setAttribute('stroke', '#8a7531');
+    ghost.setAttribute('stroke-width', '2');
+    pointHandles.appendChild(ghost);
+  }
+}
+
+function renderAptList() {
+  aptListEl.innerHTML = '';
+  for (const num of FLOOR_TO_APTS[activeFloor]) {
+    const btn = document.createElement('button');
+    const has = !!findApt(activeFloor, num);
+    btn.textContent = `Nr.${num}`;
+    btn.classList.toggle('active', num === activeApt);
+    btn.classList.toggle('has-polygon', has);
+    btn.addEventListener('click', () => switchApt(num));
+    aptListEl.appendChild(btn);
+  }
+}
+
+function renderOutput() {
+  // Shape mirrors src/data/floor-plans.json structure.
+  const out = {
+    image_width: 1212,
+    image_height: 854,
+    floors: [1, 2, 3].map(f => ({
+      floor: f,
+      image: `/images/floor-plans/floor-${f}.png`,
+      apartments: state[f].slice().sort((a, b) => a.number - b.number),
+    })),
+  };
+  outputEl.value = JSON.stringify(out, null, 2);
+}
+
+function renderAll() {
+  renderFloor();
+  renderAptList();
+  renderOutput();
+}
+
+// --- commands
+function commitPolygon() {
+  if (inProgressPoints.length < 3) return;
+  setApt(activeFloor, activeApt, pointsToString(inProgressPoints));
+  inProgressPoints = [];
+  // Auto-advance to next un-traced apartment on this floor.
+  const apts = FLOOR_TO_APTS[activeFloor];
+  const nextUntraced = apts.find(n => !findApt(activeFloor, n));
+  if (nextUntraced) activeApt = nextUntraced;
+  renderAll();
+}
+function abandonPolygon() {
+  inProgressPoints = [];
+  renderInProgress();
+}
+function clearActive() {
+  if (!confirm(`Clear polygon for Nr.${activeApt}?`)) return;
+  deleteApt(activeFloor, activeApt);
+  inProgressPoints = [];
+  renderAll();
+}
+function switchFloor(f) {
+  activeFloor = f;
+  activeApt = FLOOR_TO_APTS[f][0];
+  inProgressPoints = [];
+  document.querySelectorAll('.floor-tabs button').forEach(b =>
+    b.classList.toggle('active', Number(b.dataset.floor) === f)
+  );
+  renderAll();
+}
+function switchApt(num) {
+  activeApt = num;
+  inProgressPoints = [];
+  renderAll();
+}
+function nextApt(delta) {
+  const apts = FLOOR_TO_APTS[activeFloor];
+  const i = apts.indexOf(activeApt);
+  const ni = (i + delta + apts.length) % apts.length;
+  switchApt(apts[ni]);
+}
+
+// --- events
+svg.addEventListener('mousemove', (e) => {
+  const p = svgCoords(e);
+  readout.textContent = `(${Math.round(p.x)}, ${Math.round(p.y)})`;
+});
+svg.addEventListener('click', (e) => {
+  const p = svgCoords(e);
+  inProgressPoints.push(p);
+  renderInProgress();
+});
+svg.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  commitPolygon();
+});
+
+document.getElementById('btn-close').addEventListener('click', commitPolygon);
+document.getElementById('btn-undo').addEventListener('click', () => {
+  inProgressPoints.pop();
+  renderInProgress();
+});
+document.getElementById('btn-clear').addEventListener('click', clearActive);
+document.getElementById('btn-save').addEventListener('click', async () => {
+  const status = document.getElementById('save-status');
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  status.textContent = 'Saving…';
+  status.style.color = '';
+  try {
+    const res = await fetch('/api/save-polygons', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: outputEl.value,
+    });
+    const data = await res.json();
+    if (data.ok) {
+      const total = data.counts.reduce((a, c) => a + c.n, 0);
+      status.textContent = `✓ Saved ${total} polygons to src/data/floor-plans.json (backup created).`;
+      status.style.color = '#2c7a4b';
+    } else {
+      status.textContent = '✗ ' + (data.error || 'failed');
+      status.style.color = '#a13b3b';
+    }
+  } catch (e) {
+    status.textContent = '✗ ' + (e?.message || 'network error');
+    status.style.color = '#a13b3b';
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('btn-copy').addEventListener('click', () => {
+  outputEl.select();
+  navigator.clipboard.writeText(outputEl.value);
+  const btn = document.getElementById('btn-copy');
+  const old = btn.textContent;
+  btn.textContent = 'Copied ✓';
+  setTimeout(() => { btn.textContent = old; }, 1200);
+});
+document.getElementById('btn-load').addEventListener('click', async () => {
+  try {
+    const res = await fetch('/data/floor-plans.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('not found');
+    const data = await res.json();
+    const next = { "1": [], "2": [], "3": [] };
+    for (const f of data.floors) next[f.floor] = f.apartments;
+    state = next;
+    saveToStorage();
+    renderAll();
+    alert('Loaded existing polygons.');
+  } catch (e) {
+    alert('Could not load /data/floor-plans.json — paste manually into the textarea below if needed.');
+  }
+});
+outputEl.addEventListener('input', () => {
+  // Allow round-tripping: user can edit JSON and we re-parse.
+  try {
+    const parsed = JSON.parse(outputEl.value);
+    const next = { "1": [], "2": [], "3": [] };
+    for (const f of parsed.floors) next[f.floor] = f.apartments;
+    state = next;
+    saveToStorage();
+    renderFloor(); renderAptList();
+  } catch {} // ignore parse errors while typing
+});
+
+document.querySelectorAll('.floor-tabs button').forEach(btn =>
+  btn.addEventListener('click', () => switchFloor(Number(btn.dataset.floor)))
+);
+
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'Enter') { e.preventDefault(); commitPolygon(); }
+  else if (e.key === 'Escape') { abandonPolygon(); }
+  else if (e.key === 'z' || e.key === 'Z') {
+    inProgressPoints.pop(); renderInProgress();
+  } else if (e.key === 'Tab') {
+    e.preventDefault(); nextApt(e.shiftKey ? -1 : +1);
+  }
+});
+
+renderAll();
+</script>
+</body>
+</html>
