@@ -5,10 +5,13 @@ import Container from '@/components/ui/Container.astro';
 import Section from '@/components/ui/Section.astro';
 import BottomCTA from '@/components/layout/BottomCTA.astro';
 import floorPlansData from '@/data/floor-plans.json';
-import { getLocaleFromUrl, useTranslations, getLocalizedUrl, formatPrice, roomsLabel } from '@/i18n/utils';
+import { getLocaleFromUrl, useTranslations, useTranslationsRaw, getLocalizedUrl, formatPrice, roomsLabel } from '@/i18n/utils';
 
 const lang = getLocaleFromUrl(Astro.url);
 const t = useTranslations(lang);
+const tr = useTranslationsRaw(lang);
+
+const parkingOptions = tr<string[]>('dzivokli.parking_options');
 
 const apartments = (await getCollection('apartments')).sort((a, b) => a.data.number - b.data.number);
 
@@ -366,7 +369,38 @@ function notesFor(a: { has_terrace: boolean; has_balcony: boolean }): string {
     </Container>
   </Section>
 
-  <BottomCTA lang={lang} background="beige" />
+  <!-- Parking -->
+  <Section background="beige" class="!py-16 md:!py-20">
+    <Container>
+      <div class="grid lg:grid-cols-5 gap-10 lg:gap-14 items-start">
+        <div class="lg:col-span-2">
+          <h2 class="font-serif text-3xl md:text-4xl text-burgundy leading-tight">
+            {t('dzivokli.parking_title')}
+          </h2>
+          <ul class="mt-6 space-y-3">
+            {parkingOptions.map((opt) => (
+              <li class="flex items-baseline gap-3 text-base text-ink leading-relaxed">
+                <span class="font-serif text-burgundy" aria-hidden="true">·</span>
+                <span>{opt}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div class="lg:col-span-3">
+          <div class="rounded-2xl bg-cream border border-ink-muted/15 p-3 md:p-5">
+            <img
+              src="/images/floor-plans/parking.svg"
+              alt={t('dzivokli.parking_alt')}
+              loading="lazy"
+              class="w-full h-auto select-none"
+            />
+          </div>
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <BottomCTA lang={lang} background="cream" />
 
   <!-- Floor-plan polygon tooltip — single shared element repositioned on hover. -->
   <div

@@ -253,7 +253,13 @@
     "table_price": "Cena",
     "table_notes": "Piezīmes",
     "table_status": "Statuss",
-    "empty": "Pēc šiem filtriem nav atrasts neviens dzīvoklis."
+    "empty": "Pēc šiem filtriem nav atrasts neviens dzīvoklis.",
+    "parking_title": "Autostāvvieta",
+    "parking_options": [
+      "Virszemes autostāvvietas cena 7 000 EUR.",
+      "Virszemes autostāvvieta ar iespēju uzstādīt uzlādes staciju cena 10 000 EUR."
+    ],
+    "parking_alt": "Autostāvvietas izvietojuma plāns"
   },
   "apartment_detail": {
     "kicker": "Dzīvoklis",
