@@ -1,0 +1,22 @@
+---
+// Eyebrow label (kicker) that sits above section h2. Adds a thin leading line
+// for editorial rhythm — replaces the previous plain <p> usage.
+
+interface Props {
+  /** Optional 2-digit roman / arabic prefix shown faintly before the label. */
+  index?: number;
+  align?: 'left' | 'center';
+  class?: string;
+}
+
+const { index, align = 'left', class: className = '' } = Astro.props;
+const justify = align === 'center' ? 'justify-center' : 'justify-start';
+const padded = index !== undefined ? String(index).padStart(2, '0') : null;
+---
+<p class:list={['flex items-center gap-3 text-[11px] uppercase tracking-[0.32em] text-ink-muted', justify, className]}>
+  {padded && (
+    <span class="font-serif text-burgundy/70 not-italic tracking-normal text-base leading-none">{padded}</span>
+  )}
+  <span class="inline-block h-px w-8 bg-burgundy/40" aria-hidden="true"></span>
+  <slot />
+</p>

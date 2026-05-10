@@ -4,6 +4,7 @@ import Container from '@/components/ui/Container.astro';
 import Section from '@/components/ui/Section.astro';
 import PhotoOrPlaceholder from '@/components/ui/PhotoOrPlaceholder.astro';
 import BottomCTA from '@/components/layout/BottomCTA.astro';
+import SectionKicker from '@/components/ui/SectionKicker.astro';
 import { getLocaleFromUrl, useTranslations, useTranslationsRaw } from '@/i18n/utils';
 
 const lang = getLocaleFromUrl(Astro.url);
@@ -53,8 +54,8 @@ const cardImages = [
     <Container>
       <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
         <div>
-          <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">{t('par_namu.arch_kicker')}</p>
-          <h2 class="mt-4 font-serif text-4xl md:text-5xl text-burgundy leading-tight">
+          <SectionKicker index={1}>{t('par_namu.arch_kicker')}</SectionKicker>
+          <h2 class="mt-5 font-serif text-4xl md:text-5xl text-burgundy leading-tight">
             {t('par_namu.arch_title')}
           </h2>
           <p class="mt-6 text-lg text-ink-muted leading-relaxed">{t('par_namu.arch_body_1')}</p>
@@ -78,10 +79,10 @@ const cardImages = [
   <!-- Materials -->
   <Section background="beige">
     <Container>
-      <div class="text-center mb-12">
-        <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">{t('par_namu.materials_kicker')}</p>
-        <h2 class="mt-4 font-serif text-4xl md:text-5xl text-burgundy">{t('par_namu.materials_title')}</h2>
-        <p class="mt-4 text-ink-muted max-w-2xl mx-auto">
+      <div class="flex flex-col items-center text-center mb-12">
+        <SectionKicker index={2} align="center">{t('par_namu.materials_kicker')}</SectionKicker>
+        <h2 class="mt-5 font-serif text-4xl md:text-5xl text-burgundy">{t('par_namu.materials_title')}</h2>
+        <p class="mt-4 text-ink-muted max-w-2xl">
           {t('par_namu.materials_body')}
         </p>
       </div>
@@ -115,16 +116,19 @@ const cardImages = [
     <Container>
       <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
         <div class="md:order-2">
-          <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">{t('par_namu.energy_kicker')}</p>
-          <h2 class="mt-4 font-serif text-4xl md:text-5xl text-burgundy leading-tight">
+          <SectionKicker index={3}>{t('par_namu.energy_kicker')}</SectionKicker>
+          <h2 class="mt-5 font-serif text-4xl md:text-5xl text-burgundy leading-tight">
             {t('par_namu.energy_title')}
           </h2>
           <p class="mt-6 text-lg text-ink-muted leading-relaxed">
             {t('par_namu.energy_body')}
           </p>
-          <ul class="mt-6 space-y-2 text-base text-ink">
-            {energyFeatures.map((f) => (
-              <li class="flex items-baseline gap-3"><span class="font-serif text-burgundy">·</span> {f}</li>
+          <ul class="mt-8 space-y-4 text-base text-ink">
+            {energyFeatures.map((f, i) => (
+              <li class="flex items-start gap-4">
+                <span class="font-serif text-sm text-burgundy/70 shrink-0 mt-1 tracking-wider tabular-nums">0{i + 1}</span>
+                <span class="leading-relaxed">{f}</span>
+              </li>
             ))}
           </ul>
         </div>
@@ -148,8 +152,8 @@ const cardImages = [
     <Container>
       <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
         <div>
-          <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">{t('par_namu.surroundings_kicker')}</p>
-          <h2 class="mt-4 font-serif text-4xl md:text-5xl text-burgundy leading-tight">
+          <SectionKicker index={4}>{t('par_namu.surroundings_kicker')}</SectionKicker>
+          <h2 class="mt-5 font-serif text-4xl md:text-5xl text-burgundy leading-tight">
             {t('par_namu.surroundings_title')}
           </h2>
           <p class="mt-6 text-lg text-ink-muted leading-relaxed">

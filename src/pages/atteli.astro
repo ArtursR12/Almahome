@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Container from '@/components/ui/Container.astro';
 import Section from '@/components/ui/Section.astro';
 import BottomCTA from '@/components/layout/BottomCTA.astro';
+import SectionKicker from '@/components/ui/SectionKicker.astro';
 import { getLocaleFromUrl, useTranslations, useTranslationsRaw } from '@/i18n/utils';
 
 const lang = getLocaleFromUrl(Astro.url);
@@ -55,10 +56,10 @@ const tabs = [
 >
   <Section background="cream">
     <Container>
-      <div class="text-center mb-10">
-        <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">{t('atteli.hero_kicker')}</p>
-        <h1 class="mt-4 font-serif text-5xl md:text-6xl text-burgundy">{t('atteli.hero_title')}</h1>
-        <p class="mt-4 text-ink-muted max-w-2xl mx-auto">
+      <div class="flex flex-col items-center text-center mb-10">
+        <SectionKicker align="center">{t('atteli.hero_kicker')}</SectionKicker>
+        <h1 class="mt-5 font-serif text-5xl md:text-6xl text-burgundy">{t('atteli.hero_title')}</h1>
+        <p class="mt-4 text-ink-muted max-w-2xl">
           {t('atteli.hero_subtitle')}
         </p>
       </div>
