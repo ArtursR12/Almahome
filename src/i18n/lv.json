@@ -194,27 +194,29 @@
     "lightbox_prev": "Iepriekšējais",
     "lightbox_next": "Nākamais",
     "exterior_alts": [
-      "AlmaHome vasarā",
-      "AlmaHome rudenī",
-      "AlmaHome ziemā",
-      "Fasāde — vispārējais skats",
-      "Fasādes detaļa",
-      "Ieeja un ēkas detaļa",
-      "Iekšpagalms"
+      "Mājas fasāde vasarā",
+      "Mājas fasāde vakara stundā",
+      "Stūra skats — modernā fasāde",
+      "Skats no Mores ielas",
+      "Mājas fasāde un iebraucamais ceļš",
+      "Skats no iekšpagalma — balkoni un terases",
+      "Iekšpagalms ar piknika vietu",
+      "ALMA HOME logo un balkons",
+      "Aerofotouzņēmums — komplekss un apkārtne"
     ],
     "interior_alts": [
-      "Virtuve",
-      "Viesistaba",
-      "Guļamistaba 1",
-      "Guļamistaba 2",
-      "Guļamistaba — alternatīvs skats",
-      "Dz. Nr.16 — viesistaba",
-      "Dz. Nr.16 — viesistaba (otrs skats)",
-      "Dz. Nr.16 — viesistaba (3)",
-      "Dz. Nr.16 — virtuves zona",
-      "Bērnu istaba",
-      "Vannas istaba",
-      "Vannas istaba — alternatīvs skats"
+      "Studio dzīvoklis — viesistaba un virtuves zona",
+      "Viesistaba ar TV zonu un grāmatu plauktiem",
+      "Priekštelpa un virtuves skats",
+      "Guļamistaba ar mākslas darbu",
+      "Atvērta dzīvojamā un ēdamzona",
+      "Virtuve ar ēdamgaldu un sarkaniem krēsliem",
+      "Viesistaba ar zaļo dīvānu",
+      "Virtuve un ēdamzona",
+      "Viesistaba ar bordo akcentkrēslu",
+      "Guļamistaba ar logu uz pagalmu",
+      "Bērnu istaba — darba zona",
+      "Vannas istaba"
     ]
   },
   "kontakti": {
