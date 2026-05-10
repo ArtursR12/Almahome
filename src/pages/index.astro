@@ -5,6 +5,7 @@ import Container from '@/components/ui/Container.astro';
 import Section from '@/components/ui/Section.astro';
 import Button from '@/components/ui/Button.astro';
 import PhotoOrPlaceholder from '@/components/ui/PhotoOrPlaceholder.astro';
+import BottomCTA from '@/components/layout/BottomCTA.astro';
 import { getLocaleFromUrl, useTranslations, useTranslationsRaw, getLocalizedUrl, formatPrice, roomsLabel } from '@/i18n/utils';
 
 const lang = getLocaleFromUrl(Astro.url);
@@ -283,9 +284,8 @@ const partnerBanks: { name: string; logo: string }[] = [
         </div>
       </div>
 
-      <div class="mt-12 text-center">
-        <Button variant="primary" size="lg" href={getLocalizedUrl('/kontakti', lang)}>{t('home.contact_cta')}</Button>
-      </div>
     </Container>
   </Section>
+
+  <BottomCTA lang={lang} background="beige" />
 </BaseLayout>

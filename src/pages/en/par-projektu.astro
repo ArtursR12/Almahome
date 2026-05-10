@@ -4,6 +4,7 @@ import Container from '@/components/ui/Container.astro';
 import Section from '@/components/ui/Section.astro';
 import Button from '@/components/ui/Button.astro';
 import PhotoOrPlaceholder from '@/components/ui/PhotoOrPlaceholder.astro';
+import BottomCTA from '@/components/layout/BottomCTA.astro';
 import { getLocaleFromUrl, useTranslations, useTranslationsRaw, getLocalizedUrl } from '@/i18n/utils';
 
 const lang = getLocaleFromUrl(Astro.url);
@@ -145,19 +146,5 @@ const landmarks = tr<{ time: string; name: string; note: string }[]>('par_projek
     </Container>
   </Section>
 
-  <!-- CTA -->
-  <Section background="cream" class="!py-16">
-    <Container class="text-center">
-      <h2 class="font-serif text-3xl md:text-4xl text-burgundy">
-        {t('par_projektu.cta_title')}
-      </h2>
-      <p class="mt-4 text-ink-muted max-w-xl mx-auto">
-        {t('par_projektu.cta_body')}
-      </p>
-      <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-        <Button variant="primary" size="lg" href={getLocalizedUrl('/dzivokli', lang)}>{t('home.cta_view_apartments')}</Button>
-        <Button variant="secondary" size="lg" href={getLocalizedUrl('/kontakti', lang)}>{t('home.cta_contact')}</Button>
-      </div>
-    </Container>
-  </Section>
+  <BottomCTA lang={lang} background="cream" />
 </BaseLayout>

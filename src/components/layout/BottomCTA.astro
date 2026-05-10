@@ -1,0 +1,34 @@
+---
+import Container from '@/components/ui/Container.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import { getLocaleFromUrl, useTranslations, getLocalizedUrl, type Locale } from '@/i18n/utils';
+
+interface Props {
+  /** Override page-detected locale if needed. */
+  lang?: Locale;
+  /** "cream" or "beige" — pick whichever contrasts the section above. */
+  background?: 'cream' | 'beige';
+}
+
+const { lang = getLocaleFromUrl(Astro.url), background = 'beige' } = Astro.props;
+const t = useTranslations(lang);
+---
+<Section background={background} class="!py-20">
+  <Container class="text-center">
+    <h2 class="font-serif text-3xl md:text-4xl text-burgundy">
+      {t('bottom_cta.title')}
+    </h2>
+    <p class="mt-4 text-ink-muted max-w-xl mx-auto">
+      {t('bottom_cta.body')}
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <Button variant="primary" size="lg" href={getLocalizedUrl('/kontakti', lang)}>
+        {t('bottom_cta.contact')}
+      </Button>
+      <Button variant="secondary" size="lg" href={getLocalizedUrl('/dzivokli', lang)}>
+        {t('bottom_cta.apartments')}
+      </Button>
+    </div>
+  </Container>
+</Section>

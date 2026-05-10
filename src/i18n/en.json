@@ -274,6 +274,12 @@
     "other_link_all": "All apartments →",
     "card_plan_label": "Plan Nr."
   },
+  "bottom_cta": {
+    "title": "Want to know more?",
+    "body": "Send an enquiry — we'll answer your questions and help you find the right apartment.",
+    "contact": "Get in touch",
+    "apartments": "View apartments"
+  },
   "apdares": {
     "title": "Finishes specification — AlmaHome",
     "description": "Detailed AlmaHome finishes and materials specification for apartments and shared spaces: walls, floors, stairwells, and all construction materials.",

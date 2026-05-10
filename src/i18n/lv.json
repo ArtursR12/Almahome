@@ -274,6 +274,12 @@
     "other_link_all": "Visi dzīvokļi →",
     "card_plan_label": "Plānojums Nr."
   },
+  "bottom_cta": {
+    "title": "Vēlaties uzzināt vairāk?",
+    "body": "Sūtiet pieprasījumu — atbildēsim uz jautājumiem un palīdzēsim atrast piemērotāko dzīvokli.",
+    "contact": "Sazināties ar mums",
+    "apartments": "Apskatīt dzīvokļus"
+  },
   "apdares": {
     "title": "Apdares specifikācija — AlmaHome",
     "description": "Detalizēta AlmaHome dzīvokļu un kopējo telpu apdares un materiālu specifikācija: sienas, grīdas, kāpņu telpas un visi būvniecībā izmantotie materiāli.",

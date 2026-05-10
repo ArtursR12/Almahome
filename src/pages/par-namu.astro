@@ -2,9 +2,9 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Container from '@/components/ui/Container.astro';
 import Section from '@/components/ui/Section.astro';
-import Button from '@/components/ui/Button.astro';
 import PhotoOrPlaceholder from '@/components/ui/PhotoOrPlaceholder.astro';
-import { getLocaleFromUrl, useTranslations, useTranslationsRaw, getLocalizedUrl } from '@/i18n/utils';
+import BottomCTA from '@/components/layout/BottomCTA.astro';
+import { getLocaleFromUrl, useTranslations, useTranslationsRaw } from '@/i18n/utils';
 
 const lang = getLocaleFromUrl(Astro.url);
 const t = useTranslations(lang);
@@ -174,18 +174,5 @@ const cardImages = [
     </Container>
   </Section>
 
-  <!-- CTA -->
-  <Section background="cream" class="!py-16">
-    <Container class="text-center">
-      <h2 class="font-serif text-3xl md:text-4xl text-burgundy">
-        {t('par_namu.cta_title')}
-      </h2>
-      <p class="mt-4 text-ink-muted max-w-xl mx-auto">
-        {t('par_namu.cta_body')}
-      </p>
-      <div class="mt-8">
-        <Button variant="primary" size="lg" href={getLocalizedUrl('/dzivokli', lang)}>{t('home.cta_view_apartments')}</Button>
-      </div>
-    </Container>
-  </Section>
+  <BottomCTA lang={lang} background="cream" />
 </BaseLayout>

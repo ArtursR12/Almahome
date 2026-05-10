@@ -6,6 +6,7 @@ import Section from '@/components/ui/Section.astro';
 import Button from '@/components/ui/Button.astro';
 import PhotoOrPlaceholder from '@/components/ui/PhotoOrPlaceholder.astro';
 import ContactForm from '@/components/forms/ContactForm.svelte';
+import BottomCTA from '@/components/layout/BottomCTA.astro';
 import { getLocaleFromUrl, useTranslations, getLocalizedUrl, formatPrice, localizedRoomName, roomsLabel } from '@/i18n/utils';
 
 export const prerender = true;
@@ -325,4 +326,6 @@ const apartmentSchema: Record<string, unknown> = {
       </Container>
     </Section>
   )}
+
+  <BottomCTA lang={lang} background={otherAvailable.length > 0 ? 'beige' : 'cream'} />
 </BaseLayout>
