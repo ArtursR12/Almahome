@@ -22,7 +22,6 @@ export default defineConfig({
   // every such URL 404s.
   redirects: {
     '/lv': '/',
-    '/lv/': '/',
     '/lv/[...path]': '/[...path]',
   },
   vite: {
