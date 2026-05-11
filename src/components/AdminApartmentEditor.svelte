@@ -205,11 +205,13 @@
             <p class="text-xs text-zinc-500">Tukšs lauks → "Pēc pieprasījuma".</p>
           </div>
 
-          {#if status !== 'available'}
-            <fieldset class="space-y-3 rounded-md bg-zinc-950/40 border border-zinc-800 p-4">
-              <legend class="text-xs uppercase tracking-widest text-zinc-500 px-2">
-                Pircējs ({status === 'sold' ? 'pārdots' : 'rezervēts'})
-              </legend>
+          <fieldset class="space-y-3 rounded-md bg-zinc-950/40 border border-zinc-800 p-4">
+            <legend class="text-xs uppercase tracking-widest text-zinc-500 px-2">
+              Pircējs{status === 'sold' ? ' (pārdots)' : status === 'reserved' ? ' (rezervēts)' : ''}
+            </legend>
+            {#if status === 'available'}
+              <p class="text-xs text-zinc-500 -mt-1">Pieejamiem dzīvokļiem šie lauki nav obligāti.</p>
+            {/if}
               <div class="space-y-1.5">
                 <label for="apt-buyer-name" class="block text-xs text-zinc-500">Vārds, uzvārds</label>
                 <input
@@ -248,8 +250,7 @@
                   class="w-full rounded-md bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-burgundy disabled:opacity-50 resize-y"
                 ></textarea>
               </div>
-            </fieldset>
-          {/if}
+          </fieldset>
 
           {#if errorMsg}
             <div class="rounded-lg border border-red-700/50 bg-red-700/10 p-3 text-sm text-red-300">
