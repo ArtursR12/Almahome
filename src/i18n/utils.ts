@@ -68,8 +68,18 @@ function walk(obj: unknown, path: string): unknown {
   }, obj);
 }
 
-export function formatPrice(price: number | null, locale: Locale): string {
+export type ApartmentStatus = 'available' | 'reserved' | 'sold';
+
+export function formatPrice(
+  price: number | null,
+  locale: Locale,
+  status?: ApartmentStatus,
+): string {
   if (price === null) {
+    // Sold apartments aren't bookable, so "по запросу" is misleading — show
+    // an em dash instead. Available/reserved fall through to the existing
+    // localized "price on request" copy.
+    if (status === 'sold') return '—';
     const d = dictionaries[locale] ?? dictionaries.lv;
     return d.common.price_on_request;
   }

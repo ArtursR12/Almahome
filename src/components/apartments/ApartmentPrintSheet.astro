@@ -8,6 +8,7 @@ import {
   localizedRoomName,
   roomsLabel,
   type Locale,
+  type ApartmentStatus,
 } from '@/i18n/utils';
 
 interface RoomBreakdown {
@@ -23,6 +24,7 @@ interface Props {
   rooms: number;
   area_total: number;
   price: number | null;
+  status: ApartmentStatus;
   has_terrace: boolean;
   has_balcony: boolean;
   rooms_breakdown: RoomBreakdown[];
@@ -50,7 +52,7 @@ const featureBits: string[] = [
     </div>
     <div class="aps-price">
       <div class="aps-kicker">{t('apartment_detail.price_label')}</div>
-      <div class="aps-price-val">{formatPrice(a.price, a.lang)}</div>
+      <div class="aps-price-val">{formatPrice(a.price, a.lang, a.status)}</div>
     </div>
   </header>
 

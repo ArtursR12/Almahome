@@ -60,7 +60,7 @@ const summary = t('apartment_detail.summary')
   .replace('{area}', String(a.area_total));
 
 const pageTitle = `${t('apartment_detail.kicker')} ${t('apartment_detail.label_number')}${a.number} — ${a.rooms} ${roomsLabel(a.rooms, lang)}, ${a.area_total} m² — ALMA HOME`;
-const pageDescription = `${a.rooms} ${roomsLabel(a.rooms, lang)} · ${a.floor}. ${t('common.floor_long')} · ${a.area_total} m² · ${formatPrice(a.price, lang)}. ALMA HOME — Mores iela 15, Rīga.`;
+const pageDescription = `${a.rooms} ${roomsLabel(a.rooms, lang)} · ${a.floor}. ${t('common.floor_long')} · ${a.area_total} m² · ${formatPrice(a.price, lang, a.status)}. ALMA HOME — Mores iela 15, Rīga.`;
 
 // Apartment schema. Search engines surface bedroom count, area, and price
 // directly when this is well-formed.
@@ -143,7 +143,7 @@ const apartmentSchema: Record<string, unknown> = {
         <div class="lg:col-span-2 space-y-8 order-2 lg:order-1">
           <div>
             <p class="text-xs uppercase tracking-[0.3em] text-ink-muted">{t('apartment_detail.price_label')}</p>
-            <p class="mt-2 font-serif text-5xl text-burgundy tabular-nums">{formatPrice(a.price, lang)}</p>
+            <p class="mt-2 font-serif text-5xl text-burgundy tabular-nums">{formatPrice(a.price, lang, a.status)}</p>
             {a.price && (
               <p class="mt-1 text-sm text-ink-muted tabular-nums">
                 ≈ {Math.round(a.price / a.area_total).toLocaleString(lang === 'en' ? 'en-US' : 'lv-LV')} € / m²
@@ -302,6 +302,7 @@ const apartmentSchema: Record<string, unknown> = {
     rooms={a.rooms}
     area_total={a.area_total}
     price={a.price}
+    status={a.status}
     has_terrace={a.has_terrace}
     has_balcony={a.has_balcony}
     rooms_breakdown={a.rooms_breakdown}
@@ -346,7 +347,7 @@ const apartmentSchema: Record<string, unknown> = {
                   {o.rooms} {roomsLabel(o.rooms, lang)} · {o.area_total} m²{o.has_terrace ? ` · ${t('common.terrace')}` : o.has_balcony ? ` · ${t('common.balcony')}` : ''}
                 </div>
                 <div class="mt-4 flex items-end justify-between">
-                  <span class="font-serif text-xl text-burgundy">{formatPrice(o.price, lang)}</span>
+                  <span class="font-serif text-xl text-burgundy">{formatPrice(o.price, lang, o.status)}</span>
                   <span class="text-sm text-burgundy group-hover:underline">{t('common.see')} →</span>
                 </div>
               </div>

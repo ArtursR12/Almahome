@@ -291,7 +291,7 @@ const landmarks = tr<{ time: string; name: string }[]>('home.location_landmarks'
                 {apt.data.rooms} {roomsLabel(apt.data.rooms, lang)} · {apt.data.area_total} m²{apt.data.has_terrace ? ` · ${t('common.terrace')}` : apt.data.has_balcony ? ` · ${t('common.balcony')}` : ''}
               </div>
               <div class="mt-4 flex items-end justify-between gap-3">
-                <span class="font-serif text-xl text-burgundy">{formatPrice(apt.data.price, lang)}</span>
+                <span class="font-serif text-xl text-burgundy">{formatPrice(apt.data.price, lang, apt.data.status)}</span>
                 <span class="text-sm text-burgundy group-hover:underline">{t('common.see')} →</span>
               </div>
             </div>
