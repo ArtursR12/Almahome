@@ -1,0 +1,87 @@
+---
+// Sticky bottom-right contact buttons available on every page (mounted in
+// BaseLayout). Mobile: a compact stacked column hugging the right edge.
+// Desktop: same stack with a hover-revealed label chip on the left.
+import { useTranslations, getLocaleFromUrl, type Locale } from '@/i18n/utils';
+
+interface Props {
+  lang?: Locale;
+}
+const { lang = getLocaleFromUrl(Astro.url) } = Astro.props;
+const t = useTranslations(lang);
+
+const phone = t('site.phone');          // displayed
+const phoneCompact = t('site.phone_compact'); // tel:/wa.me href
+const email = t('site.email');
+
+// Trim leading "+" — wa.me wants raw digits.
+const waNumber = phoneCompact.replace(/^\+/, '');
+
+// Pre-filled WhatsApp greeting — short, localized, leaves room to type.
+const waGreeting: Record<Locale, string> = {
+  lv: 'Sveiki! Vēlos uzzināt vairāk par ALMA HOME.',
+  ru: 'Здравствуйте! Хотелось бы узнать подробнее об ALMA HOME.',
+  en: 'Hello! I would like to learn more about ALMA HOME.',
+};
+const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(waGreeting[lang] ?? waGreeting.lv)}`;
+
+const buttons = [
+  {
+    key: 'whatsapp',
+    href: waUrl,
+    label: t('floating_contacts.whatsapp_label'),
+    short: t('floating_contacts.whatsapp_short'),
+    target: '_blank',
+    rel: 'noopener',
+    bg: 'bg-[#25D366] hover:bg-[#1FAE54]',
+    iconPath: 'M19.05 4.91A9.82 9.82 0 0 0 12.04 2C6.58 2 2.13 6.45 2.13 11.92c0 1.75.46 3.46 1.34 4.96L2 22l5.27-1.38a9.9 9.9 0 0 0 4.77 1.22h.01c5.46 0 9.91-4.45 9.91-9.92 0-2.65-1.03-5.14-2.91-7.01zm-7.01 15.27h-.01a8.16 8.16 0 0 1-4.18-1.15l-.3-.18-3.13.82.84-3.05-.2-.31a8.21 8.21 0 0 1-1.26-4.39c0-4.55 3.7-8.25 8.25-8.25 2.2 0 4.27.86 5.83 2.42a8.2 8.2 0 0 1 2.42 5.83c-.01 4.55-3.71 8.26-8.26 8.26zm4.52-6.18c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.55.13-.16.25-.64.81-.79.97-.14.16-.29.18-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.38-1.72-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42-.14-.01-.31-.01-.47-.01-.16 0-.43.06-.66.31-.23.25-.86.84-.86 2.05 0 1.21.88 2.37 1 2.54.12.16 1.74 2.65 4.21 3.72.59.25 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z',
+  },
+  {
+    key: 'phone',
+    href: `tel:${phoneCompact}`,
+    label: `${t('floating_contacts.phone_label')} · ${phone}`,
+    short: t('floating_contacts.phone_short'),
+    target: undefined,
+    rel: undefined,
+    bg: 'bg-burgundy hover:bg-burgundy-dark',
+    iconPath: 'M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z',
+  },
+  {
+    key: 'email',
+    href: `mailto:${email}`,
+    label: `${t('floating_contacts.email_label')} · ${email}`,
+    short: t('floating_contacts.email_short'),
+    target: undefined,
+    rel: undefined,
+    bg: 'bg-ink hover:bg-burgundy',
+    iconPath: 'M2 6.5A2.5 2.5 0 0 1 4.5 4h15A2.5 2.5 0 0 1 22 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-15A2.5 2.5 0 0 1 2 17.5v-11zm2.5-.5a.5.5 0 0 0-.5.5v.41l8 5.34 8-5.34V6.5a.5.5 0 0 0-.5-.5h-15zM20 9.31l-7.45 4.97a1 1 0 0 1-1.1 0L4 9.31v8.19a.5.5 0 0 0 .5.5h15a.5.5 0 0 0 .5-.5V9.31z',
+  },
+];
+---
+<div
+  class="floating-contacts fixed bottom-4 right-4 md:bottom-6 md:right-6 z-30 flex flex-col gap-3 print:hidden"
+  aria-label="Quick contact"
+>
+  {buttons.map((b) => (
+    <a
+      href={b.href}
+      target={b.target}
+      rel={b.rel}
+      aria-label={b.label}
+      data-fc-key={b.key}
+      class:list={[
+        'fc-btn group relative inline-flex items-center justify-center h-12 w-12 md:h-14 md:w-14 rounded-full text-cream shadow-lg shadow-burgundy/15 transition-all duration-200 hover:scale-[1.05] focus-visible:ring-2 focus-visible:ring-burgundy/40 focus-visible:outline-none',
+        b.bg,
+      ]}
+    >
+      <svg class="h-5 w-5 md:h-6 md:w-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d={b.iconPath} />
+      </svg>
+      <span
+        class="fc-tooltip pointer-events-none absolute right-full mr-3 whitespace-nowrap rounded-md bg-ink/90 backdrop-blur-sm px-3 py-1.5 text-xs font-medium text-cream opacity-0 -translate-x-1 transition-all duration-150 group-hover:opacity-100 group-hover:translate-x-0 group-focus-visible:opacity-100 group-focus-visible:translate-x-0 hidden md:inline-block"
+      >
+        {b.short}
+      </span>
+    </a>
+  ))}
+</div>

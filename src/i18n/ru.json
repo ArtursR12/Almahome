@@ -26,6 +26,14 @@
     "privacy_policy": "Политика конфиденциальности",
     "copyright": "© 2026 Alma Home. Все права защищены."
   },
+  "floating_contacts": {
+    "whatsapp_label": "Написать в WhatsApp",
+    "phone_label": "Позвонить",
+    "email_label": "Написать e-mail",
+    "whatsapp_short": "WhatsApp",
+    "phone_short": "Позвонить",
+    "email_short": "Написать"
+  },
   "privatums": {
     "title": "Политика конфиденциальности — AlmaHome",
     "description": "Политика конфиденциальности AlmaHome: как мы обрабатываем персональные данные, отправленные через форму запроса на almahome.lv.",

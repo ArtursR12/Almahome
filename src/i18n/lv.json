@@ -26,6 +26,14 @@
     "privacy_policy": "Privātuma politika",
     "copyright": "© 2026 Alma Home. Visas tiesības aizsargātas."
   },
+  "floating_contacts": {
+    "whatsapp_label": "Rakstīt WhatsApp",
+    "phone_label": "Zvanīt",
+    "email_label": "Rakstīt e-pastu",
+    "whatsapp_short": "WhatsApp",
+    "phone_short": "Zvanīt",
+    "email_short": "Rakstīt"
+  },
   "privatums": {
     "title": "Privātuma politika — AlmaHome",
     "description": "AlmaHome privātuma politika: kā mēs apstrādājam personas datus, kas tiek iesniegti caur pieprasījuma formu vietnē almahome.lv.",

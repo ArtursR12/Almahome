@@ -26,6 +26,14 @@
     "privacy_policy": "Privacy policy",
     "copyright": "© 2026 Alma Home. All rights reserved."
   },
+  "floating_contacts": {
+    "whatsapp_label": "Message us on WhatsApp",
+    "phone_label": "Call us",
+    "email_label": "Email us",
+    "whatsapp_short": "WhatsApp",
+    "phone_short": "Call",
+    "email_short": "Email"
+  },
   "privatums": {
     "title": "Privacy policy — AlmaHome",
     "description": "AlmaHome privacy policy: how we process personal data submitted through the inquiry form at almahome.lv.",
