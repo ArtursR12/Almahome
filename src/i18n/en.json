@@ -138,10 +138,30 @@
     "materials_title": "Premium-grade finishes",
     "materials_body": "We work with European manufacturers and pick materials that look and live well for years. The base specification includes everything shown in the images.",
     "materials_cards": [
-      { "title": "Floors", "desc": "Natural wood and ceramic surfaces in living rooms and bedrooms; moisture-resistant porcelain in bathrooms and entryways." },
-      { "title": "Doors", "desc": "Concealed frames, tall doors with hidden hinges, and quality core fillings — visually raise ceiling height and dampen noise." },
-      { "title": "Kitchens", "desc": "Italian-made kitchens with built-in appliances, stone worktops, and soft-close hardware — adjustable to the buyer's chosen design." },
-      { "title": "Sanitaryware", "desc": "Hansgrohe / Grohe taps, wall-hung WCs, thermostatic showers, and stone basins — premium-grade fittings throughout." }
+      {
+        "title": "Italian tiles",
+        "subtitle": "ITALGRANITI",
+        "image": "/images/materials/flizes-italgraniti.jpg",
+        "desc": "Porcelain tiles — wall and floor with the Travertino Beige Vein effect. The natural look of stone with everyday durability."
+      },
+      {
+        "title": "Sanitaryware",
+        "subtitle": "IDEAL STANDARD",
+        "image": "/images/renders/alma_wc-final.jpg",
+        "desc": "Solid-surface stone baths and shower trays — refined design, high quality, and a pleasant user experience."
+      },
+      {
+        "title": "Kitchen cabinetry",
+        "subtitle": "by the Austrian manufacturer EGGER",
+        "image": "/images/renders/alma_kitchen_final.jpg",
+        "desc": "Quality materials, precise manufacturing, and modern design — functionality and comfort in your kitchen."
+      },
+      {
+        "title": "Doors",
+        "subtitle": "",
+        "image": "/images/renders/render-hallway.jpg",
+        "desc": "Concealed frames, tall doors with hidden hinges, and quality cores — visually raise ceiling height and dampen noise."
+      }
     ],
     "energy_kicker": "Energy efficiency",
     "energy_title": "A+ class — warmer home, lower bill",

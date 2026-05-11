@@ -138,10 +138,30 @@
     "materials_title": "Premium klases pabeigtība",
     "materials_body": "Mēs strādājam ar Eiropas ražotājiem un izvēlamies materiālus, kas izskatās un dzīvo labi gadiem. Bāzes komplektācija ietver visu, kas redzams attēlos.",
     "materials_cards": [
-      { "title": "Grīdas", "desc": "Dabīgi koka un keramikas pārklājumi viesistabās un guļamistabās; mitrumizturīgs keramogranīts vannas istabās un priekštelpās." },
-      { "title": "Durvis", "desc": "Slēptās jūklietas, augstas durvis ar paslēptām eņģēm un kvalitatīvi pildījumi — paaugstina telpas augstumu vizuāli un samazina troksni." },
-      { "title": "Virtuves", "desc": "Itālijas ražotāju virtuves ar iebūvētu tehniku, akmens darba virsmām un klusajiem doborfaktoriem — pieskaņojami pasūtītāja izvēlētam dizainam." },
-      { "title": "Santehnika", "desc": "Hansgrohe / Grohe maisītāji, ievietoti tualetes podi, dušas sistēmas ar termostatu un akmens izlietnes — premium klases sanitārija." }
+      {
+        "title": "Flīzes Italū",
+        "subtitle": "ITALGRANITI",
+        "image": "/images/materials/flizes-italgraniti.jpg",
+        "desc": "Porcelāna keramikas izstrādājumi — sienas un grīdas flīzes ar Travertino Beige Vein efektu. Dabiska akmens izskats un izturība ikdienai."
+      },
+      {
+        "title": "Santehnika",
+        "subtitle": "IDEAL STANDARD",
+        "image": "/images/renders/alma_wc-final.jpg",
+        "desc": "Akmensmasas vannas un dušas paliktņi — izsmalcināts dizains, augsta kvalitāte un patīkama lietošanas pieredze."
+      },
+      {
+        "title": "Virtuves mēbeles",
+        "subtitle": "no Austrijas ražotāja EGGER",
+        "image": "/images/renders/alma_kitchen_final.jpg",
+        "desc": "Kvalitatīvi materiāli, precīza izgatavošana un mūsdienīgs dizains — funkcionalitāte un komforts jūsu virtuvē."
+      },
+      {
+        "title": "Durvis",
+        "subtitle": "",
+        "image": "/images/renders/render-hallway.jpg",
+        "desc": "Slēptās jūklietas, augstas durvis ar paslēptām eņģēm un kvalitatīvi pildījumi — paaugstina telpas augstumu vizuāli un samazina troksni."
+      }
     ],
     "energy_kicker": "Energoefektivitāte",
     "energy_title": "A+ klase — siltāka māja, mazāks rēķins",

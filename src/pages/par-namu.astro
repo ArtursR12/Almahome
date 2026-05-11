@@ -11,15 +11,9 @@ const lang = getLocaleFromUrl(Astro.url);
 const t = useTranslations(lang);
 const tr = useTranslationsRaw(lang);
 
-const materialCards = tr<{ title: string; desc: string }[]>('par_namu.materials_cards');
+type MaterialCard = { title: string; subtitle?: string; image: string; desc: string };
+const materialCards = tr<MaterialCard[]>('par_namu.materials_cards');
 const energyFeatures = tr<string[]>('par_namu.energy_features');
-
-const cardImages = [
-  '/images/_misc/2026__03__22__gridas001.jpg',
-  '/images/_misc/2026__03__25__durvi.jpg',
-  '/images/_misc/2026__03__25__kuhnja_0002.jpg',
-  '/images/_misc/2026__03__25__santeh1.jpg',
-];
 ---
 <BaseLayout
   lang={lang}
@@ -90,20 +84,23 @@ const cardImages = [
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
         {materialCards.map((m, i) => (
           <article class="group bg-cream rounded-2xl overflow-hidden flex flex-col border border-burgundy/5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_60px_-30px_rgba(90,31,42,0.35)]">
-            <div class="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-cream via-beige/60 to-beige flex items-center justify-center">
-              <span class="absolute top-3 left-3 text-[10px] uppercase tracking-[0.3em] text-burgundy/50 font-medium">{String(i + 1).padStart(2, '0')}</span>
+            <div class="relative aspect-[3/4] overflow-hidden bg-beige">
               <PhotoOrPlaceholder
-                src={cardImages[i]}
-                width={400}
-                height={300}
+                src={m.image}
+                width={600}
+                height={800}
                 alt={m.title}
                 label={m.title}
-                class="max-h-[78%] max-w-[78%] object-contain transition-transform duration-300 group-hover:scale-[1.04]"
+                class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
               />
+              <span class="absolute top-3 left-3 inline-flex items-center justify-center rounded-md bg-cream/90 backdrop-blur-sm px-2 py-1 text-[10px] uppercase tracking-[0.3em] text-burgundy/70 font-medium tabular-nums">{String(i + 1).padStart(2, '0')}</span>
             </div>
-            <div class="p-6 flex flex-col flex-1 min-h-[180px]">
+            <div class="p-6 flex flex-col flex-1">
               <h3 class="font-serif text-2xl text-burgundy leading-tight">{m.title}</h3>
-              <p class="mt-3 text-sm text-ink-muted leading-relaxed flex-1">{m.desc}</p>
+              {m.subtitle && (
+                <p class="mt-1 text-[11px] uppercase tracking-[0.22em] text-ink-muted font-medium">{m.subtitle}</p>
+              )}
+              <p class="mt-4 text-sm text-ink-muted leading-relaxed flex-1">{m.desc}</p>
             </div>
           </article>
         ))}
