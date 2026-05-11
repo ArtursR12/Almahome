@@ -87,7 +87,11 @@
     "error_generic": "Nezināma kļūda. Lūdzu mēģiniet vēlreiz.",
     "error_network": "Tīkla kļūda. Pārbaudiet savienojumu un mēģiniet vēlreiz.",
     "retry": "Mēģināt vēlreiz",
-    "required": "obligāti"
+    "required": "obligāti",
+    "parking_label": "Autostāvvieta (pēc izvēles)",
+    "parking_none": "Bez autostāvvietas",
+    "parking_group_surface": "Virszemes — 7 000 €",
+    "parking_group_ev": "EV-sagatavotas — 10 000 €"
   },
   "home": {
     "hero_kicker": "Mores iela 15 · Rīga",

@@ -87,7 +87,11 @@
     "error_generic": "Неизвестная ошибка. Попробуйте ещё раз.",
     "error_network": "Сетевая ошибка. Проверьте соединение и попробуйте снова.",
     "retry": "Повторить",
-    "required": "обязательно"
+    "required": "обязательно",
+    "parking_label": "Парковочное место (по желанию)",
+    "parking_none": "Без парковки",
+    "parking_group_surface": "Наземные — 7 000 €",
+    "parking_group_ev": "EV-подготовленные — 10 000 €"
   },
   "home": {
     "hero_kicker": "Mores iela 15 · Rīga",

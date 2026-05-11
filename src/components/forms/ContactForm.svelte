@@ -1,13 +1,31 @@
 <script lang="ts">
   import { useTranslations, type Locale } from '@/i18n/utils';
 
+  interface AvailableSpot {
+    number: number;
+    type: 'surface' | 'surface_ev_ready';
+  }
+
   interface Props {
     apartmentNumber?: number;
     parkingSpot?: number;
+    /** When provided, renders an optional parking-spot picker between message
+        and submit. Pass only the spots that are currently available. */
+    availableSpots?: AvailableSpot[];
     submitLabel?: string;
     lang?: Locale;
   }
-  let { apartmentNumber, parkingSpot = $bindable(), submitLabel, lang = 'lv' }: Props = $props();
+  let {
+    apartmentNumber,
+    parkingSpot = $bindable(),
+    availableSpots = [],
+    submitLabel,
+    lang = 'lv',
+  }: Props = $props();
+
+  // Local state so the <select> stays in sync without forcing parent re-render.
+  // Bridged to the hidden input via `selectedSpot`.
+  let selectedSpot = $state<string>(parkingSpot ? String(parkingSpot) : '');
 
   const t = useTranslations(lang);
 
@@ -68,7 +86,7 @@
 {:else}
   <form bind:this={formEl} onsubmit={onSubmit} novalidate class="space-y-5">
     <input type="hidden" name="apartmentNumber" value={apartmentNumber ?? ''} />
-    <input type="hidden" name="parkingSpot" value={parkingSpot ?? ''} />
+    <input type="hidden" name="parkingSpot" value={selectedSpot || (parkingSpot ?? '')} />
     <!-- Honeypot — visible to bots, hidden from humans. -->
     <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;">
       <label>Website
@@ -102,6 +120,29 @@
         placeholder={t('form.message_placeholder')}
       ></textarea>
     </div>
+
+    {#if availableSpots.length > 0}
+      <div class="field">
+        <label for="cf-parking-spot">{t('form.parking_label')}</label>
+        <select id="cf-parking-spot" bind:value={selectedSpot} class="cf-select">
+          <option value="">{t('form.parking_none')}</option>
+          {#if availableSpots.some((s) => s.type === 'surface')}
+            <optgroup label={t('form.parking_group_surface')}>
+              {#each availableSpots.filter((s) => s.type === 'surface') as s (s.number)}
+                <option value={String(s.number)}>Nr. {s.number}</option>
+              {/each}
+            </optgroup>
+          {/if}
+          {#if availableSpots.some((s) => s.type === 'surface_ev_ready')}
+            <optgroup label={t('form.parking_group_ev')}>
+              {#each availableSpots.filter((s) => s.type === 'surface_ev_ready') as s (s.number)}
+                <option value={String(s.number)}>Nr. {s.number}</option>
+              {/each}
+            </optgroup>
+          {/if}
+        </select>
+      </div>
+    {/if}
 
     {#if status === 'error'}
       <div class="rounded-lg bg-burgundy/8 border border-burgundy/20 px-4 py-3 text-sm text-burgundy flex items-start gap-3">
@@ -151,4 +192,17 @@
     min-height: 44px; /* mobile touch target */
   }
   .field textarea { @apply resize-y min-h-[100px]; }
+  .field .cf-select {
+    @apply w-full bg-transparent border-0 border-b border-ink-muted/30 px-0 py-3 text-base text-ink
+           transition-colors duration-150
+           focus:outline-none focus:border-burgundy focus:border-b-2;
+    min-height: 44px;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B5D52' stroke-width='2'><path d='M6 9l6 6 6-6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.25rem center;
+    background-size: 1.1rem;
+    padding-right: 1.75rem;
+  }
 </style>

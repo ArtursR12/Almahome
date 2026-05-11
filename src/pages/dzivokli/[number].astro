@@ -40,6 +40,12 @@ const otherAvailable = allApts
   .sort(() => Math.random() - 0.5)
   .slice(0, 3);
 
+const availableSpots = (await getCollection('parking'))
+  .map((x) => x.data)
+  .filter((s) => s.status === 'available')
+  .sort((x, y) => x.number - y.number)
+  .map((s) => ({ number: s.number, type: s.type }));
+
 const statusDict = {
   available: { label: t('status.available'),  bg: 'bg-status-available/15', dot: 'bg-status-available', text: 'text-status-available' },
   reserved:  { label: t('status.reserved'),   bg: 'bg-status-reserved/20',  dot: 'bg-status-reserved',  text: 'text-[#8a7531]' },
@@ -276,7 +282,7 @@ const apartmentSchema: Record<string, unknown> = {
         </div>
 
         <div class="bg-cream rounded-xl p-6 md:p-8">
-          <ContactForm apartmentNumber={a.number} lang={lang} client:load />
+          <ContactForm apartmentNumber={a.number} availableSpots={availableSpots} lang={lang} client:load />
         </div>
       </div>
     </Container>
