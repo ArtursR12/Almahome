@@ -17,6 +17,14 @@ export default defineConfig({
       prefixDefaultLocale: false,
     },
   },
+  // Astro's i18n serves the LV default locale at /, not /lv/. Bank-partner
+  // deep links (Luminor, Bigbank) point at /lv/... — without these redirects
+  // every such URL 404s.
+  redirects: {
+    '/lv': '/',
+    '/lv/': '/',
+    '/lv/[...path]': '/[...path]',
+  },
   vite: {
     plugins: [tailwindcss()],
   },
