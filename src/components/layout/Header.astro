@@ -15,6 +15,7 @@ const navItems: { label: string; path: string }[] = [
   { label: t('nav.par_projektu'), path: '/par-projektu' },
   { label: t('nav.atteli'),       path: '/atteli' },
   { label: t('nav.dzivokli'),     path: '/dzivokli' },
+  { label: t('nav.parkings'),     path: '/parkings' },
   { label: t('nav.apdares'),      path: '/apdares' },
   { label: t('nav.kontakti'),     path: '/kontakti' },
 ];
@@ -41,14 +42,14 @@ function isActive(path: string): boolean {
       Alma Home
     </a>
 
-    <nav class="hidden lg:flex items-center gap-7 text-sm">
+    <nav class="hidden lg:flex items-center gap-5 xl:gap-7 text-sm">
       {navItems.map((item) => {
         const href = buildHref(item.path);
         return (
           <a
             href={href}
             class:list={[
-              'text-ink hover:text-burgundy transition-colors',
+              'whitespace-nowrap text-ink hover:text-burgundy transition-colors',
               isActive(item.path) && 'text-burgundy',
             ]}
           >
