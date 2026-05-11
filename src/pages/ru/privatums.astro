@@ -1,0 +1,189 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Section from '@/components/ui/Section.astro';
+import SectionKicker from '@/components/ui/SectionKicker.astro';
+import { getLocaleFromUrl, useTranslations } from '@/i18n/utils';
+
+const lang = getLocaleFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+// === ПЕРЕД ПУБЛИКАЦИЕЙ заполните {{ ... }} плейсхолдеры и дату последнего обновления. ===
+// Те же TODO есть в /privatums.astro и /en/privatums.astro — заполните все три.
+const LAST_UPDATED = '2026-05-11';
+---
+<BaseLayout
+  lang={lang}
+  title={t('privatums.title')}
+  description={t('privatums.description')}
+>
+  <section class="bg-burgundy text-cream">
+    <Container class="py-20 md:py-28">
+      <div class="max-w-3xl">
+        <p class="text-xs uppercase tracking-[0.4em] text-cream/70">{t('privatums.hero_kicker')}</p>
+        <h1 class="mt-5 font-serif text-5xl md:text-6xl leading-[1.05]">{t('privatums.hero_title')}</h1>
+        <p class="mt-6 text-sm text-cream/70">
+          {t('privatums.updated_label')}: <time datetime={LAST_UPDATED}>{LAST_UPDATED}</time>
+        </p>
+      </div>
+    </Container>
+  </section>
+
+  <Section background="cream">
+    <Container>
+      <article class="prose-policy max-w-3xl mx-auto space-y-12 text-ink leading-relaxed">
+
+        <div>
+          <SectionKicker index={1}>1. Оператор персональных данных</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Кто обрабатывает ваши данные</h2>
+          <p class="mt-4">
+            Персональные данные, отправленные через сайт almahome.lv, обрабатывает:
+          </p>
+          <ul class="mt-3 space-y-1.5">
+            <li>Наименование: <mark class="todo">{`{{ SIA "ALMA HOME" или полное юр. наименование }}`}</mark></li>
+            <li>Регистрационный номер: <mark class="todo">{`{{ XXXXXXXXXXX }}`}</mark></li>
+            <li>Юридический адрес: <mark class="todo">{`{{ Адрес, Rīga, LV-XXXX }}`}</mark></li>
+            <li>E-mail: <a href="mailto:info@almahome.lv">info@almahome.lv</a></li>
+            <li>Телефон: <a href="tel:+37126148011">+371 26 148 011</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <SectionKicker index={2}>2. Категории данных</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Какие данные мы собираем</h2>
+          <p class="mt-4">
+            Мы собираем только те данные, которые вы добровольно указываете в форме запроса:
+          </p>
+          <ul class="mt-3 space-y-1.5">
+            <li>имя и фамилия;</li>
+            <li>адрес электронной почты;</li>
+            <li>номер телефона;</li>
+            <li>текст вашего сообщения (если указан);</li>
+            <li>номер квартиры, по которой проявлен интерес (если форма отправлена со страницы конкретной квартиры).</li>
+          </ul>
+          <p class="mt-4">
+            Мы <strong>не собираем</strong> платёжные данные, документы, удостоверяющие личность, банковские реквизиты или другие особо защищённые данные. Мы не используем рекламные или аналитические трекинговые куки.
+          </p>
+        </div>
+
+        <div>
+          <SectionKicker index={3}>3. Правовое основание</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Зачем и на каком основании мы обрабатываем данные</h2>
+          <p class="mt-4">
+            Персональные данные обрабатываются исключительно в следующих целях:
+          </p>
+          <ul class="mt-3 space-y-1.5">
+            <li>чтобы ответить на ваши вопросы о продаже квартир и проекте;</li>
+            <li>чтобы поддерживать дальнейшую коммуникацию в процессе продажи;</li>
+            <li>при необходимости — подготовить договор бронирования или купли-продажи.</li>
+          </ul>
+          <p class="mt-4">
+            Правовое основание — <strong>статья 6 пункт 1</strong> Общего регламента ЕС о защите данных (GDPR):
+          </p>
+          <ul class="mt-3 space-y-1.5">
+            <li><strong>(b)</strong> — обработка необходима для принятия мер по вашей просьбе перед возможным заключением договора;</li>
+            <li><strong>(f)</strong> — законный интерес поддерживать связь с потенциальными клиентами.</li>
+          </ul>
+        </div>
+
+        <div>
+          <SectionKicker index={4}>4. Получатели данных</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Кому могут быть переданы данные</h2>
+          <p class="mt-4">
+            Для работы сайта и обработки ваших запросов мы используем следующих технических поставщиков услуг (обработчиков данных):
+          </p>
+          <ul class="mt-3 space-y-1.5">
+            <li><strong>Vercel Inc.</strong> (США) — хостинг сайта. Политика конфиденциальности: <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">vercel.com/legal/privacy-policy</a>.</li>
+            <li><strong>Resend, Inc.</strong> (США) — отправка электронной почты (ваш запрос доставляется на info@almahome.lv). Политика конфиденциальности: <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">resend.com/legal/privacy-policy</a>.</li>
+            <li><strong>GitHub, Inc.</strong> (США) — хранилище исходного кода и контента сайта.</li>
+          </ul>
+          <p class="mt-4">
+            Эти поставщики обрабатывают данные в соответствии со стандартными договорными условиями (SCC), принятыми Европейской комиссией. Мы <strong>не передаём</strong> ваши данные маркетинговым компаниям или третьим лицам в рекламных или коммерческих целях.
+          </p>
+          <p class="mt-4">
+            Если вы решите подать заявку на ипотечный кредит в наших банках-партнёрах (Bigbank, Citadele, Luminor, Swedbank, SEB), вы обращаетесь в банк напрямую — мы не передаём ваши данные банкам.
+          </p>
+        </div>
+
+        <div>
+          <SectionKicker index={5}>5. Срок хранения</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Как долго мы храним данные</h2>
+          <ul class="mt-4 space-y-1.5">
+            <li>В период активной коммуникации и ещё <mark class="todo">{'{{ 12 месяцев }}'}</mark> после последнего контакта, если закон не предусматривает более длительный срок.</li>
+            <li>В случае заключения договора купли-продажи — в соответствии с латвийским законодательством о бухгалтерском и налоговом учёте (обычно 5–10 лет).</li>
+          </ul>
+          <p class="mt-4">
+            По истечении срока данные удаляются или полностью анонимизируются.
+          </p>
+        </div>
+
+        <div>
+          <SectionKicker index={6}>6. Cookies</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Файлы cookie и трекинг</h2>
+          <p class="mt-4">
+            Сайт almahome.lv <strong>не использует</strong> рекламные трекинговые, аналитические (например, Google Analytics) или сторонние маркетинговые cookie. Используются только технически необходимые файлы cookie (например, для запоминания выбранного языка).
+          </p>
+        </div>
+
+        <div>
+          <SectionKicker index={7}>7. Ваши права</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Ваши права согласно GDPR</h2>
+          <p class="mt-4">У вас есть право:</p>
+          <ul class="mt-3 space-y-1.5">
+            <li>запросить доступ к своим персональным данным и получить их копию;</li>
+            <li>требовать исправления неточных данных;</li>
+            <li>требовать удаления данных («право быть забытым»);</li>
+            <li>требовать ограничения обработки или возражать против обработки;</li>
+            <li>требовать переносимости данных;</li>
+            <li>отозвать ранее данное согласие;</li>
+            <li>подать жалобу в надзорный орган — <a href="https://www.dvi.gov.lv" target="_blank" rel="noopener"><strong>Государственную инспекцию данных Латвии</strong></a> (www.dvi.gov.lv).</li>
+          </ul>
+          <p class="mt-4">
+            Для реализации этих прав напишите на <a href="mailto:info@almahome.lv">info@almahome.lv</a>. Мы ответим в течение месяца.
+          </p>
+        </div>
+
+        <div>
+          <SectionKicker index={8}>8. Контакты</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Вопросы о конфиденциальности</h2>
+          <p class="mt-4">
+            По всем вопросам обработки персональных данных на этом сайте обращайтесь:
+          </p>
+          <ul class="mt-3 space-y-1.5">
+            <li>E-mail: <a href="mailto:info@almahome.lv">info@almahome.lv</a></li>
+            <li>Телефон: <a href="tel:+37126148011">+371 26 148 011</a></li>
+            <li>Адрес: Mores iela 15, Rīga, LV-1034</li>
+          </ul>
+        </div>
+
+        <div>
+          <SectionKicker index={9}>9. Обновления</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Обновление политики</h2>
+          <p class="mt-4">
+            Эта политика конфиденциальности может обновляться в связи с изменениями в законодательстве или в нашей практике. Дата последнего обновления указана в начале документа. О существенных изменениях мы сообщим на этой странице.
+          </p>
+        </div>
+
+      </article>
+    </Container>
+  </Section>
+</BaseLayout>
+
+<style>
+  @reference "@/styles/globals.css";
+  .prose-policy .todo {
+    @apply bg-status-reserved/35 text-ink px-1.5 py-0.5 rounded font-mono text-[0.92em];
+  }
+  .prose-policy a {
+    @apply text-burgundy underline underline-offset-4 decoration-burgundy/40 hover:decoration-burgundy transition-colors;
+  }
+  .prose-policy ul {
+    @apply list-disc pl-6 text-ink;
+  }
+  .prose-policy strong {
+    @apply text-ink font-semibold;
+  }
+  .prose-policy p {
+    @apply text-ink;
+  }
+</style>

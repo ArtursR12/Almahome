@@ -26,6 +26,13 @@
     "privacy_policy": "Privātuma politika",
     "copyright": "© 2026 Alma Home. Visas tiesības aizsargātas."
   },
+  "privatums": {
+    "title": "Privātuma politika — AlmaHome",
+    "description": "AlmaHome privātuma politika: kā mēs apstrādājam personas datus, kas tiek iesniegti caur pieprasījuma formu vietnē almahome.lv.",
+    "hero_kicker": "Juridiski",
+    "hero_title": "Privātuma politika",
+    "updated_label": "Pēdējās izmaiņas"
+  },
   "common": {
     "price_on_request": "Pēc pieprasījuma",
     "m2": "m²",

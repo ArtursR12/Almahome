@@ -1,0 +1,196 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Section from '@/components/ui/Section.astro';
+import SectionKicker from '@/components/ui/SectionKicker.astro';
+import { getLocaleFromUrl, useTranslations } from '@/i18n/utils';
+
+const lang = getLocaleFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+// === LĪDZ PUBLICĒŠANAI: aizpildiet zemāk esošās {{ ... }} vietas un pēdējās izmaiņas datumu. ===
+// Same TODO markers exist in /ru/privatums.astro and /en/privatums.astro — fill all three.
+const LAST_UPDATED = '2026-05-11';
+---
+<BaseLayout
+  lang={lang}
+  title={t('privatums.title')}
+  description={t('privatums.description')}
+>
+  <!-- Hero -->
+  <section class="bg-burgundy text-cream">
+    <Container class="py-20 md:py-28">
+      <div class="max-w-3xl">
+        <p class="text-xs uppercase tracking-[0.4em] text-cream/70">{t('privatums.hero_kicker')}</p>
+        <h1 class="mt-5 font-serif text-5xl md:text-6xl leading-[1.05]">{t('privatums.hero_title')}</h1>
+        <p class="mt-6 text-sm text-cream/70">
+          {t('privatums.updated_label')}: <time datetime={LAST_UPDATED}>{LAST_UPDATED}</time>
+        </p>
+      </div>
+    </Container>
+  </section>
+
+  <!-- Content -->
+  <Section background="cream">
+    <Container>
+      <article class="prose-policy max-w-3xl mx-auto space-y-12 text-ink leading-relaxed">
+
+        <div>
+          <SectionKicker index={1}>1. Personas datu pārzinis</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Kas apstrādā Jūsu datus</h2>
+          <p class="mt-4">
+            Šajā vietnē (almahome.lv) iesniegto personas datu apstrādi nodrošina:
+          </p>
+          <ul class="mt-3 space-y-1.5 text-ink">
+            <li>Nosaukums: <mark class="todo">{`{{ SIA "ALMA HOME" vai pilns juridiskais nosaukums }}`}</mark></li>
+            <li>Reģistrācijas numurs: <mark class="todo">{`{{ XXXXXXXXXXX }}`}</mark></li>
+            <li>Juridiskā adrese: <mark class="todo">{`{{ Adrese, Rīga, LV-XXXX }}`}</mark></li>
+            <li>E-pasts: <a href="mailto:info@almahome.lv">info@almahome.lv</a></li>
+            <li>Tālrunis: <a href="tel:+37126148011">+371 26 148 011</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <SectionKicker index={2}>2. Datu kategorijas</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Kādus datus mēs apkopojam</h2>
+          <p class="mt-4">
+            Mēs apkopojam tikai tos datus, ko Jūs brīvprātīgi sniedzat, aizpildot pieprasījuma formu šajā vietnē:
+          </p>
+          <ul class="mt-3 space-y-1.5">
+            <li>vārds un uzvārds;</li>
+            <li>e-pasta adrese;</li>
+            <li>tālruņa numurs;</li>
+            <li>Jūsu ziņojuma teksts (ja sniegts);</li>
+            <li>dzīvokļa numurs, par kuru tiek izteikta interese (ja forma tiek nosūtīta no konkrēta dzīvokļa lapas).</li>
+          </ul>
+          <p class="mt-4">
+            Mēs <strong>neapkopojam</strong> maksājumu datus, identifikācijas dokumentus, bankas datus vai citu īpaši aizsargātu informāciju. Mēs neizmantojam mērķētas reklāmas vai analītikas izsekošanas sīkdatnes.
+          </p>
+        </div>
+
+        <div>
+          <SectionKicker index={3}>3. Tiesiskais pamats</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Kāpēc un uz kāda pamata mēs apstrādājam datus</h2>
+          <p class="mt-4">
+            Personas datus mēs apstrādājam tikai sekojošos nolūkos:
+          </p>
+          <ul class="mt-3 space-y-1.5">
+            <li>lai atbildētu uz Jūsu pieprasījumiem par dzīvokļu pārdošanu un projekta detaļām;</li>
+            <li>lai uzturētu saziņu turpmākā pārdošanas procesa ietvaros;</li>
+            <li>lai nepieciešamības gadījumā sagatavotu dzīvokļa rezervācijas vai pirkuma līgumu.</li>
+          </ul>
+          <p class="mt-4">
+            Tiesiskais pamats — Vispārīgās datu aizsardzības regulas (VDAR / GDPR) <strong>6. panta 1. punkts</strong>:
+          </p>
+          <ul class="mt-3 space-y-1.5">
+            <li><strong>(b)</strong> — datu apstrāde ir nepieciešama, lai veiktu pasākumus pirms iespējama līguma noslēgšanas pēc Jūsu pieprasījuma;</li>
+            <li><strong>(f)</strong> — leģitīmās intereses uzturēt saziņu ar potenciālajiem klientiem.</li>
+          </ul>
+        </div>
+
+        <div>
+          <SectionKicker index={4}>4. Datu saņēmēji</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Kam dati var tikt nodoti</h2>
+          <p class="mt-4">
+            Lai šī vietne darbotos un mēs varētu saņemt Jūsu pieprasījumus, mēs izmantojam šādus tehnisku pakalpojumu sniedzējus, kas darbojas kā mūsu datu apstrādātāji:
+          </p>
+          <ul class="mt-3 space-y-1.5">
+            <li><strong>Vercel Inc.</strong> (ASV) — vietnes mitināšana. Privātuma politika: <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">vercel.com/legal/privacy-policy</a>.</li>
+            <li><strong>Resend, Inc.</strong> (ASV) — e-pasta sūtīšanas pakalpojums, kas piegādā Jūsu pieprasījumu uz info@almahome.lv. Privātuma politika: <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">resend.com/legal/privacy-policy</a>.</li>
+            <li><strong>GitHub, Inc.</strong> (ASV) — vietnes pirmkoda un satura glabātuve.</li>
+          </ul>
+          <p class="mt-4">
+            Šie pakalpojumu sniedzēji apstrādā datus saskaņā ar Eiropas Komisijas standarta līguma klauzulām (SCC). Mēs <strong>nenododam</strong> Jūsu datus mārketinga kompānijām vai trešajām pusēm reklāmas vai komercpiedāvājumu nolūkos.
+          </p>
+          <p class="mt-4">
+            Ja Jūs izvēlaties pieteikt hipotekāro kredītu mūsu partnerbankās (Bigbank, Citadele, Luminor, Swedbank, SEB), Jūs vēršaties pie bankas tieši — mēs neapmainām Jūsu datus ar banku.
+          </p>
+        </div>
+
+        <div>
+          <SectionKicker index={5}>5. Glabāšanas termiņš</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Cik ilgi dati tiek glabāti</h2>
+          <ul class="mt-4 space-y-1.5">
+            <li>Aktīvas saziņas laikā un vēl <mark class="todo">{'{{ 12 mēnešus }}'}</mark> pēc pēdējās komunikācijas, ja vien likums neparedz ilgāku termiņu.</li>
+            <li>Ja tiek noslēgts pirkuma līgums — saskaņā ar Latvijas Republikas grāmatvedības un nodokļu likumiem (parasti 5–10 gadi).</li>
+          </ul>
+          <p class="mt-4">
+            Pēc termiņa beigām dati tiek dzēsti vai pilnībā anonimizēti.
+          </p>
+        </div>
+
+        <div>
+          <SectionKicker index={6}>6. Sīkdatnes</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Sīkdatnes un izsekošana</h2>
+          <p class="mt-4">
+            Vietne almahome.lv <strong>neizmanto</strong> reklāmas izsekošanas, analītikas (piem., Google Analytics) vai trešo pušu mārketinga sīkdatnes. Tiek izmantotas tikai tehniski nepieciešamās sīkdatnes vietnes pamatfunkciju nodrošināšanai (piem., izvēlētās valodas saglabāšana).
+          </p>
+        </div>
+
+        <div>
+          <SectionKicker index={7}>7. Jūsu tiesības</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Jūsu tiesības saskaņā ar VDAR</h2>
+          <p class="mt-4">Jums ir tiesības:</p>
+          <ul class="mt-3 space-y-1.5">
+            <li>pieprasīt piekļuvi saviem personas datiem un saņemt to kopiju;</li>
+            <li>pieprasīt neprecīzu datu labošanu;</li>
+            <li>pieprasīt datu dzēšanu (“tiesības tikt aizmirstam”);</li>
+            <li>pieprasīt datu apstrādes ierobežošanu vai iebilst pret apstrādi;</li>
+            <li>pieprasīt datu pārnesamību;</li>
+            <li>atsaukt iepriekš sniegtu piekrišanu;</li>
+            <li>iesniegt sūdzību uzraudzības iestādei — <a href="https://www.dvi.gov.lv" target="_blank" rel="noopener"><strong>Datu valsts inspekcijai</strong></a> (www.dvi.gov.lv).</li>
+          </ul>
+          <p class="mt-4">
+            Lai izmantotu šīs tiesības, lūdzu, rakstiet uz <a href="mailto:info@almahome.lv">info@almahome.lv</a>. Mēs atbildēsim mēneša laikā.
+          </p>
+        </div>
+
+        <div>
+          <SectionKicker index={8}>8. Saziņa</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Jautājumi par privātumu</h2>
+          <p class="mt-4">
+            Visus jautājumus, kas saistīti ar personas datu apstrādi šajā vietnē, sūtiet:
+          </p>
+          <ul class="mt-3 space-y-1.5">
+            <li>E-pasts: <a href="mailto:info@almahome.lv">info@almahome.lv</a></li>
+            <li>Tālrunis: <a href="tel:+37126148011">+371 26 148 011</a></li>
+            <li>Adrese: Mores iela 15, Rīga, LV-1034</li>
+          </ul>
+        </div>
+
+        <div>
+          <SectionKicker index={9}>9. Atjauninājumi</SectionKicker>
+          <h2 class="mt-4 font-serif text-2xl md:text-3xl text-burgundy">Politikas atjaunināšana</h2>
+          <p class="mt-4">
+            Šī privātuma politika var tikt atjaunināta, lai atspoguļotu izmaiņas likumdošanā vai mūsu praksē. Pēdējās izmaiņas datums norādīts politikas augšdaļā. Būtiskas izmaiņas mēs paziņosim šajā lapā.
+          </p>
+        </div>
+
+      </article>
+    </Container>
+  </Section>
+</BaseLayout>
+
+<style>
+  @reference "@/styles/globals.css";
+
+  /* Highlight "{{ ... }}" placeholders so it's obvious what still needs to be
+     filled in before publishing. Remove this CSS rule (and the <mark> tags)
+     once the policy is finalized — or leave it; .todo without children renders
+     nothing. */
+  .prose-policy .todo {
+    @apply bg-status-reserved/35 text-ink px-1.5 py-0.5 rounded font-mono text-[0.92em];
+  }
+  .prose-policy a {
+    @apply text-burgundy underline underline-offset-4 decoration-burgundy/40 hover:decoration-burgundy transition-colors;
+  }
+  .prose-policy ul {
+    @apply list-disc pl-6 text-ink;
+  }
+  .prose-policy strong {
+    @apply text-ink font-semibold;
+  }
+  .prose-policy p {
+    @apply text-ink;
+  }
+</style>

@@ -26,6 +26,13 @@
     "privacy_policy": "Privacy policy",
     "copyright": "© 2026 Alma Home. All rights reserved."
   },
+  "privatums": {
+    "title": "Privacy policy — AlmaHome",
+    "description": "AlmaHome privacy policy: how we process personal data submitted through the inquiry form at almahome.lv.",
+    "hero_kicker": "Legal",
+    "hero_title": "Privacy policy",
+    "updated_label": "Last updated"
+  },
   "common": {
     "price_on_request": "On request",
     "m2": "m²",
