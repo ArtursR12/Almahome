@@ -9,6 +9,11 @@ const spots = (await getCollection('parking'))
   .map((entry) => entry.data)
   .sort((a, b) => a.number - b.number);
 
+// All apartment numbers for the "linked apartment" dropdown.
+const apartmentNumbers = (await getCollection('apartments'))
+  .map((entry) => entry.data.number)
+  .sort((a, b) => a - b);
+
 const counts = {
   total:     spots.length,
   available: spots.filter((s) => s.status === 'available').length,
@@ -41,6 +46,16 @@ function typeLabel(type: string): string {
       <div class="flex items-center gap-3 text-sm">
         <a href="/admin" class="text-zinc-400 hover:text-zinc-100 transition-colors">Dzīvokļi</a>
         <a href="/admin/polygons" class="text-zinc-400 hover:text-zinc-100 transition-colors">Poligoni</a>
+        <a
+          href="/api/admin/report.xlsx"
+          download
+          class="inline-flex items-center gap-1.5 rounded-md bg-emerald-700/30 hover:bg-emerald-700/50 text-emerald-200 px-3 py-1.5 transition-colors"
+        >
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          Excel
+        </a>
         <a href="/" class="text-zinc-400 hover:text-zinc-100 transition-colors">↗ Publiskā vietne</a>
       </div>
     </div>
@@ -91,7 +106,11 @@ function typeLabel(type: string): string {
                 type: s.type,
                 status: s.status,
                 price: s.price,
-              }} />
+                buyer_name:       s.buyer_name,
+                buyer_contact:    s.buyer_contact,
+                buyer_notes:      s.buyer_notes,
+                linked_apartment: s.linked_apartment,
+              }} apartmentNumbers={apartmentNumbers} />
             </div>
           </li>
         ))}

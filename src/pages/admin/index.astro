@@ -42,6 +42,16 @@ function priceLabel(p: number | null): string {
       <div class="flex items-center gap-3 text-sm">
         <a href="/admin/parking" class="text-zinc-400 hover:text-zinc-100 transition-colors">Autostāvvietas</a>
         <a href="/admin/polygons" class="text-zinc-400 hover:text-zinc-100 transition-colors">Poligoni</a>
+        <a
+          href="/api/admin/report.xlsx"
+          download
+          class="inline-flex items-center gap-1.5 rounded-md bg-emerald-700/30 hover:bg-emerald-700/50 text-emerald-200 px-3 py-1.5 transition-colors"
+        >
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          Excel
+        </a>
         <a href="/" class="text-zinc-400 hover:text-zinc-100 transition-colors">↗ Publiskā vietne</a>
         <button
           id="logout-btn"
@@ -105,6 +115,9 @@ function priceLabel(p: number | null): string {
                 area_total: a.area_total,
                 status: a.status,
                 price: a.price,
+                buyer_name:    a.buyer_name,
+                buyer_contact: a.buyer_contact,
+                buyer_notes:   a.buyer_notes,
               }} />
             </div>
           </li>

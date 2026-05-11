@@ -5,10 +5,29 @@ import { checkBasicAuth } from '@/middleware';
 
 export const prerender = false;
 
+function setOrDelete(obj: Record<string, unknown>, key: string, value: string | number | null) {
+  if (value == null || value === '') delete obj[key];
+  else obj[key] = value;
+}
+
+const nullableTrimmedString = (max: number) =>
+  z
+    .union([z.string(), z.null()])
+    .optional()
+    .transform((v) => {
+      if (v == null) return null;
+      const t = v.trim();
+      return t === '' ? null : t.slice(0, max);
+    });
+
 const UpdateSchema = z.object({
   number: z.number().int().min(1).max(23),
   status: z.enum(['available', 'reserved', 'sold']),
   price:  z.number().positive().nullable(),
+  buyer_name:       nullableTrimmedString(200),
+  buyer_contact:    nullableTrimmedString(200),
+  buyer_notes:      nullableTrimmedString(2000),
+  linked_apartment: z.number().int().min(1).max(24).nullable().optional(),
 });
 
 export const POST: APIRoute = async ({ request }) => {
@@ -30,7 +49,7 @@ export const POST: APIRoute = async ({ request }) => {
   if (!parsed.success) {
     return Response.json({ error: 'Validation failed' }, { status: 400 });
   }
-  const { number, status, price } = parsed.data;
+  const { number, status, price, buyer_name, buyer_contact, buyer_notes, linked_apartment } = parsed.data;
 
   const token = import.meta.env.GITHUB_TOKEN;
   const owner = import.meta.env.GITHUB_OWNER;
@@ -66,6 +85,10 @@ export const POST: APIRoute = async ({ request }) => {
 
     json.status = status;
     json.price = price;
+    if (buyer_name       !== undefined) setOrDelete(json, 'buyer_name',       buyer_name);
+    if (buyer_contact    !== undefined) setOrDelete(json, 'buyer_contact',    buyer_contact);
+    if (buyer_notes      !== undefined) setOrDelete(json, 'buyer_notes',      buyer_notes);
+    if (linked_apartment !== undefined) setOrDelete(json, 'linked_apartment', linked_apartment);
 
     const newContent = JSON.stringify(json, null, 2) + '\n';
     const contentB64 = Buffer.from(newContent, 'utf-8').toString('base64');

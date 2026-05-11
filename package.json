@@ -20,6 +20,7 @@
     "@octokit/rest": "^22.0.1",
     "@tailwindcss/vite": "^4.2.4",
     "astro": "^6.2.2",
+    "exceljs": "^4.4.0",
     "resend": "^6.12.2",
     "svelte": "^5.55.5",
     "tailwindcss": "^4.2.4",

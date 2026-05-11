@@ -23,6 +23,10 @@ export const apartmentSchema = z.object({
   description_lv: z.string().optional(),
   description_ru: z.string().optional(),
   description_en: z.string().optional(),
+  // Internal buyer record. Only meaningful when status is reserved/sold.
+  buyer_name:    z.string().max(200).optional(),
+  buyer_contact: z.string().max(200).optional(),
+  buyer_notes:   z.string().max(2000).optional(),
   _comment: z.string().optional(),
 });
 
@@ -37,6 +41,12 @@ export const parkingSchema = z.object({
   type: z.enum(['surface', 'surface_ev_ready']),
   price: z.number().nullable(),
   status: z.enum(['available', 'reserved', 'sold']),
+  // Internal buyer record. Only meaningful when status is reserved/sold.
+  buyer_name:    z.string().max(200).optional(),
+  buyer_contact: z.string().max(200).optional(),
+  buyer_notes:   z.string().max(2000).optional(),
+  // Apartment number the spot was sold/reserved with, when applicable.
+  linked_apartment: z.number().int().min(1).max(24).nullable().optional(),
   _comment: z.string().optional(),
 });
 

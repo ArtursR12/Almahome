@@ -7,16 +7,22 @@
     area_total: number;
     status: Status;
     price: number | null;
+    buyer_name?: string;
+    buyer_contact?: string;
+    buyer_notes?: string;
   }
   interface Props { apartment: Apartment }
   let { apartment }: Props = $props();
 
-  let open       = $state(false);
-  let status     = $state<Status>(apartment.status);
-  let priceInput = $state(apartment.price === null ? '' : String(apartment.price));
-  let saving     = $state(false);
-  let success    = $state(false);
-  let errorMsg   = $state('');
+  let open         = $state(false);
+  let status       = $state<Status>(apartment.status);
+  let priceInput   = $state(apartment.price === null ? '' : String(apartment.price));
+  let buyerName    = $state(apartment.buyer_name ?? '');
+  let buyerContact = $state(apartment.buyer_contact ?? '');
+  let buyerNotes   = $state(apartment.buyer_notes ?? '');
+  let saving       = $state(false);
+  let success      = $state(false);
+  let errorMsg     = $state('');
 
   function parsePriceInput(raw: unknown): number | null {
     const cleaned = String(raw ?? '').replace(/[^\d]/g, '');
@@ -27,12 +33,18 @@
 
   const dirty = $derived(
     status !== apartment.status ||
-      parsePriceInput(priceInput) !== apartment.price,
+      parsePriceInput(priceInput) !== apartment.price ||
+      (buyerName.trim() || '') !== (apartment.buyer_name ?? '') ||
+      (buyerContact.trim() || '') !== (apartment.buyer_contact ?? '') ||
+      (buyerNotes.trim() || '') !== (apartment.buyer_notes ?? ''),
   );
 
   function openEditor() {
     status = apartment.status;
     priceInput = apartment.price === null ? '' : String(apartment.price);
+    buyerName = apartment.buyer_name ?? '';
+    buyerContact = apartment.buyer_contact ?? '';
+    buyerNotes = apartment.buyer_notes ?? '';
     success = false;
     errorMsg = '';
     open = true;
@@ -62,7 +74,14 @@
       const res = await fetch('/api/admin/update-apartment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ number: apartment.number, status, price }),
+        body: JSON.stringify({
+          number: apartment.number,
+          status,
+          price,
+          buyer_name:    buyerName.trim() || null,
+          buyer_contact: buyerContact.trim() || null,
+          buyer_notes:   buyerNotes.trim() || null,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -72,6 +91,9 @@
       // Locally reflect the change so the row matches the new state.
       apartment.status = status;
       apartment.price = price;
+      apartment.buyer_name = buyerName.trim() || undefined;
+      apartment.buyer_contact = buyerContact.trim() || undefined;
+      apartment.buyer_notes = buyerNotes.trim() || undefined;
       success = true;
     } catch (e) {
       errorMsg = e instanceof Error ? e.message : 'Tīkla kļūda';
@@ -182,6 +204,52 @@
             />
             <p class="text-xs text-zinc-500">Tukšs lauks → "Pēc pieprasījuma".</p>
           </div>
+
+          {#if status !== 'available'}
+            <fieldset class="space-y-3 rounded-md bg-zinc-950/40 border border-zinc-800 p-4">
+              <legend class="text-xs uppercase tracking-widest text-zinc-500 px-2">
+                Pircējs ({status === 'sold' ? 'pārdots' : 'rezervēts'})
+              </legend>
+              <div class="space-y-1.5">
+                <label for="apt-buyer-name" class="block text-xs text-zinc-500">Vārds, uzvārds</label>
+                <input
+                  id="apt-buyer-name"
+                  type="text"
+                  autocomplete="off"
+                  maxlength="200"
+                  bind:value={buyerName}
+                  disabled={saving}
+                  placeholder="Jānis Bērziņš"
+                  class="w-full rounded-md bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-burgundy disabled:opacity-50"
+                />
+              </div>
+              <div class="space-y-1.5">
+                <label for="apt-buyer-contact" class="block text-xs text-zinc-500">Kontakti (tālr. / e-pasts)</label>
+                <input
+                  id="apt-buyer-contact"
+                  type="text"
+                  autocomplete="off"
+                  maxlength="200"
+                  bind:value={buyerContact}
+                  disabled={saving}
+                  placeholder="+371 ... / vards@example.com"
+                  class="w-full rounded-md bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-burgundy disabled:opacity-50"
+                />
+              </div>
+              <div class="space-y-1.5">
+                <label for="apt-buyer-notes" class="block text-xs text-zinc-500">Piezīmes</label>
+                <textarea
+                  id="apt-buyer-notes"
+                  rows="2"
+                  maxlength="2000"
+                  bind:value={buyerNotes}
+                  disabled={saving}
+                  placeholder="Avansa datums, kredītbanka, citas atzīmes…"
+                  class="w-full rounded-md bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-burgundy disabled:opacity-50 resize-y"
+                ></textarea>
+              </div>
+            </fieldset>
+          {/if}
 
           {#if errorMsg}
             <div class="rounded-lg border border-red-700/50 bg-red-700/10 p-3 text-sm text-red-300">

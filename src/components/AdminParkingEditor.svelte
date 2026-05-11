@@ -7,16 +7,28 @@
     type: ParkingType;
     status: Status;
     price: number | null;
+    buyer_name?: string;
+    buyer_contact?: string;
+    buyer_notes?: string;
+    linked_apartment?: number | null;
   }
-  interface Props { spot: Spot }
-  let { spot }: Props = $props();
+  interface Props {
+    spot: Spot;
+    /** All apartment numbers — used to populate the "linked apartment" dropdown. */
+    apartmentNumbers?: number[];
+  }
+  let { spot, apartmentNumbers = [] }: Props = $props();
 
-  let open       = $state(false);
-  let status     = $state<Status>(spot.status);
-  let priceInput = $state(spot.price === null ? '' : String(spot.price));
-  let saving     = $state(false);
-  let success    = $state(false);
-  let errorMsg   = $state('');
+  let open            = $state(false);
+  let status          = $state<Status>(spot.status);
+  let priceInput      = $state(spot.price === null ? '' : String(spot.price));
+  let buyerName       = $state(spot.buyer_name ?? '');
+  let buyerContact    = $state(spot.buyer_contact ?? '');
+  let buyerNotes      = $state(spot.buyer_notes ?? '');
+  let linkedApartment = $state<string>(spot.linked_apartment ? String(spot.linked_apartment) : '');
+  let saving          = $state(false);
+  let success         = $state(false);
+  let errorMsg        = $state('');
 
   function parsePriceInput(raw: unknown): number | null {
     const cleaned = String(raw ?? '').replace(/[^\d]/g, '');
@@ -27,12 +39,21 @@
 
   const dirty = $derived(
     status !== spot.status ||
-      parsePriceInput(priceInput) !== spot.price,
+      parsePriceInput(priceInput) !== spot.price ||
+      (buyerName.trim() || '') !== (spot.buyer_name ?? '') ||
+      (buyerContact.trim() || '') !== (spot.buyer_contact ?? '') ||
+      (buyerNotes.trim() || '') !== (spot.buyer_notes ?? '') ||
+      (linkedApartment ? parseInt(linkedApartment, 10) : null) !==
+        (spot.linked_apartment ?? null),
   );
 
   function openEditor() {
     status = spot.status;
     priceInput = spot.price === null ? '' : String(spot.price);
+    buyerName = spot.buyer_name ?? '';
+    buyerContact = spot.buyer_contact ?? '';
+    buyerNotes = spot.buyer_notes ?? '';
+    linkedApartment = spot.linked_apartment ? String(spot.linked_apartment) : '';
     success = false;
     errorMsg = '';
     open = true;
@@ -56,12 +77,22 @@
       return;
     }
 
+    const linked = linkedApartment ? parseInt(linkedApartment, 10) : null;
+
     saving = true;
     try {
       const res = await fetch('/api/admin/update-parking', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ number: spot.number, status, price }),
+        body: JSON.stringify({
+          number: spot.number,
+          status,
+          price,
+          buyer_name:       buyerName.trim() || null,
+          buyer_contact:    buyerContact.trim() || null,
+          buyer_notes:      buyerNotes.trim() || null,
+          linked_apartment: Number.isFinite(linked) ? linked : null,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -70,6 +101,10 @@
       }
       spot.status = status;
       spot.price = price;
+      spot.buyer_name = buyerName.trim() || undefined;
+      spot.buyer_contact = buyerContact.trim() || undefined;
+      spot.buyer_notes = buyerNotes.trim() || undefined;
+      spot.linked_apartment = Number.isFinite(linked) ? linked : null;
       success = true;
     } catch (e) {
       errorMsg = e instanceof Error ? e.message : 'Tīkla kļūda';
@@ -182,6 +217,66 @@
             />
             <p class="text-xs text-zinc-500">Tukšs lauks → "Pēc pieprasījuma".</p>
           </div>
+
+          {#if status !== 'available'}
+            <fieldset class="space-y-3 rounded-md bg-zinc-950/40 border border-zinc-800 p-4">
+              <legend class="text-xs uppercase tracking-widest text-zinc-500 px-2">
+                Pircējs ({status === 'sold' ? 'pārdots' : 'rezervēts'})
+              </legend>
+              <div class="space-y-1.5">
+                <label for="spot-buyer-name" class="block text-xs text-zinc-500">Vārds, uzvārds</label>
+                <input
+                  id="spot-buyer-name"
+                  type="text"
+                  autocomplete="off"
+                  maxlength="200"
+                  bind:value={buyerName}
+                  disabled={saving}
+                  placeholder="Jānis Bērziņš"
+                  class="w-full rounded-md bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-burgundy disabled:opacity-50"
+                />
+              </div>
+              <div class="space-y-1.5">
+                <label for="spot-buyer-contact" class="block text-xs text-zinc-500">Kontakti</label>
+                <input
+                  id="spot-buyer-contact"
+                  type="text"
+                  autocomplete="off"
+                  maxlength="200"
+                  bind:value={buyerContact}
+                  disabled={saving}
+                  placeholder="+371 ... / vards@example.com"
+                  class="w-full rounded-md bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-burgundy disabled:opacity-50"
+                />
+              </div>
+              <div class="space-y-1.5">
+                <label for="spot-linked-apt" class="block text-xs text-zinc-500">Saistīts dzīvoklis</label>
+                <select
+                  id="spot-linked-apt"
+                  bind:value={linkedApartment}
+                  disabled={saving}
+                  class="w-full rounded-md bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-burgundy disabled:opacity-50"
+                >
+                  <option value="">— bez saites —</option>
+                  {#each apartmentNumbers as n}
+                    <option value={String(n)}>Nr. {n}</option>
+                  {/each}
+                </select>
+              </div>
+              <div class="space-y-1.5">
+                <label for="spot-buyer-notes" class="block text-xs text-zinc-500">Piezīmes</label>
+                <textarea
+                  id="spot-buyer-notes"
+                  rows="2"
+                  maxlength="2000"
+                  bind:value={buyerNotes}
+                  disabled={saving}
+                  placeholder="Avansa datums, kredītbanka, citas atzīmes…"
+                  class="w-full rounded-md bg-zinc-800 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-burgundy disabled:opacity-50 resize-y"
+                ></textarea>
+              </div>
+            </fieldset>
+          {/if}
 
           {#if errorMsg}
             <div class="rounded-lg border border-red-700/50 bg-red-700/10 p-3 text-sm text-red-300">
