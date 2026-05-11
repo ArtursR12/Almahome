@@ -68,17 +68,21 @@ const landmarks = tr<{ time: string; name: string }[]>('home.location_landmarks'
 >
   <!-- Hero -->
   <section class="relative h-[90vh] min-h-[560px] overflow-hidden">
-    <PhotoOrPlaceholder
-      src="/images/exterior/hero.jpg"
-      width={1920}
-      height={1080}
-      alt="AlmaHome"
-      label="AlmaHome"
-      loading="eager"
-      fetchpriority="high"
-      class="absolute inset-0 h-full w-full object-cover"
-    />
-    <div class="absolute inset-0 bg-gradient-to-b from-burgundy-dark/55 via-burgundy-dark/35 to-burgundy-dark/65"></div>
+    <div class="hero-slideshow absolute inset-0" aria-hidden="true">
+      <div class="hero-slide hero-slide-1">
+        <img src="/images/exterior/hero.jpg" alt="" width="1920" height="1080" loading="eager" fetchpriority="high" decoding="sync" />
+      </div>
+      <div class="hero-slide hero-slide-2">
+        <img src="/images/exterior/render-aerial.jpg" alt="" width="1920" height="1080" loading="eager" decoding="async" />
+      </div>
+      <div class="hero-slide hero-slide-3">
+        <img src="/images/exterior/render-front-summer.jpg" alt="" width="1920" height="1080" loading="lazy" decoding="async" />
+      </div>
+      <div class="hero-slide hero-slide-4">
+        <img src="/images/exterior/render-courtyard.jpg" alt="" width="1920" height="1080" loading="lazy" decoding="async" />
+      </div>
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-b from-burgundy-dark/55 via-burgundy-dark/35 to-burgundy-dark/70"></div>
     <Container class="relative h-full flex flex-col items-center justify-center text-center text-cream">
       <p class="text-xs md:text-sm uppercase tracking-[0.4em] text-cream/80">{t('home.hero_kicker')}</p>
       <h1 class="mt-6 font-serif text-6xl md:text-8xl tracking-wide">
@@ -93,8 +97,64 @@ const landmarks = tr<{ time: string; name: string }[]>('home.location_landmarks'
           {t('home.cta_contact')}
         </Button>
       </div>
+      <div class="mt-10 inline-flex items-center gap-4 rounded-lg bg-cream/10 backdrop-blur-md border border-cream/25 pl-4 pr-6 py-3 shadow-[0_2px_24px_-12px_rgba(0,0,0,0.6)]">
+        <svg class="h-7 w-7 text-cream/80 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="16" rx="2" />
+          <path d="M3 9h18" />
+          <path d="M8 3v4" />
+          <path d="M16 3v4" />
+        </svg>
+        <div class="text-left">
+          <div class="text-[10px] md:text-[11px] tracking-[0.3em] uppercase text-cream/70 font-medium">{t('home.completion_kicker')}</div>
+          <div class="font-serif text-lg md:text-xl text-cream mt-0.5 leading-tight">{t('home.completion_value')}</div>
+        </div>
+      </div>
     </Container>
   </section>
+
+  <style>
+    .hero-slideshow { position: absolute; inset: 0; }
+    .hero-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      animation: hero-fade 28s infinite;
+      will-change: opacity;
+    }
+    .hero-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      animation: hero-kenburns 36s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+    .hero-slide-1 { animation-delay: 0s; }
+    .hero-slide-1 img { animation-delay: 0s; transform-origin: 50% 50%; }
+    .hero-slide-2 { animation-delay: -21s; }
+    .hero-slide-2 img { animation-delay: -9s; transform-origin: 30% 60%; }
+    .hero-slide-3 { animation-delay: -14s; }
+    .hero-slide-3 img { animation-delay: -18s; transform-origin: 70% 40%; }
+    .hero-slide-4 { animation-delay: -7s; }
+    .hero-slide-4 img { animation-delay: -27s; transform-origin: 50% 30%; }
+    @keyframes hero-fade {
+      0%   { opacity: 1; }
+      18%  { opacity: 1; }
+      25%  { opacity: 0; }
+      93%  { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes hero-kenburns {
+      from { transform: scale(1.02); }
+      to   { transform: scale(1.14); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-slide,
+      .hero-slide img { animation: none; }
+      .hero-slide-1 { opacity: 1; }
+      .hero-slide:not(.hero-slide-1) { opacity: 0; }
+    }
+  </style>
 
   <!-- About -->
   <Section background="cream">

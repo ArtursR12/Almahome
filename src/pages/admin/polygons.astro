@@ -1,0 +1,419 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import '@/styles/globals.css';
+
+export const prerender = false;
+
+// Read floor-plans.json fresh on every request — middleware enforces auth.
+const jsonPath = path.join(process.cwd(), 'src', 'data', 'floor-plans.json');
+const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
+  image_width: number;
+  image_height: number;
+  floors: Array<{
+    floor: number;
+    image: string;
+    apartments: Array<{ number: number; polygon: string }>;
+  }>;
+};
+---
+<!doctype html>
+<html lang="lv" class="bg-zinc-950">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>AlmaHome — Admin · Poligoni</title>
+  <style is:global>
+    html, body { background: #09090B; color: #E4E4E7; }
+    /* Disable text selection inside the SVG editor for cleaner drag UX. */
+    .editor-svg, .editor-svg * { user-select: none; -webkit-user-select: none; }
+    .editor-svg .vertex-handle { cursor: grab; }
+    .editor-svg .vertex-handle.dragging { cursor: grabbing; }
+  </style>
+</head>
+<body class="min-h-screen bg-zinc-950 text-zinc-100">
+  <header class="border-b border-zinc-800 bg-zinc-900/40 sticky top-0 backdrop-blur z-30">
+    <div class="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
+      <div class="flex items-baseline gap-4">
+        <a href="/admin" class="font-serif text-xl tracking-[0.25em] uppercase text-zinc-100 hover:text-zinc-300 transition-colors">Alma Home</a>
+        <span class="text-xs uppercase tracking-widest text-zinc-500">Admin · Poligoni</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="save-status" class="text-sm text-zinc-400 min-w-0 truncate max-w-[280px]"></span>
+        <span id="dirty-dot" class="inline-block w-2 h-2 rounded-full bg-amber-400 opacity-0 transition-opacity" aria-hidden="true"></span>
+        <button id="reset-btn" type="button" class="text-sm rounded-md bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 transition-colors">
+          Atiestatīt
+        </button>
+        <button id="save-btn" type="button" class="text-sm rounded-md bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-1.5 transition-colors font-medium">
+          Saglabāt
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 py-8">
+    <div class="mb-6">
+      <h1 class="font-serif text-3xl text-zinc-50">Poligonu rediģēšana</h1>
+      <p class="mt-2 text-sm text-zinc-400 max-w-3xl">
+        Klikšķis uz dzīvokļa, lai to izvēlētos — parādās punktu marķieri. Velc punktu, lai pārvietotu. Vēlreiz klikšķis uz izvēlētā dzīvokļa malas pievieno jaunu punktu (jābūt tuvu malai). Labais klikšķis uz punkta to dzēš (min. 3 punkti).
+        Saglabājot, izmaiņas tiek commitētas GitHub un publicētas pēc ~30 sekundēm.
+      </p>
+    </div>
+
+    <div class="flex gap-2 mb-6">
+      {data.floors.map((f, i) => (
+        <button
+          data-floor-tab={i}
+          type="button"
+          class="floor-tab px-4 py-2 rounded-md text-sm font-medium bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors"
+        >
+          {f.floor}. stāvs
+        </button>
+      ))}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
+      <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+        <svg
+          id="editor-svg"
+          viewBox={`0 0 ${data.image_width} ${data.image_height}`}
+          class="editor-svg w-full h-auto block touch-none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <image id="floor-image" href="" x="0" y="0" width={data.image_width} height={data.image_height} preserveAspectRatio="xMidYMid meet" />
+          <g id="polys"></g>
+          <g id="handles"></g>
+        </svg>
+      </div>
+      <aside class="space-y-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+          <div class="text-xs uppercase tracking-widest text-zinc-500 mb-2">Izvēlēts</div>
+          <div id="polygon-meta" class="text-sm text-zinc-300 mb-2">— izvēlies dzīvokli —</div>
+          <pre id="polygon-info" class="text-[11px] text-emerald-300 whitespace-pre-wrap break-all font-mono leading-relaxed bg-zinc-950/70 rounded p-2 max-h-48 overflow-auto"></pre>
+        </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-xs text-zinc-400 space-y-2">
+          <div><b class="text-zinc-200">Klikšķis</b> uz dzīvokļa — izvēlas</div>
+          <div><b class="text-zinc-200">Velkot</b> punktu — pārvieto</div>
+          <div><b class="text-zinc-200">Klikšķis</b> 2. reizi uz malas — pievieno punktu</div>
+          <div><b class="text-zinc-200">Labais klikšķis</b> uz punkta — dzēš</div>
+          <div><b class="text-zinc-200">Klikšķis ārpus</b> — atceļ izvēli</div>
+        </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-xs text-zinc-500">
+          <div class="flex items-center gap-2 mb-2"><span class="inline-block w-3 h-3 rounded bg-emerald-400/60 border border-emerald-400"></span> izvēlēts</div>
+          <div class="flex items-center gap-2"><span class="inline-block w-3 h-3 rounded bg-zinc-100/20 border border-zinc-100/50"></span> citi</div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script is:inline define:vars={{ initial: data }}>
+    'use strict';
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    // Clone via JSON so we have an immutable snapshot for Reset.
+    const snapshot = JSON.stringify(initial);
+    const state = {
+      data: JSON.parse(snapshot),
+      floorIdx: 0,
+      selectedApt: null,
+      dirty: false,
+    };
+
+    const svg = document.getElementById('editor-svg');
+    const floorImageEl = document.getElementById('floor-image');
+    const polysG = document.getElementById('polys');
+    const handlesG = document.getElementById('handles');
+    const statusEl = document.getElementById('save-status');
+    const dirtyDot = document.getElementById('dirty-dot');
+    const polygonInfo = document.getElementById('polygon-info');
+    const polygonMeta = document.getElementById('polygon-meta');
+    const floorTabs = document.querySelectorAll('[data-floor-tab]');
+    const saveBtn = document.getElementById('save-btn');
+    const resetBtn = document.getElementById('reset-btn');
+
+    function currentFloor() { return state.data.floors[state.floorIdx]; }
+    function selectedApt() {
+      if (state.selectedApt == null) return null;
+      return currentFloor().apartments.find((a) => a.number === state.selectedApt) || null;
+    }
+
+    function setDirty(v) {
+      state.dirty = v;
+      dirtyDot.classList.toggle('opacity-0', !v);
+      dirtyDot.classList.toggle('opacity-100', v);
+    }
+    function setStatus(msg) { statusEl.textContent = msg; }
+
+    function parsePoly(s) {
+      return s.trim().split(/\s+/).map((pair) => {
+        const [x, y] = pair.split(',').map(Number);
+        return { x, y };
+      });
+    }
+    function serializePoly(pts) {
+      return pts.map((p) => `${Math.round(p.x)},${Math.round(p.y)}`).join(' ');
+    }
+
+    function eventToSvg(e) {
+      const pt = svg.createSVGPoint();
+      pt.x = e.clientX; pt.y = e.clientY;
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return { x: 0, y: 0 };
+      const local = pt.matrixTransform(ctm.inverse());
+      return { x: local.x, y: local.y };
+    }
+
+    function projectOnSegment(p, a, b) {
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const len2 = dx * dx + dy * dy;
+      if (len2 === 0) return { x: a.x, y: a.y, t: 0 };
+      let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / len2;
+      t = Math.max(0, Math.min(1, t));
+      return { x: a.x + t * dx, y: a.y + t * dy, t };
+    }
+    function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+    function insertVertexOnNearestEdge(apt, point) {
+      const pts = parsePoly(apt.polygon);
+      if (pts.length < 2) return false;
+      let bestIdx = -1, bestDist = Infinity, bestProj = null;
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[i], b = pts[(i + 1) % pts.length];
+        const proj = projectOnSegment(point, a, b);
+        const d = dist(point, proj);
+        if (d < bestDist) { bestDist = d; bestIdx = i; bestProj = proj; }
+      }
+      // Require click to be within 40 SVG units of an edge to count as "add vertex".
+      if (bestDist > 40) return false;
+      pts.splice(bestIdx + 1, 0, { x: Math.round(bestProj.x), y: Math.round(bestProj.y) });
+      apt.polygon = serializePoly(pts);
+      return true;
+    }
+
+    function deleteVertex(idx) {
+      const sel = selectedApt(); if (!sel) return;
+      const pts = parsePoly(sel.polygon);
+      if (pts.length <= 3) {
+        setStatus('Vismaz 3 punkti ir vajadzīgi.');
+        return;
+      }
+      pts.splice(idx, 1);
+      sel.polygon = serializePoly(pts);
+      setDirty(true);
+      renderHandles();
+      renderSelectedPolyOnly();
+      updateInfo();
+    }
+
+    function render() {
+      const fl = currentFloor();
+      floorImageEl.setAttribute('href', fl.image);
+      polysG.innerHTML = '';
+      handlesG.innerHTML = '';
+      for (const apt of fl.apartments) {
+        const isSel = apt.number === state.selectedApt;
+        const g = document.createElementNS(SVG_NS, 'g');
+        g.dataset.aptNumber = apt.number;
+        const poly = document.createElementNS(SVG_NS, 'polygon');
+        poly.setAttribute('points', apt.polygon);
+        poly.setAttribute('fill', isSel ? 'rgba(52, 211, 153, 0.30)' : 'rgba(244, 244, 245, 0.12)');
+        poly.setAttribute('stroke', isSel ? '#34D399' : 'rgba(244, 244, 245, 0.55)');
+        poly.setAttribute('stroke-width', isSel ? '3' : '1.5');
+        poly.setAttribute('vector-effect', 'non-scaling-stroke');
+        poly.style.cursor = 'pointer';
+        poly.addEventListener('click', (e) => onPolygonClick(e, apt));
+        g.appendChild(poly);
+
+        // Centroid label
+        const pts = parsePoly(apt.polygon);
+        const cx = pts.reduce((s, q) => s + q.x, 0) / pts.length;
+        const cy = pts.reduce((s, q) => s + q.y, 0) / pts.length;
+        const lbl = document.createElementNS(SVG_NS, 'text');
+        lbl.setAttribute('x', String(cx));
+        lbl.setAttribute('y', String(cy));
+        lbl.setAttribute('text-anchor', 'middle');
+        lbl.setAttribute('dominant-baseline', 'middle');
+        lbl.setAttribute('fill', '#FAFAFA');
+        lbl.setAttribute('font-family', 'Cormorant Garamond, Georgia, serif');
+        lbl.setAttribute('font-size', isSel ? '28' : '20');
+        lbl.setAttribute('font-weight', '600');
+        lbl.setAttribute('pointer-events', 'none');
+        lbl.setAttribute('paint-order', 'stroke');
+        lbl.setAttribute('stroke', 'rgba(0,0,0,0.6)');
+        lbl.setAttribute('stroke-width', '3');
+        lbl.textContent = String(apt.number);
+        g.appendChild(lbl);
+
+        polysG.appendChild(g);
+      }
+      renderHandles();
+      updateInfo();
+    }
+
+    function renderHandles() {
+      handlesG.innerHTML = '';
+      const sel = selectedApt(); if (!sel) return;
+      const pts = parsePoly(sel.polygon);
+      pts.forEach((p, idx) => {
+        const c = document.createElementNS(SVG_NS, 'circle');
+        c.setAttribute('cx', String(p.x));
+        c.setAttribute('cy', String(p.y));
+        c.setAttribute('r', '8');
+        c.setAttribute('fill', '#34D399');
+        c.setAttribute('stroke', '#09090B');
+        c.setAttribute('stroke-width', '2');
+        c.setAttribute('vector-effect', 'non-scaling-stroke');
+        c.classList.add('vertex-handle');
+        c.dataset.idx = String(idx);
+        c.addEventListener('pointerdown', (e) => onHandlePointerDown(e, idx));
+        c.addEventListener('contextmenu', (e) => { e.preventDefault(); deleteVertex(idx); });
+        handlesG.appendChild(c);
+      });
+    }
+
+    function renderSelectedPolyOnly() {
+      const sel = selectedApt(); if (!sel) return;
+      const g = polysG.querySelector(`g[data-apt-number="${sel.number}"]`);
+      if (!g) return;
+      const poly = g.querySelector('polygon');
+      if (poly) poly.setAttribute('points', sel.polygon);
+      // Recompute centroid label position too.
+      const pts = parsePoly(sel.polygon);
+      const cx = pts.reduce((s, q) => s + q.x, 0) / pts.length;
+      const cy = pts.reduce((s, q) => s + q.y, 0) / pts.length;
+      const lbl = g.querySelector('text');
+      if (lbl) { lbl.setAttribute('x', String(cx)); lbl.setAttribute('y', String(cy)); }
+    }
+
+    function updateInfo() {
+      const sel = selectedApt();
+      if (!sel) {
+        polygonMeta.textContent = '— izvēlies dzīvokli —';
+        polygonInfo.textContent = '';
+      } else {
+        polygonMeta.textContent = `Nr. ${sel.number} · ${parsePoly(sel.polygon).length} punkti`;
+        polygonInfo.textContent = sel.polygon;
+      }
+    }
+
+    function onPolygonClick(e, apt) {
+      e.stopPropagation();
+      if (apt.number !== state.selectedApt) {
+        state.selectedApt = apt.number;
+        render();
+        return;
+      }
+      // Already selected — try to insert a vertex on the nearest edge.
+      const point = eventToSvg(e);
+      if (insertVertexOnNearestEdge(apt, point)) {
+        setDirty(true);
+        renderHandles();
+        renderSelectedPolyOnly();
+        updateInfo();
+        setStatus('Pievienots punkts.');
+      }
+    }
+
+    let drag = null;
+    function onHandlePointerDown(e, idx) {
+      e.preventDefault();
+      e.stopPropagation();
+      const sel = selectedApt(); if (!sel) return;
+      drag = { aptNumber: sel.number, idx, target: e.currentTarget };
+      drag.target.setPointerCapture?.(e.pointerId);
+      drag.target.classList.add('dragging');
+      window.addEventListener('pointermove', onPointerMove);
+      window.addEventListener('pointerup', onPointerUp, { once: true });
+    }
+    function onPointerMove(e) {
+      if (!drag) return;
+      const fl = currentFloor();
+      const apt = fl.apartments.find((a) => a.number === drag.aptNumber);
+      if (!apt) return;
+      const pts = parsePoly(apt.polygon);
+      const p = eventToSvg(e);
+      // Clamp to image bounds.
+      p.x = Math.max(0, Math.min(state.data.image_width, p.x));
+      p.y = Math.max(0, Math.min(state.data.image_height, p.y));
+      pts[drag.idx] = { x: Math.round(p.x), y: Math.round(p.y) };
+      apt.polygon = serializePoly(pts);
+      // Cheap live updates.
+      drag.target.setAttribute('cx', String(pts[drag.idx].x));
+      drag.target.setAttribute('cy', String(pts[drag.idx].y));
+      const poly = polysG.querySelector(`g[data-apt-number="${apt.number}"] polygon`);
+      if (poly) poly.setAttribute('points', apt.polygon);
+      setDirty(true);
+    }
+    function onPointerUp() {
+      if (!drag) return;
+      drag.target.classList.remove('dragging');
+      drag = null;
+      window.removeEventListener('pointermove', onPointerMove);
+      // Catch up the label position + info panel after drag ends.
+      renderSelectedPolyOnly();
+      updateInfo();
+    }
+
+    // Background click to deselect.
+    svg.addEventListener('click', (e) => {
+      if (e.target === svg || e.target === floorImageEl) {
+        if (state.selectedApt != null) {
+          state.selectedApt = null;
+          render();
+        }
+      }
+    });
+
+    // Floor tabs
+    function setFloor(i) {
+      state.floorIdx = i;
+      state.selectedApt = null;
+      floorTabs.forEach((b, j) => {
+        const active = j === i;
+        b.classList.toggle('bg-emerald-500/15', active);
+        b.classList.toggle('border-emerald-400/50', active);
+        b.classList.toggle('text-emerald-200', active);
+      });
+      render();
+    }
+    floorTabs.forEach((btn, i) => {
+      btn.addEventListener('click', () => setFloor(i));
+    });
+
+    // Save
+    saveBtn.addEventListener('click', async () => {
+      saveBtn.disabled = true;
+      setStatus('Saglabā…');
+      try {
+        const res = await fetch('/api/admin/save-polygons', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(state.data),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
+        setStatus('Saglabāts. Vietne tiks atjaunota ~30 sekundēs.');
+        setDirty(false);
+      } catch (err) {
+        setStatus('Kļūda: ' + (err && err.message ? err.message : String(err)));
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+
+    // Reset
+    resetBtn.addEventListener('click', () => {
+      if (state.dirty && !confirm('Atjaunot visus poligonus uz pēdējo saglabāto versiju?')) return;
+      state.data = JSON.parse(snapshot);
+      state.selectedApt = null;
+      setDirty(false);
+      setStatus('Atiestatīts.');
+      render();
+    });
+
+    // Boot
+    setFloor(0);
+  </script>
+</body>
+</html>
