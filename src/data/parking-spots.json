@@ -3,28 +3,97 @@
   "image_width": 1441,
   "image_height": 993,
   "spots": [
-    { "number": 1, "polygon": "" },
-    { "number": 2, "polygon": "" },
-    { "number": 3, "polygon": "" },
-    { "number": 4, "polygon": "" },
-    { "number": 5, "polygon": "" },
-    { "number": 6, "polygon": "" },
-    { "number": 7, "polygon": "" },
-    { "number": 8, "polygon": "" },
-    { "number": 9, "polygon": "" },
-    { "number": 10, "polygon": "" },
-    { "number": 11, "polygon": "" },
-    { "number": 12, "polygon": "" },
-    { "number": 13, "polygon": "" },
-    { "number": 14, "polygon": "" },
-    { "number": 15, "polygon": "" },
-    { "number": 16, "polygon": "" },
-    { "number": 17, "polygon": "" },
-    { "number": 18, "polygon": "" },
-    { "number": 19, "polygon": "" },
-    { "number": 20, "polygon": "" },
-    { "number": 21, "polygon": "" },
-    { "number": 22, "polygon": "" },
-    { "number": 23, "polygon": "" }
+    {
+      "number": 1,
+      "polygon": "541,482 541,572 579,571 581,482"
+    },
+    {
+      "number": 2,
+      "polygon": "496,483 536,482 536,571 497,572"
+    },
+    {
+      "number": 3,
+      "polygon": "449,482 451,574 492,573 487,480"
+    },
+    {
+      "number": 4,
+      "polygon": "403,483 443,482 443,571 405,571"
+    },
+    {
+      "number": 5,
+      "polygon": "355,485 399,486 401,570 357,568"
+    },
+    {
+      "number": 6,
+      "polygon": "309,482 351,482 354,570 309,570"
+    },
+    {
+      "number": 7,
+      "polygon": "265,480 308,482 308,568 264,565"
+    },
+    {
+      "number": 8,
+      "polygon": "260,279 302,278 301,369 265,370"
+    },
+    {
+      "number": 9,
+      "polygon": "306,279 348,282 352,369 310,369"
+    },
+    {
+      "number": 10,
+      "polygon": "354,278 398,278 399,373 358,372"
+    },
+    {
+      "number": 11,
+      "polygon": "399,278 445,278 447,371 405,370"
+    },
+    {
+      "number": 12,
+      "polygon": "443,277 486,275 486,372 447,372"
+    },
+    {
+      "number": 13,
+      "polygon": "490,276 533,275 534,373 496,372"
+    },
+    {
+      "number": 14,
+      "polygon": "539,278 579,276 578,376 542,377 540,298"
+    },
+    {
+      "number": 15,
+      "polygon": "585,277 623,278 623,377 587,376"
+    },
+    {
+      "number": 16,
+      "polygon": "631,275 673,275 672,373 629,373"
+    },
+    {
+      "number": 17,
+      "polygon": "672,277 719,278 721,375 675,373"
+    },
+    {
+      "number": 18,
+      "polygon": "721,276 764,276 764,378 722,378"
+    },
+    {
+      "number": 19,
+      "polygon": "768,275 805,277 811,372 808,377 773,378"
+    },
+    {
+      "number": 20,
+      "polygon": "812,279 855,279 856,379 817,378"
+    },
+    {
+      "number": 21,
+      "polygon": "855,276 900,278 902,298 904,376 861,376"
+    },
+    {
+      "number": 22,
+      "polygon": "901,277 949,277 948,375 911,375"
+    },
+    {
+      "number": 23,
+      "polygon": "946,275 992,275 996,373 951,373"
+    }
   ]
 }
