@@ -1,0 +1,30 @@
+{
+  "image": "/images/floor-plans/parking.svg",
+  "image_width": 1441,
+  "image_height": 993,
+  "spots": [
+    { "number": 1, "polygon": "" },
+    { "number": 2, "polygon": "" },
+    { "number": 3, "polygon": "" },
+    { "number": 4, "polygon": "" },
+    { "number": 5, "polygon": "" },
+    { "number": 6, "polygon": "" },
+    { "number": 7, "polygon": "" },
+    { "number": 8, "polygon": "" },
+    { "number": 9, "polygon": "" },
+    { "number": 10, "polygon": "" },
+    { "number": 11, "polygon": "" },
+    { "number": 12, "polygon": "" },
+    { "number": 13, "polygon": "" },
+    { "number": 14, "polygon": "" },
+    { "number": 15, "polygon": "" },
+    { "number": 16, "polygon": "" },
+    { "number": 17, "polygon": "" },
+    { "number": 18, "polygon": "" },
+    { "number": 19, "polygon": "" },
+    { "number": 20, "polygon": "" },
+    { "number": 21, "polygon": "" },
+    { "number": 22, "polygon": "" },
+    { "number": 23, "polygon": "" }
+  ]
+}

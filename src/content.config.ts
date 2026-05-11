@@ -31,4 +31,18 @@ const apartments = defineCollection({
   schema: apartmentSchema,
 });
 
-export const collections = { apartments };
+export const parkingSchema = z.object({
+  number: z.number().int().positive(),
+  // 'surface' = regular outdoor spot; 'surface_ev_ready' = same spot with EV-charger conduit.
+  type: z.enum(['surface', 'surface_ev_ready']),
+  price: z.number().nullable(),
+  status: z.enum(['available', 'reserved', 'sold']),
+  _comment: z.string().optional(),
+});
+
+const parking = defineCollection({
+  loader: glob({ pattern: '*.json', base: './src/content/parking' }),
+  schema: parkingSchema,
+});
+
+export const collections = { apartments, parking };
