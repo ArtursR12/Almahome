@@ -6,7 +6,7 @@
   "price": null,
   "has_terrace": false,
   "has_balcony": true,
-  "status": "available",
+  "status": "reserved",
   "rooms_breakdown": [
     {
       "name_lv": "Virtuve un istaba",
