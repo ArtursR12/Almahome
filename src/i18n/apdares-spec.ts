@@ -34,7 +34,6 @@ const lv: SpecGroup[] = [
     rows: [
       { name: 'Pārseguma konstrukcija', description: 'Saliekami dzelzbetona paneļi. 2. un 3. stāvos izolēti ar akmens vates skaņas un siltuma izolācijas plātnēm 50 mm; 1. stāvā betona grīda siltināta ar putupolistirolu 150 mm.', provider: 'Jā' },
       { name: 'Dzīvojamās zonas', description: 'Lamināts 10 mm KronoOriginal ATL10-K405P, 33. klase, ar substrātu („peldošā grīda"). Grīdlīstes — MDF finierētas, mitrumizturīgas, 16×70 mm XSR 164.', provider: 'Jā', image: '/images/finishes/apdares__gridas001.jpg', imageAlt: 'Lamināta paraugs — KronoOriginal' },
-      { name: 'Sanitārie mezgli', description: 'Flīžu segums. Akmens masas flīzes Italgraniti / Terre Bianco, izmērs 60×60 cm.', provider: 'Jā', image: '/images/finishes/apdares__gridas002.jpg', imageAlt: 'Flīžu paraugs — Italgraniti Terre Bianco' },
     ],
   },
   {
@@ -165,7 +164,6 @@ const ru: SpecGroup[] = [
     rows: [
       { name: 'Конструкция перекрытия', description: 'Сборные железобетонные панели. На 2 и 3 этажах — звуко- и теплоизоляция из каменной ваты 50 мм; на 1 этаже бетонный пол утеплён пенополистиролом 150 мм.', provider: 'Да' },
       { name: 'Жилые зоны', description: 'Ламинат 10 мм KronoOriginal ATL10-K405P, 33 класс, с подложкой («плавающий пол»). Плинтус — МДФ шпонированный, влагостойкий, 16×70 мм XSR 164.', provider: 'Да', image: '/images/finishes/apdares__gridas001.jpg', imageAlt: 'Образец ламината — KronoOriginal' },
-      { name: 'Санузлы', description: 'Плиточное покрытие. Керамогранит Italgraniti / Terre Bianco, размер 60×60 см.', provider: 'Да', image: '/images/finishes/apdares__gridas002.jpg', imageAlt: 'Образец плитки — Italgraniti Terre Bianco' },
     ],
   },
   {
@@ -296,7 +294,6 @@ const en: SpecGroup[] = [
     rows: [
       { name: 'Slab construction', description: 'Precast reinforced-concrete panels. Floors 2 and 3 are insulated with 50 mm stone-wool acoustic + thermal panels; the ground-floor concrete slab is insulated with 150 mm EPS.', provider: 'Yes' },
       { name: 'Living areas', description: 'Laminate 10 mm KronoOriginal ATL10-K405P, class 33, with underlay (floating floor). Skirtings — MDF veneered, moisture-resistant, 16×70 mm XSR 164.', provider: 'Yes', image: '/images/finishes/apdares__gridas001.jpg', imageAlt: 'Laminate sample — KronoOriginal' },
-      { name: 'Bathrooms', description: 'Tile finish. Porcelain tiles Italgraniti / Terre Bianco, 60×60 cm.', provider: 'Yes', image: '/images/finishes/apdares__gridas002.jpg', imageAlt: 'Tile sample — Italgraniti Terre Bianco' },
     ],
   },
   {
