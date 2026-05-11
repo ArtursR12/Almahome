@@ -3,10 +3,11 @@
 
   interface Props {
     apartmentNumber?: number;
+    parkingSpot?: number;
     submitLabel?: string;
     lang?: Locale;
   }
-  let { apartmentNumber, submitLabel, lang = 'lv' }: Props = $props();
+  let { apartmentNumber, parkingSpot = $bindable(), submitLabel, lang = 'lv' }: Props = $props();
 
   const t = useTranslations(lang);
 
@@ -17,7 +18,11 @@
 
   const buttonText = $derived(
     submitLabel ??
-      (apartmentNumber ? `${t('form.submit_apt')} ${apartmentNumber}` : t('form.submit')),
+      (apartmentNumber
+        ? `${t('form.submit_apt')} ${apartmentNumber}`
+        : parkingSpot
+          ? `${t('parkings.form_submit_spot')}${parkingSpot}`
+          : t('form.submit')),
   );
 
   async function onSubmit(e: SubmitEvent) {
@@ -63,6 +68,7 @@
 {:else}
   <form bind:this={formEl} onsubmit={onSubmit} novalidate class="space-y-5">
     <input type="hidden" name="apartmentNumber" value={apartmentNumber ?? ''} />
+    <input type="hidden" name="parkingSpot" value={parkingSpot ?? ''} />
     <!-- Honeypot — visible to bots, hidden from humans. -->
     <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;">
       <label>Website

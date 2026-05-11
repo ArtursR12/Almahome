@@ -369,7 +369,7 @@ function notesFor(a: { has_terrace: boolean; has_balcony: boolean }): string {
     </Container>
   </Section>
 
-  <!-- Parking -->
+  <!-- Parking — teaser linking to the full interactive plan -->
   <Section background="beige" class="!py-16 md:!py-20">
     <Container>
       <div class="grid lg:grid-cols-5 gap-10 lg:gap-14 items-start">
@@ -385,16 +385,22 @@ function notesFor(a: { has_terrace: boolean; has_balcony: boolean }): string {
               </li>
             ))}
           </ul>
+          <a
+            href={getLocalizedUrl('/parkings', lang)}
+            class="mt-6 inline-flex items-center gap-2 text-burgundy hover:text-burgundy-dark transition-colors border-b border-burgundy/30 hover:border-burgundy-dark/60 pb-0.5"
+          >
+            {t('dzivokli.parking_cta_view_all')}
+          </a>
         </div>
         <div class="lg:col-span-3">
-          <div class="rounded-2xl bg-cream border border-ink-muted/15 p-3 md:p-5">
+          <a href={getLocalizedUrl('/parkings', lang)} class="block rounded-2xl bg-cream border border-ink-muted/15 p-3 md:p-5 transition-shadow hover:shadow-lg" aria-label={t('dzivokli.parking_cta_view_all')}>
             <img
               src="/images/floor-plans/parking.svg"
               alt={t('dzivokli.parking_alt')}
               loading="lazy"
               class="w-full h-auto select-none"
             />
-          </div>
+          </a>
         </div>
       </div>
     </Container>

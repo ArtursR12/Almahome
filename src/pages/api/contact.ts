@@ -9,19 +9,22 @@ const WINDOW_MS = 60 * 60 * 1000;
 const LIMIT = 5;
 const ipHits = new Map<string, number[]>();
 
+const optionalIntFromForm = z
+  .union([z.string(), z.number()])
+  .optional()
+  .transform((v) => {
+    if (v === undefined || v === '') return undefined;
+    const n = typeof v === 'number' ? v : parseInt(v, 10);
+    return Number.isFinite(n) ? n : undefined;
+  });
+
 const ContactSchema = z.object({
   name:    z.string().trim().min(2).max(100),
   phone:   z.string().trim().min(6).max(20),
   email:   z.string().trim().email().max(254),
   message: z.string().trim().max(2000).optional().default(''),
-  apartmentNumber: z
-    .union([z.string(), z.number()])
-    .optional()
-    .transform((v) => {
-      if (v === undefined || v === '') return undefined;
-      const n = typeof v === 'number' ? v : parseInt(v, 10);
-      return Number.isFinite(n) ? n : undefined;
-    }),
+  apartmentNumber: optionalIntFromForm,
+  parkingSpot:     optionalIntFromForm,
   honeypot: z.string().optional(),
 });
 
@@ -58,12 +61,16 @@ function ownerEmailHtml(d: {
   email: string;
   message: string;
   apartmentNumber?: number;
+  parkingSpot?: number;
   siteOrigin: string;
 }): string {
   const apt = d.apartmentNumber
     ? `<tr><td style="padding:6px 12px 6px 0;color:#6B5D52;">Dzīvoklis</td><td style="padding:6px 0;color:#2A1F1A;font-weight:600;">
          <a href="${d.siteOrigin}/dzivokli/${d.apartmentNumber}" style="color:#5A1F2A;text-decoration:none;">Nr. ${d.apartmentNumber}</a>
        </td></tr>`
+    : '';
+  const spot = d.parkingSpot
+    ? `<tr><td style="padding:6px 12px 6px 0;color:#6B5D52;">Autostāvvieta</td><td style="padding:6px 0;color:#2A1F1A;font-weight:600;">Nr. ${d.parkingSpot}</td></tr>`
     : '';
   const msg = d.message
     ? `<div style="margin-top:24px;padding:18px;background:#F5EFE6;border-radius:8px;">
@@ -80,14 +87,23 @@ function ownerEmailHtml(d: {
         <tr><td style="padding:6px 12px 6px 0;color:#6B5D52;">Tālrunis</td><td style="padding:6px 0;color:#2A1F1A;"><a href="tel:${escapeHtml(d.phone)}" style="color:#5A1F2A;text-decoration:none;">${escapeHtml(d.phone)}</a></td></tr>
         <tr><td style="padding:6px 12px 6px 0;color:#6B5D52;">E-pasts</td><td style="padding:6px 0;color:#2A1F1A;"><a href="mailto:${escapeHtml(d.email)}" style="color:#5A1F2A;text-decoration:none;">${escapeHtml(d.email)}</a></td></tr>
         ${apt}
+        ${spot}
       </table>
       ${msg}
     </div></body></html>`;
 }
 
-function clientCopyHtml(d: { name: string; apartmentNumber?: number }): string {
-  const aptLine = d.apartmentNumber
-    ? `<p style="margin:0 0 16px;color:#2A1F1A;">Esam saņēmuši Jūsu pieteikumu par dzīvokli <strong>Nr. ${d.apartmentNumber}</strong>.</p>`
+function clientCopyHtml(d: { name: string; apartmentNumber?: number; parkingSpot?: number }): string {
+  const target =
+    d.apartmentNumber && d.parkingSpot
+      ? `par dzīvokli <strong>Nr. ${d.apartmentNumber}</strong> un autostāvvietu <strong>Nr. ${d.parkingSpot}</strong>`
+      : d.apartmentNumber
+        ? `par dzīvokli <strong>Nr. ${d.apartmentNumber}</strong>`
+        : d.parkingSpot
+          ? `par autostāvvietu <strong>Nr. ${d.parkingSpot}</strong>`
+          : null;
+  const aptLine = target
+    ? `<p style="margin:0 0 16px;color:#2A1F1A;">Esam saņēmuši Jūsu pieteikumu ${target}.</p>`
     : `<p style="margin:0 0 16px;color:#2A1F1A;">Esam saņēmuši Jūsu pieteikumu.</p>`;
   return `<!doctype html><html><body style="font-family:Inter,Arial,sans-serif;background:#FAF6EE;margin:0;padding:32px;color:#2A1F1A;">
     <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;padding:32px;">
@@ -138,6 +154,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     email:           raw.email,
     message:         raw.message,
     apartmentNumber: raw.apartmentNumber,
+    parkingSpot:     raw.parkingSpot,
     honeypot:        raw.website,
   });
   if (!parsed.success) {
@@ -156,9 +173,14 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const resend = new Resend(apiKey);
   const url = new URL(request.url);
   const siteOrigin = `${url.protocol}//${url.host}`;
-  const subject = data.apartmentNumber
-    ? `Pieteikums dzīvoklim Nr.${data.apartmentNumber}`
-    : 'Jauns pieteikums no almahome.lv';
+  const subject =
+    data.apartmentNumber && data.parkingSpot
+      ? `Pieteikums: dzīvoklis Nr.${data.apartmentNumber} + autostāvvieta Nr.${data.parkingSpot}`
+      : data.apartmentNumber
+        ? `Pieteikums dzīvoklim Nr.${data.apartmentNumber}`
+        : data.parkingSpot
+          ? `Pieteikums autostāvvietai Nr.${data.parkingSpot}`
+          : 'Jauns pieteikums no almahome.lv';
 
   try {
     const ownerSend = await resend.emails.send({
@@ -176,12 +198,16 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       from: fromEmail,
       to: data.email,
       subject: 'Paldies par pieteikumu — ALMA HOME',
-      html: clientCopyHtml({ name: data.name, apartmentNumber: data.apartmentNumber }),
+      html: clientCopyHtml({
+        name: data.name,
+        apartmentNumber: data.apartmentNumber,
+        parkingSpot: data.parkingSpot,
+      }),
     }).catch((e) => {
       console.error('[contact] Customer copy failed (lead still saved):', e);
     });
 
-    console.log(`[contact] Sent: ${data.email} → apt=${data.apartmentNumber ?? '—'} ip=${ip}`);
+    console.log(`[contact] Sent: ${data.email} → apt=${data.apartmentNumber ?? '—'} spot=${data.parkingSpot ?? '—'} ip=${ip}`);
     return Response.json({ ok: true }, { status: 200 });
   } catch (e) {
     console.error('[contact] Send failed:', e);

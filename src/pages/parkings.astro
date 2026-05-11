@@ -1,0 +1,442 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Section from '@/components/ui/Section.astro';
+import BottomCTA from '@/components/layout/BottomCTA.astro';
+import ContactForm from '@/components/forms/ContactForm.svelte';
+import SectionKicker from '@/components/ui/SectionKicker.astro';
+import parkingPolygons from '@/data/parking-spots.json';
+import { getLocaleFromUrl, useTranslations, formatPrice } from '@/i18n/utils';
+
+const lang = getLocaleFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+const spots = (await getCollection('parking'))
+  .map((s) => s.data)
+  .sort((a, b) => a.number - b.number);
+
+const polygonByNumber = new Map(
+  (parkingPolygons.spots ?? []).map((p) => [p.number, p.polygon]),
+);
+
+const counts = {
+  total:     spots.length,
+  available: spots.filter((s) => s.status === 'available').length,
+  reserved:  spots.filter((s) => s.status === 'reserved').length,
+  sold:      spots.filter((s) => s.status === 'sold').length,
+};
+
+const statusDict = {
+  available: { label: t('status.available'), bg: 'bg-status-available/15', dot: 'bg-status-available', text: 'text-status-available' },
+  reserved:  { label: t('status.reserved'),  bg: 'bg-status-reserved/20',  dot: 'bg-status-reserved',  text: 'text-[#8a7531]' },
+  sold:      { label: t('status.sold'),      bg: 'bg-status-sold/15',      dot: 'bg-status-sold',      text: 'text-ink-muted' },
+} as const;
+
+function typeLabel(type: string): string {
+  return type === 'surface_ev_ready'
+    ? t('parkings.type_surface_ev_ready')
+    : t('parkings.type_surface');
+}
+---
+<BaseLayout
+  lang={lang}
+  title={t('parkings.title')}
+  description={t('parkings.description')}
+>
+  <!-- Hero -->
+  <Section background="cream" class="!pt-16 md:!pt-20">
+    <Container>
+      <div class="text-center mb-10">
+        <SectionKicker align="center">{t('parkings.hero_kicker')}</SectionKicker>
+        <h1 class="mt-4 font-serif text-5xl md:text-6xl text-burgundy">{t('parkings.hero_title')}</h1>
+        <p class="mt-4 text-ink-muted max-w-2xl mx-auto">
+          {t('parkings.hero_subtitle')}
+        </p>
+      </div>
+
+      <!-- Stat ribbon -->
+      <div class="mx-auto max-w-3xl grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
+        <div class="rounded-xl bg-beige/60 px-4 py-3 text-center">
+          <div class="text-xs uppercase tracking-[0.2em] text-ink-muted">{t('common.kopa')}</div>
+          <div class="mt-1 font-serif text-2xl text-burgundy tabular-nums">{counts.total}</div>
+        </div>
+        <div class="rounded-xl bg-status-available/10 px-4 py-3 text-center">
+          <div class="text-xs uppercase tracking-[0.2em] text-status-available">{t('status.available')}</div>
+          <div class="mt-1 font-serif text-2xl text-status-available tabular-nums">{counts.available}</div>
+        </div>
+        <div class="rounded-xl bg-status-reserved/15 px-4 py-3 text-center">
+          <div class="text-xs uppercase tracking-[0.2em] text-[#8a7531]">{t('status.reserved')}</div>
+          <div class="mt-1 font-serif text-2xl text-[#8a7531] tabular-nums">{counts.reserved}</div>
+        </div>
+        <div class="rounded-xl bg-status-sold/10 px-4 py-3 text-center">
+          <div class="text-xs uppercase tracking-[0.2em] text-ink-muted">{t('status.sold')}</div>
+          <div class="mt-1 font-serif text-2xl text-ink-muted tabular-nums">{counts.sold}</div>
+        </div>
+      </div>
+
+      <!-- Plan -->
+      <div class="mb-12">
+        <div class="flex flex-wrap items-baseline justify-between gap-3 mb-5">
+          <p class="text-xs uppercase tracking-[0.25em] text-ink-muted">{t('parkings.plan_kicker')}</p>
+          <p class="text-xs text-ink-muted/80">{t('parkings.plan_kicker_note')}</p>
+        </div>
+        <div class="rounded-2xl bg-cream border border-ink-muted/15 p-4 md:p-6">
+          <svg
+            viewBox={`0 0 ${parkingPolygons.image_width} ${parkingPolygons.image_height}`}
+            role="img"
+            aria-label={t('parkings.plan_kicker')}
+            class="w-full h-auto select-none"
+          >
+            <image href={parkingPolygons.image} width={parkingPolygons.image_width} height={parkingPolygons.image_height} />
+            {spots.map((s) => {
+              const polygon = polygonByNumber.get(s.number);
+              if (!polygon) return null;
+              const fillClass =
+                s.status === 'available' ? 'fill-status-available' :
+                s.status === 'reserved'  ? 'fill-status-reserved'  :
+                                           'fill-status-sold';
+              const clickable = s.status === 'available';
+              return (
+                <a
+                  href={clickable ? `#parking-form` : undefined}
+                  aria-label={`Nr.${s.number} — ${statusDict[s.status].label}`}
+                >
+                  <polygon
+                    points={polygon}
+                    class:list={[
+                      'spot-polygon transition-opacity',
+                      fillClass,
+                      clickable ? 'cursor-pointer' : 'cursor-not-allowed',
+                    ]}
+                    fill-opacity="0.22"
+                    stroke="transparent"
+                    stroke-width="2"
+                    data-number={s.number}
+                    data-status={s.status}
+                    data-status-label={statusDict[s.status].label}
+                    data-type={s.type}
+                    data-type-label={typeLabel(s.type)}
+                    data-price={formatPrice(s.price, lang, s.status)}
+                  />
+                </a>
+              );
+            })}
+          </svg>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="flex flex-col md:flex-row md:items-center gap-4 mb-5" data-spot-filters>
+        <p class="text-xs uppercase tracking-[0.25em] text-ink-muted shrink-0">{t('parkings.list_kicker')}</p>
+        <div class="flex flex-wrap gap-2 md:ml-auto">
+          {(['all', 'available', 'reserved', 'sold'] as const).map((s) => (
+            <button
+              type="button"
+              data-filter-status={s}
+              class:list={[
+                'spot-filter inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm transition-colors',
+                s === 'all' ? 'bg-burgundy text-cream border-burgundy' : 'bg-cream border-ink-muted/20 text-ink hover:border-burgundy hover:text-burgundy',
+              ]}
+            >
+              {s === 'all' ? t('parkings.filter_all') : t(`status.${s}`)}
+            </button>
+          ))}
+        </div>
+        <div class="flex flex-wrap gap-2">
+          {(['all', 'surface', 'ev'] as const).map((tp) => (
+            <button
+              type="button"
+              data-filter-type={tp}
+              class:list={[
+                'spot-filter-type inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm transition-colors',
+                tp === 'all' ? 'bg-beige text-ink border-beige' : 'bg-cream border-ink-muted/20 text-ink hover:border-burgundy hover:text-burgundy',
+              ]}
+            >
+              {tp === 'all'
+                ? t('parkings.filter_type_all')
+                : tp === 'surface'
+                  ? t('parkings.filter_type_surface')
+                  : t('parkings.filter_type_ev')}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <!-- Table (desktop) -->
+      <div class="hidden md:block rounded-2xl bg-cream border border-ink-muted/15 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-beige/60 text-left">
+            <tr class="text-xs uppercase tracking-[0.2em] text-ink-muted">
+              <th class="px-5 py-3 w-[80px]">{t('parkings.table_number')}</th>
+              <th class="px-5 py-3">{t('parkings.table_type')}</th>
+              <th class="px-5 py-3 w-[160px]">{t('parkings.table_price')}</th>
+              <th class="px-5 py-3 w-[140px]">{t('parkings.table_status')}</th>
+              <th class="px-5 py-3 w-[160px] text-right pr-6">{t('parkings.table_action')}</th>
+            </tr>
+          </thead>
+          <tbody data-spot-tbody>
+            {spots.map((s) => {
+              const sd = statusDict[s.status];
+              const ev = s.type === 'surface_ev_ready';
+              return (
+                <tr
+                  class="spot-row border-t border-ink-muted/10 transition-colors hover:bg-beige/30"
+                  data-number={s.number}
+                  data-status={s.status}
+                  data-type={s.type}
+                >
+                  <td class="px-5 py-4">
+                    <span class="font-serif text-xl text-burgundy">{s.number}</span>
+                  </td>
+                  <td class="px-5 py-4 text-ink flex items-center gap-2">
+                    <span>{typeLabel(s.type)}</span>
+                    {ev && (
+                      <span class="inline-flex items-center rounded-md bg-burgundy/8 text-burgundy text-[10px] uppercase tracking-[0.2em] px-1.5 py-0.5">{t('parkings.type_short_ev')}</span>
+                    )}
+                  </td>
+                  <td class="px-5 py-4 text-ink tabular-nums">{formatPrice(s.price, lang, s.status)}</td>
+                  <td class="px-5 py-4">
+                    <span class:list={['inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium', sd.bg, sd.text]}>
+                      <span class:list={['h-1.5 w-1.5 rounded-full', sd.dot]} aria-hidden="true"></span>
+                      {sd.label}
+                    </span>
+                  </td>
+                  <td class="px-5 py-4 text-right pr-6">
+                    {s.status === 'available' ? (
+                      <a
+                        href={`#parking-form`}
+                        class="js-spot-request inline-flex items-center gap-1 text-sm text-burgundy hover:underline underline-offset-4"
+                        data-spot={s.number}
+                      >
+                        {t('parkings.request_cta')} →
+                      </a>
+                    ) : (
+                      <span class="text-xs text-ink-muted">—</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <p id="empty-state-spots" class="hidden text-center py-10 text-ink-muted text-sm">{t('parkings.empty')}</p>
+      </div>
+
+      <!-- Cards (mobile) -->
+      <div class="md:hidden space-y-3" data-spot-cards>
+        {spots.map((s) => {
+          const sd = statusDict[s.status];
+          const ev = s.type === 'surface_ev_ready';
+          const clickable = s.status === 'available';
+          return (
+            <div
+              class="spot-row block rounded-xl bg-cream border border-ink-muted/15 p-4"
+              data-number={s.number}
+              data-status={s.status}
+              data-type={s.type}
+            >
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <span class="font-serif text-2xl text-burgundy">Nr. {s.number}</span>
+                  <div class="mt-1 text-sm text-ink-muted">
+                    {typeLabel(s.type)}
+                    {ev && (
+                      <span class="inline-flex items-center rounded-md bg-burgundy/8 text-burgundy text-[10px] uppercase tracking-[0.2em] px-1.5 py-0.5 ml-2">{t('parkings.type_short_ev')}</span>
+                    )}
+                  </div>
+                </div>
+                <span class:list={['inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-[11px] font-medium whitespace-nowrap', sd.bg, sd.text]}>
+                  <span class:list={['h-1.5 w-1.5 rounded-full', sd.dot]} aria-hidden="true"></span>
+                  {sd.label}
+                </span>
+              </div>
+              <div class="mt-3 flex items-baseline justify-between gap-2">
+                <span class="font-serif text-lg text-burgundy tabular-nums">{formatPrice(s.price, lang, s.status)}</span>
+                {clickable && (
+                  <a href={`#parking-form`} class="js-spot-request text-sm text-burgundy underline underline-offset-4" data-spot={s.number}>
+                    {t('parkings.request_cta')} →
+                  </a>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Container>
+  </Section>
+
+  <!-- Inquiry form -->
+  <Section background="beige" id="parking-form">
+    <Container>
+      <div class="max-w-2xl mx-auto">
+        <div class="text-center mb-10">
+          <SectionKicker align="center">{t('parkings.hero_kicker')}</SectionKicker>
+          <h2 class="mt-3 font-serif text-3xl md:text-4xl text-burgundy">{t('parkings.form_title')}</h2>
+          <p class="mt-3 text-ink-muted">{t('parkings.form_subtitle')}</p>
+          <p id="parking-form-selected" class="mt-3 text-sm text-burgundy font-medium hidden"></p>
+        </div>
+
+        <div class="bg-cream rounded-xl p-6 md:p-8">
+          <ContactForm lang={lang} submitLabel={t('parkings.form_submit')} client:load />
+        </div>
+      </div>
+    </Container>
+  </Section>
+
+  <BottomCTA lang={lang} background="cream" />
+</BaseLayout>
+
+<script>
+  // === Filters: status + type ===
+  const statusBtns = document.querySelectorAll<HTMLButtonElement>('[data-filter-status]');
+  const typeBtns = document.querySelectorAll<HTMLButtonElement>('[data-filter-type]');
+  const rows = document.querySelectorAll<HTMLElement>('.spot-row');
+  const emptyState = document.getElementById('empty-state-spots');
+
+  let activeStatus: string = 'all';
+  let activeType: string = 'all';
+
+  function applyFilters() {
+    let visible = 0;
+    rows.forEach((row) => {
+      const status = row.dataset.status ?? '';
+      const type = row.dataset.type ?? '';
+      const statusOk = activeStatus === 'all' || status === activeStatus;
+      const typeOk =
+        activeType === 'all' ||
+        (activeType === 'surface' && type === 'surface') ||
+        (activeType === 'ev' && type === 'surface_ev_ready');
+      const show = statusOk && typeOk;
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    if (emptyState) emptyState.classList.toggle('hidden', visible > 0);
+  }
+
+  function highlightActive<T extends HTMLElement>(buttons: NodeListOf<T>, current: string, dataAttr: string) {
+    buttons.forEach((b) => {
+      const isActive = (b.dataset[dataAttr] ?? '') === current;
+      b.classList.toggle('bg-burgundy', isActive && dataAttr === 'filterStatus');
+      b.classList.toggle('text-cream', isActive && dataAttr === 'filterStatus');
+      b.classList.toggle('border-burgundy', isActive && dataAttr === 'filterStatus');
+      b.classList.toggle('bg-beige', isActive && dataAttr === 'filterType');
+      b.classList.toggle('border-beige', isActive && dataAttr === 'filterType');
+      if (!isActive) {
+        b.classList.remove('bg-burgundy', 'text-cream', 'border-burgundy', 'bg-beige', 'border-beige');
+        b.classList.add('bg-cream', 'border-ink-muted/20', 'text-ink');
+      } else {
+        b.classList.remove('bg-cream', 'border-ink-muted/20');
+      }
+    });
+  }
+
+  statusBtns.forEach((b) => {
+    b.addEventListener('click', () => {
+      activeStatus = b.dataset.filterStatus ?? 'all';
+      highlightActive(statusBtns, activeStatus, 'filterStatus');
+      applyFilters();
+    });
+  });
+  typeBtns.forEach((b) => {
+    b.addEventListener('click', () => {
+      activeType = b.dataset.filterType ?? 'all';
+      highlightActive(typeBtns, activeType, 'filterType');
+      applyFilters();
+    });
+  });
+
+  // === Request CTA: smooth-scroll + prefill the form's hidden parkingSpot ===
+  function setSelectedSpot(spot: number) {
+    const form = document.querySelector<HTMLFormElement>('#parking-form form');
+    if (!form) return;
+    let input = form.querySelector<HTMLInputElement>('input[name="parkingSpot"]');
+    if (!input) {
+      input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'parkingSpot';
+      form.appendChild(input);
+    }
+    input.value = String(spot);
+    // Update visible selected indicator + button label.
+    const indicator = document.getElementById('parking-form-selected');
+    if (indicator) {
+      indicator.textContent = `Nr. ${spot}`;
+      indicator.classList.remove('hidden');
+    }
+    const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (btn && !btn.disabled) {
+      // The Svelte derived label uses props; for hidden-input-driven prefill we
+      // just append the number into the existing label without remounting.
+      const baseLabel = btn.textContent?.replace(/Nr\.\s*\d+$/, '').trim() ?? '';
+      // Only rewrite if the label doesn't already include this spot.
+      if (!new RegExp(`Nr\\.?\\s*${spot}\\b`).test(btn.textContent ?? '')) {
+        btn.textContent = `${baseLabel} Nr.${spot}`;
+      }
+    }
+  }
+
+  function scrollToFormAndFocus() {
+    document.getElementById('parking-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => {
+      const nameInput = document.querySelector<HTMLInputElement>('#parking-form #cf-name');
+      nameInput?.focus({ preventScroll: true });
+    }, 500);
+  }
+
+  document.querySelectorAll<HTMLAnchorElement>('a.js-spot-request').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      const spot = parseInt(a.dataset.spot ?? '', 10);
+      if (!Number.isFinite(spot)) return;
+      e.preventDefault();
+      setSelectedSpot(spot);
+      scrollToFormAndFocus();
+    });
+  });
+
+  // Polygon click on the plan: same path as the table CTAs.
+  document.querySelectorAll<SVGPolygonElement>('.spot-polygon[data-status="available"]').forEach((p) => {
+    p.addEventListener('click', (e) => {
+      e.preventDefault();
+      const spot = parseInt(p.dataset.number ?? '', 10);
+      if (!Number.isFinite(spot)) return;
+      setSelectedSpot(spot);
+      scrollToFormAndFocus();
+    });
+  });
+
+  // === Two-way hover sync: polygon ↔ row ===
+  function hover(num: number | null) {
+    document.querySelectorAll<HTMLElement>(`.spot-row`).forEach((r) => {
+      const match = r.dataset.number === String(num);
+      r.classList.toggle('ring-1', match);
+      r.classList.toggle('ring-burgundy/40', match);
+      r.classList.toggle('bg-beige/40', match);
+    });
+    document.querySelectorAll<SVGPolygonElement>('.spot-polygon').forEach((p) => {
+      const match = p.dataset.number === String(num);
+      p.setAttribute('fill-opacity', match ? '0.5' : '0.22');
+    });
+  }
+  document.querySelectorAll<SVGPolygonElement>('.spot-polygon').forEach((p) => {
+    p.addEventListener('mouseenter', () => hover(parseInt(p.dataset.number ?? '', 10)));
+    p.addEventListener('mouseleave', () => hover(null));
+  });
+  document.querySelectorAll<HTMLElement>('.spot-row').forEach((r) => {
+    r.addEventListener('mouseenter', () => hover(parseInt(r.dataset.number ?? '', 10)));
+    r.addEventListener('mouseleave', () => hover(null));
+  });
+
+  // Deep link: /parkings?spot=12 prefills the form on load.
+  const urlSpot = new URLSearchParams(location.search).get('spot');
+  if (urlSpot) {
+    const spot = parseInt(urlSpot, 10);
+    if (Number.isFinite(spot)) {
+      // Wait a tick so the Svelte form has mounted before we touch the input.
+      setTimeout(() => {
+        setSelectedSpot(spot);
+        scrollToFormAndFocus();
+      }, 100);
+    }
+  }
+</script>
