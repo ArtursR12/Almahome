@@ -282,7 +282,10 @@
     "other_kicker": "Citi pieejamie dzīvokļi",
     "other_title": "Apskati arī šos",
     "other_link_all": "Visi dzīvokļi →",
-    "card_plan_label": "Plānojums Nr."
+    "card_plan_label": "Plānojums Nr.",
+    "print_cta": "Drukāt plānu",
+    "print_footer_contact": "Mores iela 15, Rīga · +371 26 148 011 · info@almahome.lv",
+    "print_total_label": "Kopā"
   },
   "bottom_cta": {
     "title": "Vēlaties uzzināt vairāk?",

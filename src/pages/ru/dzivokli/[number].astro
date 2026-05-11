@@ -7,6 +7,7 @@ import Button from '@/components/ui/Button.astro';
 import PhotoOrPlaceholder from '@/components/ui/PhotoOrPlaceholder.astro';
 import ContactForm from '@/components/forms/ContactForm.svelte';
 import BottomCTA from '@/components/layout/BottomCTA.astro';
+import ApartmentPrintSheet from '@/components/apartments/ApartmentPrintSheet.astro';
 import { getLocaleFromUrl, useTranslations, getLocalizedUrl, formatPrice, localizedRoomName, roomsLabel } from '@/i18n/utils';
 
 export const prerender = true;
@@ -219,6 +220,19 @@ const apartmentSchema: Record<string, unknown> = {
               label={`${t('apartment_detail.card_plan_label')}${a.number}`}
               class="w-full h-auto object-contain max-h-[60vh] lg:max-h-[70vh] mx-auto"
             />
+            <div class="mt-4 flex justify-end">
+              <button
+                type="button"
+                class="js-print-plan inline-flex items-center gap-2 text-sm text-burgundy hover:text-burgundy-dark transition-colors group"
+              >
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M6 9V2h12v7" />
+                  <rect x="6" y="14" width="12" height="8" rx="1" />
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                </svg>
+                <span class="border-b border-burgundy/30 group-hover:border-burgundy-dark/60">{t('apartment_detail.print_cta')}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -277,7 +291,23 @@ const apartmentSchema: Record<string, unknown> = {
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
+    document.querySelectorAll<HTMLButtonElement>('button.js-print-plan').forEach((btn) => {
+      btn.addEventListener('click', () => window.print());
+    });
   </script>
+
+  <ApartmentPrintSheet
+    number={a.number}
+    floor={a.floor}
+    rooms={a.rooms}
+    area_total={a.area_total}
+    price={a.price}
+    has_terrace={a.has_terrace}
+    has_balcony={a.has_balcony}
+    rooms_breakdown={a.rooms_breakdown}
+    floor_plan_image={a.floor_plan_image}
+    lang={lang}
+  />
 
   <!-- Other available -->
   {otherAvailable.length > 0 && (

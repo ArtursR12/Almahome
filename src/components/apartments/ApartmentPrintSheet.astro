@@ -1,0 +1,209 @@
+---
+// Print-only sheet for the apartment detail page. Hidden on screen; when the
+// user triggers print, @media print hides the rest of the page and reveals this
+// block sized for A4. Inline styles for predictable print output across browsers.
+import {
+  useTranslations,
+  formatPrice,
+  localizedRoomName,
+  roomsLabel,
+  type Locale,
+} from '@/i18n/utils';
+
+interface RoomBreakdown {
+  name_lv: string;
+  name_ru: string;
+  name_en: string;
+  area: number;
+}
+
+interface Props {
+  number: number;
+  floor: number;
+  rooms: number;
+  area_total: number;
+  price: number | null;
+  has_terrace: boolean;
+  has_balcony: boolean;
+  rooms_breakdown: RoomBreakdown[];
+  floor_plan_image: string;
+  lang: Locale;
+}
+
+const a = Astro.props;
+const t = useTranslations(a.lang);
+
+const featureBits: string[] = [
+  a.has_terrace ? t('common.terrace') : '',
+  a.has_balcony ? t('common.balcony') : '',
+].filter(Boolean);
+---
+<aside class="apt-print-sheet" aria-hidden="true">
+  <header class="aps-head">
+    <div>
+      <div class="aps-brand">ALMA HOME</div>
+      <div class="aps-kicker">{t('apartment_detail.kicker')} {t('apartment_detail.label_number')}{a.number}</div>
+      <div class="aps-meta">
+        {a.floor}. {t('common.floor_long')} · {a.rooms} {roomsLabel(a.rooms, a.lang)} · {a.area_total} m²
+        {featureBits.length > 0 ? ` · ${featureBits.join(' · ')}` : ''}
+      </div>
+    </div>
+    <div class="aps-price">
+      <div class="aps-kicker">{t('apartment_detail.price_label')}</div>
+      <div class="aps-price-val">{formatPrice(a.price, a.lang)}</div>
+    </div>
+  </header>
+
+  <div class="aps-body">
+    <div class="aps-plan">
+      <img src={a.floor_plan_image} alt={`${t('apartment_detail.card_plan_label')}${a.number}`} />
+    </div>
+    <div class="aps-rooms">
+      <div class="aps-kicker">{t('apartment_detail.rooms_breakdown_label')}</div>
+      <table>
+        <tbody>
+          {a.rooms_breakdown.map((r) => (
+            <tr>
+              <td>{localizedRoomName(r, a.lang)}</td>
+              <td class="aps-num">{r.area} m²</td>
+            </tr>
+          ))}
+          <tr class="aps-total">
+            <td>{t('apartment_detail.print_total_label')}</td>
+            <td class="aps-num">{a.area_total} m²</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer class="aps-foot">
+    <div>{t('apartment_detail.print_footer_contact')}</div>
+    <div class="aps-url">almahome.lv</div>
+  </footer>
+</aside>
+
+<style is:global>
+  /* Off-screen on regular viewing. The print stylesheet flips it into view. */
+  .apt-print-sheet { display: none; }
+
+  @media print {
+    /* Strip the entire page to white, then reveal only the print sheet. */
+    html, body {
+      background: #fff !important;
+      color: #000 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    body * { visibility: hidden !important; }
+    .apt-print-sheet, .apt-print-sheet * { visibility: visible !important; }
+    .apt-print-sheet {
+      display: block !important;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      padding: 14mm 14mm 10mm;
+      box-sizing: border-box;
+      color: #111;
+      font-family: "Inter", system-ui, sans-serif;
+      font-size: 10pt;
+      line-height: 1.4;
+    }
+    @page { size: A4 portrait; margin: 0; }
+
+    .apt-print-sheet .aps-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12mm;
+      padding-bottom: 6mm;
+      border-bottom: 1px solid #999;
+    }
+    .apt-print-sheet .aps-brand {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 11pt;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: #555;
+    }
+    .apt-print-sheet .aps-kicker {
+      font-size: 8pt;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #666;
+    }
+    .apt-print-sheet .aps-head .aps-kicker { margin-top: 3mm; }
+    .apt-print-sheet .aps-meta {
+      margin-top: 2mm;
+      font-size: 11pt;
+      color: #444;
+    }
+    .apt-print-sheet .aps-head > div:first-child .aps-kicker {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 22pt;
+      letter-spacing: 0.04em;
+      text-transform: none;
+      color: #111;
+      margin-top: 2mm;
+    }
+    .apt-print-sheet .aps-price { text-align: right; }
+    .apt-print-sheet .aps-price-val {
+      margin-top: 2mm;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 24pt;
+      color: #5A1F2A;
+    }
+
+    .apt-print-sheet .aps-body {
+      display: flex;
+      gap: 10mm;
+      margin-top: 8mm;
+    }
+    .apt-print-sheet .aps-plan { flex: 2; }
+    .apt-print-sheet .aps-plan img {
+      width: 100%;
+      height: auto;
+      max-height: 180mm;
+      object-fit: contain;
+      display: block;
+    }
+    .apt-print-sheet .aps-rooms { flex: 1; }
+    .apt-print-sheet .aps-rooms .aps-kicker { margin-bottom: 4mm; }
+    .apt-print-sheet .aps-rooms table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10pt;
+    }
+    .apt-print-sheet .aps-rooms td {
+      padding: 2mm 0;
+      border-bottom: 1px solid #e6e6e6;
+    }
+    .apt-print-sheet .aps-num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .apt-print-sheet .aps-rooms tr.aps-total td {
+      border-top: 1.5pt solid #555;
+      border-bottom: none;
+      padding-top: 3mm;
+      font-weight: 600;
+      color: #111;
+    }
+    .apt-print-sheet .aps-rooms tr.aps-total td:last-child { color: #5A1F2A; }
+
+    .apt-print-sheet .aps-foot {
+      position: absolute;
+      left: 14mm;
+      right: 14mm;
+      bottom: 8mm;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 8.5pt;
+      color: #666;
+      border-top: 1px solid #ccc;
+      padding-top: 3mm;
+    }
+    .apt-print-sheet .aps-foot .aps-url { letter-spacing: 0.1em; }
+  }
+</style>
