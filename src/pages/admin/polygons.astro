@@ -5,9 +5,11 @@ import '@/styles/globals.css';
 
 export const prerender = false;
 
-// Read floor-plans.json fresh on every request — middleware enforces auth.
-const jsonPath = path.join(process.cwd(), 'src', 'data', 'floor-plans.json');
-const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
+// Read both polygon files fresh on every request — middleware enforces auth.
+const apartmentsPath = path.join(process.cwd(), 'src', 'data', 'floor-plans.json');
+const parkingPath    = path.join(process.cwd(), 'src', 'data', 'parking-spots.json');
+
+const apartmentsData = JSON.parse(fs.readFileSync(apartmentsPath, 'utf-8')) as {
   image_width: number;
   image_height: number;
   floors: Array<{
@@ -16,6 +18,17 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
     apartments: Array<{ number: number; polygon: string }>;
   }>;
 };
+
+const parkingData = JSON.parse(fs.readFileSync(parkingPath, 'utf-8')) as {
+  image: string;
+  image_width: number;
+  image_height: number;
+  spots: Array<{ number: number; polygon: string }>;
+};
+
+// Pre-compute a max viewBox so the SVG element can render either dataset without
+// re-creating the element. JS will swap the viewBox attr per dataset.
+const initialView = apartmentsData; // boot on apartments view
 ---
 <!doctype html>
 <html lang="lv" class="bg-zinc-950">
@@ -40,6 +53,8 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
         <span class="text-xs uppercase tracking-widest text-zinc-500">Admin · Poligoni</span>
       </div>
       <div class="flex items-center gap-3">
+        <a href="/admin" class="text-sm text-zinc-400 hover:text-zinc-100 transition-colors hidden md:inline">Dzīvokļi</a>
+        <a href="/admin/parking" class="text-sm text-zinc-400 hover:text-zinc-100 transition-colors hidden md:inline">Autostāvvietas</a>
         <span id="save-status" class="text-sm text-zinc-400 min-w-0 truncate max-w-[280px]"></span>
         <span id="dirty-dot" class="inline-block w-2 h-2 rounded-full bg-amber-400 opacity-0 transition-opacity" aria-hidden="true"></span>
         <button id="reset-btn" type="button" class="text-sm rounded-md bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 transition-colors">
@@ -56,13 +71,24 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
     <div class="mb-6">
       <h1 class="font-serif text-3xl text-zinc-50">Poligonu rediģēšana</h1>
       <p class="mt-2 text-sm text-zinc-400 max-w-3xl">
-        Klikšķis uz dzīvokļa, lai to izvēlētos — parādās punktu marķieri. Velc punktu, lai pārvietotu. Vēlreiz klikšķis uz izvēlētā dzīvokļa malas pievieno jaunu punktu (jābūt tuvu malai). Labais klikšķis uz punkta to dzēš (min. 3 punkti).
+        Klikšķis uz elementa, lai to izvēlētos — parādās punktu marķieri. Velc punktu, lai pārvietotu. Vēlreiz klikšķis uz izvēlētā elementa malas pievieno jaunu punktu (jābūt tuvu malai). Labais klikšķis uz punkta to dzēš (min. 3 punkti).
         Saglabājot, izmaiņas tiek commitētas GitHub un publicētas pēc ~30 sekundēm.
       </p>
     </div>
 
-    <div class="flex gap-2 mb-6">
-      {data.floors.map((f, i) => (
+    <!-- Dataset switcher -->
+    <div class="flex gap-2 mb-4">
+      <button data-dataset="apartments" type="button" class="dataset-tab px-4 py-2 rounded-md text-sm font-medium bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors">
+        Dzīvokļi
+      </button>
+      <button data-dataset="parking" type="button" class="dataset-tab px-4 py-2 rounded-md text-sm font-medium bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors">
+        Autostāvvietas
+      </button>
+    </div>
+
+    <!-- Floor tabs (only meaningful for apartments) -->
+    <div id="floor-tabs-wrap" class="flex gap-2 mb-6">
+      {apartmentsData.floors.map((f, i) => (
         <button
           data-floor-tab={i}
           type="button"
@@ -77,11 +103,11 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
       <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
         <svg
           id="editor-svg"
-          viewBox={`0 0 ${data.image_width} ${data.image_height}`}
+          viewBox={`0 0 ${initialView.image_width} ${initialView.image_height}`}
           class="editor-svg w-full h-auto block touch-none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <image id="floor-image" href="" x="0" y="0" width={data.image_width} height={data.image_height} preserveAspectRatio="xMidYMid meet" />
+          <image id="floor-image" href="" x="0" y="0" width={initialView.image_width} height={initialView.image_height} preserveAspectRatio="xMidYMid meet" />
           <g id="polys"></g>
           <g id="handles"></g>
         </svg>
@@ -89,64 +115,90 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
       <aside class="space-y-4">
         <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
           <div class="text-xs uppercase tracking-widest text-zinc-500 mb-2">Izvēlēts</div>
-          <div id="polygon-meta" class="text-sm text-zinc-300 mb-2">— izvēlies dzīvokli —</div>
+          <div id="polygon-meta" class="text-sm text-zinc-300 mb-2">— izvēlies elementu —</div>
           <pre id="polygon-info" class="text-[11px] text-emerald-300 whitespace-pre-wrap break-all font-mono leading-relaxed bg-zinc-950/70 rounded p-2 max-h-48 overflow-auto"></pre>
         </div>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+          <div class="text-xs uppercase tracking-widest text-zinc-500 mb-3">Elementi</div>
+          <div id="item-list" class="grid grid-cols-4 gap-1.5"></div>
+        </div>
         <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-xs text-zinc-400 space-y-2">
-          <div><b class="text-zinc-200">Klikšķis</b> uz dzīvokļa — izvēlas</div>
+          <div><b class="text-zinc-200">Klikšķis</b> sarakstā vai uz poligona — izvēlas</div>
+          <div><b class="text-zinc-200">Klikšķis</b> uz fona (kad izvēlēts tukšs) — sāk poligonu</div>
           <div><b class="text-zinc-200">Velkot</b> punktu — pārvieto</div>
           <div><b class="text-zinc-200">Klikšķis</b> 2. reizi uz malas — pievieno punktu</div>
           <div><b class="text-zinc-200">Labais klikšķis</b> uz punkta — dzēš</div>
-          <div><b class="text-zinc-200">Klikšķis ārpus</b> — atceļ izvēli</div>
         </div>
         <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 text-xs text-zinc-500">
           <div class="flex items-center gap-2 mb-2"><span class="inline-block w-3 h-3 rounded bg-emerald-400/60 border border-emerald-400"></span> izvēlēts</div>
-          <div class="flex items-center gap-2"><span class="inline-block w-3 h-3 rounded bg-zinc-100/20 border border-zinc-100/50"></span> citi</div>
+          <div class="flex items-center gap-2 mb-2"><span class="inline-block w-3 h-3 rounded bg-zinc-100/20 border border-zinc-100/50"></span> ir poligons</div>
+          <div class="flex items-center gap-2"><span class="inline-block w-3 h-3 rounded border border-dashed border-amber-400/70"></span> tukšs</div>
         </div>
       </aside>
     </div>
   </main>
 
-  <script is:inline define:vars={{ initial: data }}>
+  <script is:inline define:vars={{ initialApartments: apartmentsData, initialParking: parkingData }}>
     'use strict';
     const SVG_NS = 'http://www.w3.org/2000/svg';
 
-    // Clone via JSON so we have an immutable snapshot for Reset.
-    const snapshot = JSON.stringify(initial);
+    // Two independent working copies + snapshots for Reset.
+    const apartmentsSnapshot = JSON.stringify(initialApartments);
+    const parkingSnapshot    = JSON.stringify(initialParking);
+
     const state = {
-      data: JSON.parse(snapshot),
-      floorIdx: 0,
-      selectedApt: null,
-      dirty: false,
+      apartments: JSON.parse(apartmentsSnapshot),
+      parking:    JSON.parse(parkingSnapshot),
+      dataset: 'apartments',   // 'apartments' | 'parking'
+      floorIdx: 0,             // only meaningful when dataset === 'apartments'
+      selectedNumber: null,    // selected polygon's number (apt# or spot#)
+      dirty: { apartments: false, parking: false },
     };
 
-    const svg = document.getElementById('editor-svg');
+    const svg          = document.getElementById('editor-svg');
     const floorImageEl = document.getElementById('floor-image');
-    const polysG = document.getElementById('polys');
-    const handlesG = document.getElementById('handles');
-    const statusEl = document.getElementById('save-status');
-    const dirtyDot = document.getElementById('dirty-dot');
-    const polygonInfo = document.getElementById('polygon-info');
-    const polygonMeta = document.getElementById('polygon-meta');
-    const floorTabs = document.querySelectorAll('[data-floor-tab]');
-    const saveBtn = document.getElementById('save-btn');
-    const resetBtn = document.getElementById('reset-btn');
+    const polysG       = document.getElementById('polys');
+    const handlesG     = document.getElementById('handles');
+    const statusEl     = document.getElementById('save-status');
+    const dirtyDot     = document.getElementById('dirty-dot');
+    const polygonInfo  = document.getElementById('polygon-info');
+    const polygonMeta  = document.getElementById('polygon-meta');
+    const floorTabs    = document.querySelectorAll('[data-floor-tab]');
+    const datasetTabs  = document.querySelectorAll('[data-dataset]');
+    const floorTabsWrap= document.getElementById('floor-tabs-wrap');
+    const saveBtn      = document.getElementById('save-btn');
+    const resetBtn     = document.getElementById('reset-btn');
+    const itemList     = document.getElementById('item-list');
 
-    function currentFloor() { return state.data.floors[state.floorIdx]; }
-    function selectedApt() {
-      if (state.selectedApt == null) return null;
-      return currentFloor().apartments.find((a) => a.number === state.selectedApt) || null;
+    // === Active-view accessors ===
+    function activeData() { return state.dataset === 'parking' ? state.parking : state.apartments; }
+    function activeImage() {
+      if (state.dataset === 'parking') return state.parking.image;
+      return state.apartments.floors[state.floorIdx].image;
     }
-
-    function setDirty(v) {
-      state.dirty = v;
-      dirtyDot.classList.toggle('opacity-0', !v);
-      dirtyDot.classList.toggle('opacity-100', v);
+    function activeWidth()  { return activeData().image_width; }
+    function activeHeight() { return activeData().image_height; }
+    function activeItems() {
+      if (state.dataset === 'parking') return state.parking.spots;
+      return state.apartments.floors[state.floorIdx].apartments;
+    }
+    function selectedItem() {
+      if (state.selectedNumber == null) return null;
+      return activeItems().find((i) => i.number === state.selectedNumber) || null;
+    }
+    function isDirty() { return state.dirty.apartments || state.dirty.parking; }
+    function markDatasetDirty(v) {
+      state.dirty[state.dataset] = v;
+      const any = isDirty();
+      dirtyDot.classList.toggle('opacity-0', !any);
+      dirtyDot.classList.toggle('opacity-100', any);
     }
     function setStatus(msg) { statusEl.textContent = msg; }
 
+    // === Polygon math ===
     function parsePoly(s) {
-      return s.trim().split(/\s+/).map((pair) => {
+      if (!s) return [];
+      return s.trim().split(/\s+/).filter(Boolean).map((pair) => {
         const [x, y] = pair.split(',').map(Number);
         return { x, y };
       });
@@ -154,7 +206,6 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
     function serializePoly(pts) {
       return pts.map((p) => `${Math.round(p.x)},${Math.round(p.y)}`).join(' ');
     }
-
     function eventToSvg(e) {
       const pt = svg.createSVGPoint();
       pt.x = e.clientX; pt.y = e.clientY;
@@ -163,7 +214,6 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
       const local = pt.matrixTransform(ctm.inverse());
       return { x: local.x, y: local.y };
     }
-
     function projectOnSegment(p, a, b) {
       const dx = b.x - a.x, dy = b.y - a.y;
       const len2 = dx * dx + dy * dy;
@@ -174,8 +224,8 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
     }
     function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
 
-    function insertVertexOnNearestEdge(apt, point) {
-      const pts = parsePoly(apt.polygon);
+    function insertVertexOnNearestEdge(item, point) {
+      const pts = parsePoly(item.polygon);
       if (pts.length < 2) return false;
       let bestIdx = -1, bestDist = Infinity, bestProj = null;
       for (let i = 0; i < pts.length; i++) {
@@ -184,15 +234,13 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
         const d = dist(point, proj);
         if (d < bestDist) { bestDist = d; bestIdx = i; bestProj = proj; }
       }
-      // Require click to be within 40 SVG units of an edge to count as "add vertex".
       if (bestDist > 40) return false;
       pts.splice(bestIdx + 1, 0, { x: Math.round(bestProj.x), y: Math.round(bestProj.y) });
-      apt.polygon = serializePoly(pts);
+      item.polygon = serializePoly(pts);
       return true;
     }
-
     function deleteVertex(idx) {
-      const sel = selectedApt(); if (!sel) return;
+      const sel = selectedItem(); if (!sel) return;
       const pts = parsePoly(sel.polygon);
       if (pts.length <= 3) {
         setStatus('Vismaz 3 punkti ir vajadzīgi.');
@@ -200,60 +248,108 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
       }
       pts.splice(idx, 1);
       sel.polygon = serializePoly(pts);
-      setDirty(true);
+      markDatasetDirty(true);
       renderHandles();
       renderSelectedPolyOnly();
       updateInfo();
     }
 
+    // === Drawing mode: when an item has an empty polygon, click on the SVG to
+    // seed a 3-point starter polygon at the clicked location ===
+    function seedPolygonAt(item, point) {
+      const cx = Math.round(point.x);
+      const cy = Math.round(point.y);
+      // Small 60x60 starter square so the user can immediately see + drag.
+      const pts = [
+        { x: cx - 30, y: cy - 30 },
+        { x: cx + 30, y: cy - 30 },
+        { x: cx,      y: cy + 30 },
+      ];
+      item.polygon = serializePoly(pts);
+    }
+
+    // === Render ===
     function render() {
-      const fl = currentFloor();
-      floorImageEl.setAttribute('href', fl.image);
+      // Image + viewBox
+      svg.setAttribute('viewBox', `0 0 ${activeWidth()} ${activeHeight()}`);
+      floorImageEl.setAttribute('href', activeImage());
+      floorImageEl.setAttribute('width', String(activeWidth()));
+      floorImageEl.setAttribute('height', String(activeHeight()));
       polysG.innerHTML = '';
       handlesG.innerHTML = '';
-      for (const apt of fl.apartments) {
-        const isSel = apt.number === state.selectedApt;
+      for (const item of activeItems()) {
+        const isSel = item.number === state.selectedNumber;
         const g = document.createElementNS(SVG_NS, 'g');
-        g.dataset.aptNumber = apt.number;
-        const poly = document.createElementNS(SVG_NS, 'polygon');
-        poly.setAttribute('points', apt.polygon);
-        poly.setAttribute('fill', isSel ? 'rgba(52, 211, 153, 0.30)' : 'rgba(244, 244, 245, 0.12)');
-        poly.setAttribute('stroke', isSel ? '#34D399' : 'rgba(244, 244, 245, 0.55)');
-        poly.setAttribute('stroke-width', isSel ? '3' : '1.5');
-        poly.setAttribute('vector-effect', 'non-scaling-stroke');
-        poly.style.cursor = 'pointer';
-        poly.addEventListener('click', (e) => onPolygonClick(e, apt));
-        g.appendChild(poly);
+        g.dataset.number = item.number;
+        if (item.polygon && item.polygon.trim() !== '') {
+          const poly = document.createElementNS(SVG_NS, 'polygon');
+          poly.setAttribute('points', item.polygon);
+          poly.setAttribute('fill', isSel ? 'rgba(52, 211, 153, 0.30)' : 'rgba(244, 244, 245, 0.12)');
+          poly.setAttribute('stroke', isSel ? '#34D399' : 'rgba(244, 244, 245, 0.55)');
+          poly.setAttribute('stroke-width', isSel ? '3' : '1.5');
+          poly.setAttribute('vector-effect', 'non-scaling-stroke');
+          poly.style.cursor = 'pointer';
+          poly.addEventListener('click', (e) => onPolygonClick(e, item));
+          g.appendChild(poly);
 
-        // Centroid label
-        const pts = parsePoly(apt.polygon);
-        const cx = pts.reduce((s, q) => s + q.x, 0) / pts.length;
-        const cy = pts.reduce((s, q) => s + q.y, 0) / pts.length;
-        const lbl = document.createElementNS(SVG_NS, 'text');
-        lbl.setAttribute('x', String(cx));
-        lbl.setAttribute('y', String(cy));
-        lbl.setAttribute('text-anchor', 'middle');
-        lbl.setAttribute('dominant-baseline', 'middle');
-        lbl.setAttribute('fill', '#FAFAFA');
-        lbl.setAttribute('font-family', 'Cormorant Garamond, Georgia, serif');
-        lbl.setAttribute('font-size', isSel ? '28' : '20');
-        lbl.setAttribute('font-weight', '600');
-        lbl.setAttribute('pointer-events', 'none');
-        lbl.setAttribute('paint-order', 'stroke');
-        lbl.setAttribute('stroke', 'rgba(0,0,0,0.6)');
-        lbl.setAttribute('stroke-width', '3');
-        lbl.textContent = String(apt.number);
-        g.appendChild(lbl);
-
+          // Centroid label
+          const pts = parsePoly(item.polygon);
+          const cx = pts.reduce((s, q) => s + q.x, 0) / pts.length;
+          const cy = pts.reduce((s, q) => s + q.y, 0) / pts.length;
+          const lbl = document.createElementNS(SVG_NS, 'text');
+          lbl.setAttribute('x', String(cx));
+          lbl.setAttribute('y', String(cy));
+          lbl.setAttribute('text-anchor', 'middle');
+          lbl.setAttribute('dominant-baseline', 'middle');
+          lbl.setAttribute('fill', '#FAFAFA');
+          lbl.setAttribute('font-family', 'Cormorant Garamond, Georgia, serif');
+          lbl.setAttribute('font-size', isSel ? '28' : '20');
+          lbl.setAttribute('font-weight', '600');
+          lbl.setAttribute('pointer-events', 'none');
+          lbl.setAttribute('paint-order', 'stroke');
+          lbl.setAttribute('stroke', 'rgba(0,0,0,0.6)');
+          lbl.setAttribute('stroke-width', '3');
+          lbl.textContent = String(item.number);
+          g.appendChild(lbl);
+        }
         polysG.appendChild(g);
       }
       renderHandles();
+      renderItemList();
       updateInfo();
+    }
+
+    function renderItemList() {
+      itemList.innerHTML = '';
+      for (const item of activeItems()) {
+        const isSel = item.number === state.selectedNumber;
+        const isEmpty = !item.polygon || item.polygon.trim() === '';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset.itemNumber = String(item.number);
+        btn.textContent = String(item.number);
+        btn.title = isEmpty ? 'tukšs — izvēlies un klikšķi uz fona, lai sāktu' : 'ir poligons';
+        const baseClasses = [
+          'h-9', 'rounded-md', 'text-sm', 'font-medium', 'tabular-nums',
+          'border', 'transition-colors',
+        ];
+        const stateClasses = isSel
+          ? ['bg-emerald-500/25', 'border-emerald-400', 'text-emerald-100']
+          : isEmpty
+            ? ['bg-zinc-900', 'border-amber-500/40', 'border-dashed', 'text-amber-200/80', 'hover:border-amber-400']
+            : ['bg-zinc-800', 'border-zinc-700', 'text-zinc-100', 'hover:border-zinc-500'];
+        btn.className = [...baseClasses, ...stateClasses].join(' ');
+        btn.addEventListener('click', () => {
+          state.selectedNumber = item.number;
+          render();
+        });
+        itemList.appendChild(btn);
+      }
     }
 
     function renderHandles() {
       handlesG.innerHTML = '';
-      const sel = selectedApt(); if (!sel) return;
+      const sel = selectedItem(); if (!sel) return;
       const pts = parsePoly(sel.polygon);
       pts.forEach((p, idx) => {
         const c = document.createElementNS(SVG_NS, 'circle');
@@ -273,12 +369,11 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
     }
 
     function renderSelectedPolyOnly() {
-      const sel = selectedApt(); if (!sel) return;
-      const g = polysG.querySelector(`g[data-apt-number="${sel.number}"]`);
+      const sel = selectedItem(); if (!sel) return;
+      const g = polysG.querySelector(`g[data-number="${sel.number}"]`);
       if (!g) return;
       const poly = g.querySelector('polygon');
       if (poly) poly.setAttribute('points', sel.polygon);
-      // Recompute centroid label position too.
       const pts = parsePoly(sel.polygon);
       const cx = pts.reduce((s, q) => s + q.x, 0) / pts.length;
       const cy = pts.reduce((s, q) => s + q.y, 0) / pts.length;
@@ -287,27 +382,29 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
     }
 
     function updateInfo() {
-      const sel = selectedApt();
+      const sel = selectedItem();
       if (!sel) {
-        polygonMeta.textContent = '— izvēlies dzīvokli —';
+        polygonMeta.textContent = '— izvēlies elementu —';
         polygonInfo.textContent = '';
-      } else {
-        polygonMeta.textContent = `Nr. ${sel.number} · ${parsePoly(sel.polygon).length} punkti`;
-        polygonInfo.textContent = sel.polygon;
+        return;
       }
+      const isEmpty = !sel.polygon || sel.polygon.trim() === '';
+      const ptsCount = isEmpty ? 0 : parsePoly(sel.polygon).length;
+      const label = state.dataset === 'parking' ? 'Vieta' : 'Dzīvoklis';
+      polygonMeta.textContent = `${label} Nr. ${sel.number} · ${isEmpty ? 'tukšs' : ptsCount + ' punkti'}`;
+      polygonInfo.textContent = isEmpty ? '(klikšķi uz pamatfona, lai sāktu zīmēt)' : sel.polygon;
     }
 
-    function onPolygonClick(e, apt) {
+    function onPolygonClick(e, item) {
       e.stopPropagation();
-      if (apt.number !== state.selectedApt) {
-        state.selectedApt = apt.number;
+      if (item.number !== state.selectedNumber) {
+        state.selectedNumber = item.number;
         render();
         return;
       }
-      // Already selected — try to insert a vertex on the nearest edge.
       const point = eventToSvg(e);
-      if (insertVertexOnNearestEdge(apt, point)) {
-        setDirty(true);
+      if (insertVertexOnNearestEdge(item, point)) {
+        markDatasetDirty(true);
         renderHandles();
         renderSelectedPolyOnly();
         updateInfo();
@@ -319,8 +416,8 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
     function onHandlePointerDown(e, idx) {
       e.preventDefault();
       e.stopPropagation();
-      const sel = selectedApt(); if (!sel) return;
-      drag = { aptNumber: sel.number, idx, target: e.currentTarget };
+      const sel = selectedItem(); if (!sel) return;
+      drag = { number: sel.number, idx, target: e.currentTarget };
       drag.target.setPointerCapture?.(e.pointerId);
       drag.target.classList.add('dragging');
       window.addEventListener('pointermove', onPointerMove);
@@ -328,47 +425,53 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
     }
     function onPointerMove(e) {
       if (!drag) return;
-      const fl = currentFloor();
-      const apt = fl.apartments.find((a) => a.number === drag.aptNumber);
-      if (!apt) return;
-      const pts = parsePoly(apt.polygon);
+      const item = activeItems().find((i) => i.number === drag.number);
+      if (!item) return;
+      const pts = parsePoly(item.polygon);
       const p = eventToSvg(e);
-      // Clamp to image bounds.
-      p.x = Math.max(0, Math.min(state.data.image_width, p.x));
-      p.y = Math.max(0, Math.min(state.data.image_height, p.y));
+      p.x = Math.max(0, Math.min(activeWidth(), p.x));
+      p.y = Math.max(0, Math.min(activeHeight(), p.y));
       pts[drag.idx] = { x: Math.round(p.x), y: Math.round(p.y) };
-      apt.polygon = serializePoly(pts);
-      // Cheap live updates.
+      item.polygon = serializePoly(pts);
       drag.target.setAttribute('cx', String(pts[drag.idx].x));
       drag.target.setAttribute('cy', String(pts[drag.idx].y));
-      const poly = polysG.querySelector(`g[data-apt-number="${apt.number}"] polygon`);
-      if (poly) poly.setAttribute('points', apt.polygon);
-      setDirty(true);
+      const poly = polysG.querySelector(`g[data-number="${item.number}"] polygon`);
+      if (poly) poly.setAttribute('points', item.polygon);
+      markDatasetDirty(true);
     }
     function onPointerUp() {
       if (!drag) return;
       drag.target.classList.remove('dragging');
       drag = null;
       window.removeEventListener('pointermove', onPointerMove);
-      // Catch up the label position + info panel after drag ends.
       renderSelectedPolyOnly();
       updateInfo();
     }
 
-    // Background click to deselect.
+    // Background click: deselect, OR seed a new polygon if the currently
+    // selected item has none yet.
     svg.addEventListener('click', (e) => {
       if (e.target === svg || e.target === floorImageEl) {
-        if (state.selectedApt != null) {
-          state.selectedApt = null;
+        const sel = selectedItem();
+        if (sel && (!sel.polygon || sel.polygon.trim() === '')) {
+          const p = eventToSvg(e);
+          seedPolygonAt(sel, p);
+          markDatasetDirty(true);
+          render();
+          setStatus(`Sākts poligons. Velc punktus, lai pielāgotu.`);
+          return;
+        }
+        if (state.selectedNumber != null) {
+          state.selectedNumber = null;
           render();
         }
       }
     });
 
-    // Floor tabs
+    // === Tabs ===
     function setFloor(i) {
       state.floorIdx = i;
-      state.selectedApt = null;
+      state.selectedNumber = null;
       floorTabs.forEach((b, j) => {
         const active = j === i;
         b.classList.toggle('bg-emerald-500/15', active);
@@ -381,20 +484,51 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
       btn.addEventListener('click', () => setFloor(i));
     });
 
-    // Save
+    function setDataset(name) {
+      state.dataset = name;
+      state.selectedNumber = null;
+      datasetTabs.forEach((b) => {
+        const active = b.dataset.dataset === name;
+        b.classList.toggle('bg-burgundy', active);
+        b.classList.toggle('text-cream', active);
+        b.classList.toggle('border-burgundy', active);
+        b.classList.toggle('bg-zinc-900', !active);
+        b.classList.toggle('border-zinc-800', !active);
+        b.classList.toggle('text-zinc-300', !active);
+      });
+      // Floor tabs only relevant when editing apartments.
+      floorTabsWrap.classList.toggle('hidden', name !== 'apartments');
+      // Recompute dirty dot.
+      markDatasetDirty(state.dirty[name]);
+      render();
+    }
+    datasetTabs.forEach((btn) => {
+      btn.addEventListener('click', () => setDataset(btn.dataset.dataset));
+    });
+
+    // === Selection helpers from sidebar / outside (none yet, but ready for them) ===
+
+    // === Save ===
     saveBtn.addEventListener('click', async () => {
       saveBtn.disabled = true;
       setStatus('Saglabā…');
       try {
-        const res = await fetch('/api/admin/save-polygons', {
+        const endpoint = state.dataset === 'parking'
+          ? '/api/admin/save-parking-polygons'
+          : '/api/admin/save-polygons';
+        const payload = state.dataset === 'parking' ? state.parking : state.apartments;
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(state.data),
+          body: JSON.stringify(payload),
         });
         const body = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
         setStatus('Saglabāts. Vietne tiks atjaunota ~30 sekundēs.');
-        setDirty(false);
+        state.dirty[state.dataset] = false;
+        const any = isDirty();
+        dirtyDot.classList.toggle('opacity-0', !any);
+        dirtyDot.classList.toggle('opacity-100', any);
       } catch (err) {
         setStatus('Kļūda: ' + (err && err.message ? err.message : String(err)));
       } finally {
@@ -402,17 +536,25 @@ const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as {
       }
     });
 
-    // Reset
+    // === Reset (current dataset only) ===
     resetBtn.addEventListener('click', () => {
-      if (state.dirty && !confirm('Atjaunot visus poligonus uz pēdējo saglabāto versiju?')) return;
-      state.data = JSON.parse(snapshot);
-      state.selectedApt = null;
-      setDirty(false);
+      if (state.dirty[state.dataset] && !confirm('Atjaunot poligonus uz pēdējo saglabāto versiju?')) return;
+      if (state.dataset === 'parking') {
+        state.parking = JSON.parse(parkingSnapshot);
+      } else {
+        state.apartments = JSON.parse(apartmentsSnapshot);
+      }
+      state.selectedNumber = null;
+      state.dirty[state.dataset] = false;
+      const any = isDirty();
+      dirtyDot.classList.toggle('opacity-0', !any);
+      dirtyDot.classList.toggle('opacity-100', any);
       setStatus('Atiestatīts.');
       render();
     });
 
-    // Boot
+    // === Boot ===
+    setDataset('apartments');
     setFloor(0);
   </script>
 </body>
