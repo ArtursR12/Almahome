@@ -285,6 +285,30 @@ function typeLabel(type: string): string {
   </Section>
 
   <BottomCTA lang={lang} background="cream" />
+
+  <!-- Parking polygon tooltip — single shared element repositioned on hover. -->
+  <div
+    id="spot-tooltip"
+    role="tooltip"
+    aria-hidden="true"
+    class="pointer-events-none fixed z-50 hidden rounded-xl border border-burgundy/15 bg-cream/95 backdrop-blur shadow-[0_12px_30px_-12px_rgba(90,31,42,0.35)] px-4 py-3 text-sm transition-opacity duration-100"
+    style="opacity:0; transform: translate(-50%, calc(-100% - 12px));"
+  >
+    <div class="flex items-center gap-2">
+      <span id="spot-tooltip-dot" class="h-2 w-2 rounded-full" aria-hidden="true"></span>
+      <span id="spot-tooltip-status" class="text-[11px] uppercase tracking-[0.2em] text-ink-muted"></span>
+    </div>
+    <div class="mt-1.5 flex items-baseline gap-2">
+      <span id="spot-tooltip-number" class="font-serif text-2xl text-burgundy"></span>
+      <span id="spot-tooltip-type" class="text-xs text-ink-muted"></span>
+    </div>
+    <div id="spot-tooltip-price" class="mt-1 font-serif text-lg text-burgundy tabular-nums"></div>
+  </div>
+
+  <style>
+    .spot-polygon { transition: fill-opacity 200ms; }
+    .spot-polygon:hover { fill-opacity: 0.55 !important; }
+  </style>
 </BaseLayout>
 
 <script>
@@ -426,6 +450,67 @@ function typeLabel(type: string): string {
     r.addEventListener('mouseenter', () => hover(parseInt(r.dataset.number ?? '', 10)));
     r.addEventListener('mouseleave', () => hover(null));
   });
+
+  // === Polygon hover tooltip — mirrors the apartments floor-plan behavior. ===
+  // Skipped on touch-only devices: tap → form scroll, the tooltip would just flash.
+  const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const tip       = document.getElementById('spot-tooltip')!;
+  const tipDot    = document.getElementById('spot-tooltip-dot')!;
+  const tipStatus = document.getElementById('spot-tooltip-status')!;
+  const tipNumber = document.getElementById('spot-tooltip-number')!;
+  const tipType   = document.getElementById('spot-tooltip-type')!;
+  const tipPrice  = document.getElementById('spot-tooltip-price')!;
+
+  const dotByStatus: Record<string, string> = {
+    available: 'bg-status-available',
+    reserved:  'bg-status-reserved',
+    sold:      'bg-status-sold',
+  };
+
+  let activeTip: SVGPolygonElement | null = null;
+  tip.classList.remove('hidden');
+  tip.style.visibility = 'hidden';
+  tip.style.opacity = '0';
+
+  function populateTip(poly: SVGPolygonElement) {
+    const d = poly.dataset;
+    tipNumber.textContent = `Nr. ${d.number}`;
+    tipType.textContent   = d.typeLabel ?? '';
+    tipPrice.textContent  = d.price ?? '';
+    tipStatus.textContent = d.statusLabel ?? '';
+    tipDot.className = `h-2 w-2 rounded-full ${dotByStatus[d.status ?? 'available']}`;
+  }
+
+  function showTip(poly: SVGPolygonElement, e: PointerEvent) {
+    activeTip = poly;
+    populateTip(poly);
+    tip.style.left = `${e.clientX}px`;
+    tip.style.top  = `${e.clientY}px`;
+    tip.style.visibility = 'visible';
+    tip.style.opacity = '1';
+    tip.setAttribute('aria-hidden', 'false');
+  }
+
+  function hideTip(poly: SVGPolygonElement) {
+    if (activeTip !== poly) return;
+    activeTip = null;
+    tip.style.opacity = '0';
+    tip.style.visibility = 'hidden';
+    tip.setAttribute('aria-hidden', 'true');
+  }
+
+  function moveTip(e: PointerEvent) {
+    tip.style.left = `${e.clientX}px`;
+    tip.style.top  = `${e.clientY}px`;
+  }
+
+  if (supportsHover) {
+    document.querySelectorAll<SVGPolygonElement>('polygon.spot-polygon').forEach((poly) => {
+      poly.addEventListener('pointerenter', (e) => showTip(poly, e as PointerEvent));
+      poly.addEventListener('pointermove',  moveTip);
+      poly.addEventListener('pointerleave', () => hideTip(poly));
+    });
+  }
 
   // Deep link: /parkings?spot=12 prefills the form on load.
   const urlSpot = new URLSearchParams(location.search).get('spot');
