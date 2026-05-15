@@ -1,6 +1,8 @@
 {
   "number": 21,
   "type": "surface_ev_ready",
-  "price": 10000,
-  "status": "available"
+  "price": null,
+  "status": "sold",
+  "buyer_name": "Arturs Avakjans",
+  "linked_apartment": 9
 }
