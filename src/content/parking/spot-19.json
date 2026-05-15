@@ -1,6 +1,7 @@
 {
   "number": 19,
   "type": "surface_ev_ready",
-  "price": 10000,
-  "status": "available"
+  "price": null,
+  "status": "sold",
+  "linked_apartment": 15
 }
