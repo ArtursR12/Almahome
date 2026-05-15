@@ -3,10 +3,10 @@
   "floor": 2,
   "rooms": 2,
   "area_total": 42.7,
-  "price": 106800,
+  "price": null,
   "has_terrace": false,
   "has_balcony": true,
-  "status": "available",
+  "status": "sold",
   "rooms_breakdown": [
     {
       "name_lv": "Virtuve un istaba",
@@ -34,5 +34,8 @@
     }
   ],
   "floor_plan_image": "/images/floor-plans/apt-09.jpg",
-  "render_images": []
+  "render_images": [],
+  "buyer_name": "Arturs Avakjans",
+  "buyer_contact": "25880195/artus.avakjan@icloud.com",
+  "buyer_notes": "5%, Swed"
 }
