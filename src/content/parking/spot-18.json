@@ -1,6 +1,7 @@
 {
   "number": 18,
   "type": "surface",
-  "price": 7000,
-  "status": "available"
+  "price": null,
+  "status": "sold",
+  "linked_apartment": 15
 }
