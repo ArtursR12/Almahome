@@ -91,7 +91,7 @@
     "required": "required",
     "parking_label": "Parking space (optional)",
     "parking_none": "No parking",
-    "parking_group_surface": "Surface — 7 000 €",
+    "parking_group_surface": "Surface — 8 000 €",
     "parking_group_ev": "EV-ready — 10 000 €"
   },
   "home": {
@@ -299,7 +299,7 @@
     "empty": "No apartments match these filters.",
     "parking_title": "Parking",
     "parking_options": [
-      "Surface parking space: 7 000 EUR.",
+      "Surface parking space: 8 000 EUR.",
       "Surface parking space with the option to install an EV charger: 10 000 EUR."
     ],
     "parking_alt": "Parking layout plan",
@@ -307,7 +307,7 @@
   },
   "parkings": {
     "title": "Parking spaces — ALMA HOME",
-    "description": "23 parking spaces in a gated area at Mores iela 15. Spaces 19–23 are EV-ready. From 7 000 EUR.",
+    "description": "23 parking spaces in a gated area at Mores iela 15. Spaces 19–23 are EV-ready. From 8 000 EUR.",
     "hero_kicker": "Parking",
     "hero_title": "Pick your spot",
     "hero_subtitle": "23 spaces in a gated area. Spots Nr.19–23 are prepared for EV charging.",
