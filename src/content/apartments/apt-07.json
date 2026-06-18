@@ -3,10 +3,10 @@
   "floor": 1,
   "rooms": 3,
   "area_total": 76.3,
-  "price": 159000,
+  "price": null,
   "has_terrace": true,
   "has_balcony": false,
-  "status": "available",
+  "status": "reserved",
   "rooms_breakdown": [
     {
       "name_lv": "Virtuve un istaba",
