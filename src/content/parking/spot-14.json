@@ -2,5 +2,7 @@
   "number": 14,
   "type": "surface",
   "price": null,
-  "status": "sold"
+  "status": "sold",
+  "buyer_name": "Nauris Linkevičs Dz.8",
+  "buyer_notes": "Elektro"
 }
