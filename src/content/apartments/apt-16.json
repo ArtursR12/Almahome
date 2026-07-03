@@ -6,7 +6,7 @@
   "price": 116500,
   "has_terrace": false,
   "has_balcony": true,
-  "status": "available",
+  "status": "reserved",
   "rooms_breakdown": [
     {
       "name_lv": "Virtuve un istaba",
@@ -34,5 +34,6 @@
     }
   ],
   "floor_plan_image": "/images/floor-plans/apt-16.jpg",
-  "render_images": []
+  "render_images": [],
+  "buyer_name": "Peteris Kargins"
 }
