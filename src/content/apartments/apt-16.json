@@ -3,7 +3,7 @@
   "floor": 2,
   "rooms": 2,
   "area_total": 46,
-  "price": 116500,
+  "price": null,
   "has_terrace": false,
   "has_balcony": true,
   "status": "reserved",
