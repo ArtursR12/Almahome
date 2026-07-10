@@ -1,6 +1,9 @@
 {
   "number": 16,
   "type": "surface",
-  "price": 8000,
-  "status": "available"
+  "price": null,
+  "status": "reserved",
+  "buyer_name": "Andris Svarinskis",
+  "buyer_notes": "Dz.1. Parasta",
+  "linked_apartment": 1
 }
