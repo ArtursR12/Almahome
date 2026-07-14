@@ -3,10 +3,10 @@
   "floor": 2,
   "rooms": 2,
   "area_total": 62.7,
-  "price": 138500,
+  "price": null,
   "has_terrace": false,
   "has_balcony": true,
-  "status": "available",
+  "status": "reserved",
   "rooms_breakdown": [
     {
       "name_lv": "Virtuve un istaba",
@@ -46,5 +46,7 @@
     }
   ],
   "floor_plan_image": "/images/floor-plans/apt-13.jpg",
-  "render_images": []
+  "render_images": [],
+  "buyer_name": "Yulija Komarova",
+  "buyer_notes": "Kr,8-dz.3,  bez parkinga"
 }
