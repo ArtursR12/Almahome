@@ -1,6 +1,8 @@
 {
   "number": 5,
   "type": "surface",
-  "price": 8000,
-  "status": "available"
+  "price": null,
+  "status": "sold",
+  "buyer_name": "Kārlis Vītinš",
+  "linked_apartment": 5
 }
