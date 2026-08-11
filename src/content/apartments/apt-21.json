@@ -3,10 +3,10 @@
   "floor": 3,
   "rooms": 2,
   "area_total": 62.7,
-  "price": 140200,
+  "price": null,
   "has_terrace": false,
   "has_balcony": true,
-  "status": "available",
+  "status": "reserved",
   "rooms_breakdown": [
     {
       "name_lv": "Virtuve un istaba",
@@ -46,5 +46,6 @@
     }
   ],
   "floor_plan_image": "/images/floor-plans/apt-21.jpg",
-  "render_images": []
+  "render_images": [],
+  "buyer_name": "Jana Sniedzane"
 }
