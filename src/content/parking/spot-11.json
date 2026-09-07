@@ -1,6 +1,8 @@
 {
   "number": 11,
   "type": "surface",
-  "price": 10000,
-  "status": "available"
+  "price": null,
+  "status": "sold",
+  "buyer_name": "Maija Dzirgause",
+  "buyer_notes": "Dz.23. Electro"
 }
