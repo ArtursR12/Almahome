@@ -6,7 +6,7 @@
   "price": null,
   "has_terrace": false,
   "has_balcony": true,
-  "status": "reserved",
+  "status": "sold",
   "rooms_breakdown": [
     {
       "name_lv": "Virtuve un istaba",
@@ -35,5 +35,6 @@
   ],
   "floor_plan_image": "/images/floor-plans/apt-12.jpg",
   "render_images": [],
-  "buyer_name": "Edvins Griņoks"
+  "buyer_name": "Edvins Griņoks",
+  "buyer_notes": "Auto 12"
 }
