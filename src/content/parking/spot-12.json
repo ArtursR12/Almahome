@@ -2,5 +2,7 @@
   "number": 12,
   "type": "surface",
   "price": 10000,
-  "status": "available"
+  "status": "reserved",
+  "buyer_name": "Edvins Griņoks",
+  "linked_apartment": 12
 }
